@@ -20,8 +20,10 @@ class MigrationContractTests(unittest.TestCase):
     def test_rpc_deriva_identidade_do_auth_uid(self):
         trecho_nova_rpc = cls_trecho_nova_rpc(self.sql)
         self.assertNotIn("p_usuario_email", trecho_nova_rpc)
-        self.assertIn("v_user_id uuid := auth.uid()", trecho_nova_rpc)
-        self.assertIn("where user_id = v_user_id", trecho_nova_rpc)
+        self.assertIn("p_user_id uuid", trecho_nova_rpc)
+        self.assertIn("v_auth_user_id uuid := auth.uid()", trecho_nova_rpc)
+        self.assertIn("p_user_id is distinct from v_auth_user_id", trecho_nova_rpc)
+        self.assertIn("where user_id = p_user_id", trecho_nova_rpc)
 
     def test_rpc_preserva_email_apenas_para_compatibilidade(self):
         trecho_nova_rpc = cls_trecho_nova_rpc(self.sql)
@@ -101,6 +103,7 @@ class MigrationContractTests(unittest.TestCase):
 
     def test_rpc_insere_identidade_do_lote_a_partir_dos_parametros_validados(self):
         trecho_nova_rpc = cls_trecho_nova_rpc(self.sql)
+        self.assertIn("p_user_id,", trecho_nova_rpc)
         self.assertIn("p_mes_referencia,", trecho_nova_rpc)
         self.assertIn("p_instituicao_financeira,", trecho_nova_rpc)
         self.assertIn("p_tipo_documento,", trecho_nova_rpc)
@@ -117,7 +120,7 @@ class MigrationContractTests(unittest.TestCase):
         self.assertEqual(self.sql.count("delete from public.transacoes"), 1)
 
     def test_rpc_preserva_assinatura_e_permissoes_atuais(self):
-        assinatura = "public.substituir_lote_importado(text, text, text, jsonb)"
+        assinatura = "public.substituir_lote_importado(uuid, text, text, text, jsonb)"
         cabecalho = self.sql.split(
             "create or replace function public.substituir_lote_importado(",
             1,
@@ -128,6 +131,7 @@ class MigrationContractTests(unittest.TestCase):
         self.assertEqual(
             parametros,
             (
+                "p_user_id uuid, "
                 "p_mes_referencia text, "
                 "p_instituicao_financeira text, "
                 "p_tipo_documento text, "
@@ -153,6 +157,7 @@ class MigrationContractTests(unittest.TestCase):
         )[0]
 
         self.assertIn('supabase.rpc("substituir_lote_importado"', trecho_importacao)
+        self.assertIn('"p_user_id": usuario_id', trecho_importacao)
         self.assertNotIn(
             'supabase.table("transacoes").insert(transacoes_para_inserir)',
             APP_SOURCE,

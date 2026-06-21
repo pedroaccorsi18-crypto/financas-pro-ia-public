@@ -11,8 +11,9 @@ altera schema, migrations, policies ou autenticação.
 - Tentativas de INSERT com `user_id` forjado e INSERT de transação com
   `user_id` nulo.
 - Tentativa de transferir a propriedade de uma transação via UPDATE.
-- RPC `substituir_lote_importado` com `user_id` forjado no payload e validação
-  específica do proprietário e do lote final.
+- RPC `substituir_lote_importado` com `user_id` forjado no payload,
+  `p_user_id` forjado no parâmetro e validação específica do proprietário e
+  do lote final.
 - SELECT, INSERT e RPC sem sessão autenticada.
 
 ## Proteções

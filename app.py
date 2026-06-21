@@ -51,16 +51,28 @@ def mostrar_erro_seguro(erro: Exception, email_usuario: str = None) -> str:
     return "Ocorreu um problema interno. Tente novamente mais tarde."
 
 
-# --- CONSTANTE CENTRALIZADA DE CATEGORIAS FINANCEIRAS ---
-CATEGORIAS_VALIDAS = [
-    "Financiamentos", 
+# --- CONSTANTES CENTRALIZADAS DE CATEGORIAS FINANCEIRAS ---
+CATEGORIAS_DESPESA = [
+    "Moradia",
     "Mercado", 
-    "Estacionamento & Pedágio", 
-    "Lazer & Gastronomia", 
+    "Alimentação Fora",
     "Transporte", 
+    "Saúde",
+    "Educação",
+    "Lazer",
     "Assinaturas & Serviços", 
+    "Impostos & Taxas",
+    "Dívidas & Financiamentos",
     "Compras Gerais"
 ]
+CATEGORIAS_RECEITA = [
+    "Salário",
+    "Freelance",
+    "Rendimentos",
+    "Reembolso",
+    "Outras Receitas",
+]
+CATEGORIAS_VALIDAS = CATEGORIAS_DESPESA + CATEGORIAS_RECEITA
 
 def limpar_sessao_usuario(preservar_cliente_supabase=False):
     """Remove dados do usuário anterior, incluindo estados automáticos de widgets."""
@@ -301,11 +313,22 @@ elif st.session_state.autenticado:
     st.sidebar.markdown("---")
     
     st.sidebar.subheader("➕ Lançamento Manual")
+    tipo_transacao = st.sidebar.selectbox(
+        "Tipo",
+        ["Despesa", "Receita"],
+        key="tipo_transacao_manual",
+    )
     with st.sidebar.form("form_transacao", clear_on_submit=True):
         desc = st.text_input("Descrição (Ex: Uber)")
         val = st.number_input("Valor (R$)", min_value=0.0, format="%.2f")
-        tipo_transacao = st.selectbox("Tipo", ["Despesa", "Receita"])
-        cat_manual = st.selectbox("Categoria", CATEGORIAS_VALIDAS)
+        categorias_manuais = (
+            CATEGORIAS_RECEITA if tipo_transacao == "Receita" else CATEGORIAS_DESPESA
+        )
+        cat_manual = st.selectbox(
+            "Categoria",
+            categorias_manuais,
+            key=f"categoria_manual_{tipo_transacao.lower()}",
+        )
         
         ano_atual = datetime.datetime.now().year
         meses_ano = [f"{m:02d}/{ano_atual}" for m in range(1, 13)]
@@ -324,7 +347,7 @@ elif st.session_state.autenticado:
                             "descricao": desc.strip(), 
                             "valor": float(val), 
                             "tipo": tipo_transacao,
-                            "categoria": cat_manual if cat_manual in CATEGORIAS_VALIDAS else "Compras Gerais",
+                            "categoria": cat_manual if cat_manual in categorias_manuais else categorias_manuais[-1],
                             "mes_referencia": mes_manual,
                             "meta_fatura": 0.0,
                             "instituicao_financeira": banco_manual.strip() if banco_manual else "Manual",
@@ -568,6 +591,7 @@ elif st.session_state.autenticado:
 
                             if not lotes_sao_iguais(transacoes_para_inserir, lote_existente):
                                 supabase.rpc("substituir_lote_importado", {
+                                    "p_user_id": usuario_id,
                                     "p_mes_referencia": pre_vis["mes_referencia"].strip(),
                                     "p_instituicao_financeira": pre_vis["instituicao"].strip(),
                                     "p_tipo_documento": pre_vis["tipo_documento"],
@@ -635,7 +659,7 @@ elif st.session_state.autenticado:
                             txt_tendencia_pagamentos = f'<span style="color: #a3b899; font-size: 12px; font-weight: 600;">▲ {var_pag:.1f}%</span>' if var_pag > 0 else f'<span style="color: #ef4444; font-size: 12px; font-weight: 600;">▼ {abs(var_pag):.1f}%</span>'
                         if bal_ant > 0:
                             var_bal = ((valor_balanco_final - bal_ant) / bal_ant) * 100
-                            txt_tendencia_balanco = f'<span style="color: #a3b899; font-size: 12px; font-weight: 600;">▼ {abs(var_bal):.1f}%</span>' if var_bal < 0 else f'<span style="color: #ef4444; font-size: 12px; font-weight: 600;">▲ {var_bal:.1f}%</span>'
+                            txt_tendencia_balanco = f'<span style="color: #a3b899; font-size: 12px; font-weight: 600;">▲ {var_bal:.1f}%</span>' if var_bal > 0 else f'<span style="color: #ef4444; font-size: 12px; font-weight: 600;">▼ {abs(var_bal):.1f}%</span>'
                     except Exception as e_trend:
                         msg = mostrar_erro_seguro(e_trend, email_usuario)
                         st.error(msg)
@@ -673,7 +697,7 @@ elif st.session_state.autenticado:
             try:
                 with st.expander("⚙️ Definir ou Ajustar Teto de Gasto por Grupo"):
                     col_m1, col_m2, col_m3 = st.columns([40, 40, 20])
-                    with col_m1: cat_meta_sel = st.selectbox("Escolha a Categoria:", CATEGORIAS_VALIDAS, key="cat_meta")
+                    with col_m1: cat_meta_sel = st.selectbox("Escolha a Categoria:", CATEGORIAS_DESPESA, key="cat_meta")
                     with col_m2: valor_meta_sel = st.number_input("Teto Limite Desejado (R$):", min_value=0.0, format="%.2f", key="val_meta")
                     with col_m3:
                         st.write("<br>", unsafe_allow_html=True)
@@ -692,7 +716,7 @@ elif st.session_state.autenticado:
                 dict_metas = {m["categoria"]: float(m["valor_meta"]) for m in res_metas.data} if res_metas.data else {}
                 df_despesas = df_mes[df_mes["tipo"] == "Despesa"]
                 
-                for cat in CATEGORIAS_VALIDAS:
+                for cat in CATEGORIAS_DESPESA:
                     gasto_atual = df_despesas[df_despesas["categoria"] == cat]["valor"].sum() if not df_despesas.empty else 0.0
                     meta_cadastrada = dict_metas.get(cat, 0.0)
                     
@@ -732,7 +756,7 @@ elif st.session_state.autenticado:
                 with col_subtotais:
                     df_ordenado_lista = df_despesas.groupby("categoria")["valor"].sum().sort_values(ascending=False).reset_index()
                     todas_categorias_ordenadas = df_ordenado_lista["categoria"].tolist()
-                    for c in CATEGORIAS_VALIDAS:
+                    for c in CATEGORIAS_DESPESA:
                         if c not in todas_categorias_ordenadas: todas_categorias_ordenadas.append(c)
                     
                     for cat in todas_categorias_ordenadas:
@@ -752,7 +776,7 @@ elif st.session_state.autenticado:
         st.markdown("---")
 
         st.subheader("🕵️‍♂️ Central de Auditoria Contábil")
-        for cat in CATEGORIAS_VALIDAS:
+        for cat in CATEGORIAS_DESPESA:
             try:
                 df_filtrado_categoria = df_mes[(df_mes["categoria"] == cat) & (df_mes["tipo"] == "Despesa")][["descricao", "valor", "instituicao_financeira", "origem_importacao"]]
                 if not df_filtrado_categoria.empty:

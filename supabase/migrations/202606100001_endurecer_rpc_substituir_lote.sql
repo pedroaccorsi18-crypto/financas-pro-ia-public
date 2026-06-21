@@ -1,6 +1,7 @@
 begin;
 
 create or replace function public.substituir_lote_importado(
+    p_user_id uuid,
     p_mes_referencia text,
     p_instituicao_financeira text,
     p_tipo_documento text,
@@ -12,11 +13,15 @@ security invoker
 set search_path = public
 as $$
 declare
-    v_user_id uuid := auth.uid();
+    v_auth_user_id uuid := auth.uid();
     v_email text := lower(trim(coalesce(auth.jwt() ->> 'email', '')));
 begin
-    if v_user_id is null then
+    if v_auth_user_id is null then
         raise exception 'Usuario nao autenticado';
+    end if;
+
+    if p_user_id is null or p_user_id is distinct from v_auth_user_id then
+        raise exception 'Usuario do lote invalido';
     end if;
 
     if p_mes_referencia is null
@@ -48,8 +53,11 @@ begin
            or jsonb_typeof(item->'mes_referencia') is distinct from 'string'
            or jsonb_typeof(item->'meta_fatura') is distinct from 'number'
            or jsonb_typeof(item->'instituicao_financeira') is distinct from 'string'
+           or nullif(trim(item->>'instituicao_financeira'), '') is null
            or jsonb_typeof(item->'tipo_documento') is distinct from 'string'
+           or nullif(trim(item->>'tipo_documento'), '') is null
            or jsonb_typeof(item->'origem_importacao') is distinct from 'string'
+           or nullif(trim(item->>'origem_importacao'), '') is null
     ) then
         raise exception 'Payload de transacoes possui campos ausentes ou tipos invalidos';
     end if;
@@ -69,7 +77,7 @@ begin
     end if;
 
     delete from public.transacoes
-    where user_id = v_user_id
+    where user_id = p_user_id
       and mes_referencia = p_mes_referencia
       and instituicao_financeira = p_instituicao_financeira
       and tipo_documento = p_tipo_documento
@@ -89,8 +97,8 @@ begin
         origem_importacao
     )
     select
-        v_user_id,
-        v_email,
+        p_user_id,
+        coalesce(nullif(lower(trim(item->>'usuario_email')), ''), v_email),
         trim(item->>'descricao'),
         (item->>'valor')::numeric,
         item->>'tipo',
@@ -105,8 +113,10 @@ end;
 $$;
 
 revoke all on function public.substituir_lote_importado(text, text, text, jsonb)
+    from public, anon, authenticated;
+revoke all on function public.substituir_lote_importado(uuid, text, text, text, jsonb)
     from public, anon;
-grant execute on function public.substituir_lote_importado(text, text, text, jsonb)
+grant execute on function public.substituir_lote_importado(uuid, text, text, text, jsonb)
     to authenticated;
 
 commit;

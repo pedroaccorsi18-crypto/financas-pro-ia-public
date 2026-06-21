@@ -30,7 +30,7 @@ class FinanceCoreTests(unittest.TestCase):
                 "mes_referencia": "05/2026",
             },
         ]
-        self.assertEqual(calcular_resumo_financeiro(transacoes)["balanco"], 350.0)
+        self.assertEqual(calcular_resumo_financeiro(transacoes)["balanco"], -350.0)
 
     def test_nao_repete_total_do_mesmo_documento(self):
         base = {
@@ -41,7 +41,7 @@ class FinanceCoreTests(unittest.TestCase):
             "tipo_documento": "Fatura",
             "mes_referencia": "05/2026",
         }
-        self.assertEqual(calcular_resumo_financeiro([base, base])["balanco"], 100.0)
+        self.assertEqual(calcular_resumo_financeiro([base, base])["balanco"], -100.0)
 
     def test_inclui_movimentos_manuais_no_balanco(self):
         transacoes = [
@@ -49,7 +49,13 @@ class FinanceCoreTests(unittest.TestCase):
             {"tipo": "Despesa", "valor": 20, "meta_fatura": 0},
             {"tipo": "Receita", "valor": 5, "meta_fatura": 0},
         ]
-        self.assertEqual(calcular_resumo_financeiro(transacoes)["balanco"], 115.0)
+        self.assertEqual(calcular_resumo_financeiro(transacoes)["balanco"], -115.0)
+
+    def test_receita_manual_sem_despesa_gera_balanco_positivo(self):
+        transacoes = [
+            {"tipo": "Receita", "valor": 6500, "meta_fatura": 0},
+        ]
+        self.assertEqual(calcular_resumo_financeiro(transacoes)["balanco"], 6500.0)
 
     def test_meses_invalidos_sao_descartados(self):
         self.assertTrue(mes_referencia_valido("12/2025"))

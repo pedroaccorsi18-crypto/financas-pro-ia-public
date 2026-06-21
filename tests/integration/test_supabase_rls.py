@@ -451,10 +451,10 @@ class SupabaseRlsIntegrationTests(unittest.TestCase):
         descricao_a = f"{self.marcador}-rpc-a"
         descricao_b = f"{self.marcador}-rpc-b"
         tentativa_a_no_lote_b = f"{self.marcador}-rpc-a-lote-b"
-        self._chamar_rpc(self.cliente_a, self.instituicao_a, descricao_a, self.user_b)
-        self._chamar_rpc(self.cliente_b, self.instituicao_b, descricao_b, self.user_a)
+        self._chamar_rpc(self.cliente_a, self.instituicao_a, descricao_a, self.user_a, self.user_b)
+        self._chamar_rpc(self.cliente_b, self.instituicao_b, descricao_b, self.user_b, self.user_a)
         self._chamar_rpc(
-            self.cliente_a, self.instituicao_b, tentativa_a_no_lote_b, self.user_b
+            self.cliente_a, self.instituicao_b, tentativa_a_no_lote_b, self.user_a, self.user_b
         )
 
         lote_a = self._buscar_lote(
@@ -475,6 +475,26 @@ class SupabaseRlsIntegrationTests(unittest.TestCase):
                 self.cliente_a.table("transacoes")
                 .select("id")
                 .eq("descricao", descricao_b)
+                .execute()
+            ),
+            [],
+            )
+
+    def test_rpc_rejeita_p_user_id_forjado(self):
+        descricao = f"{self.marcador}-rpc-p-user-id-forjado"
+        with self.assertRaises(Exception):
+            self._chamar_rpc(
+                self.cliente_a,
+                f"{self.marcador}-rpc-p-user-id-forjado",
+                descricao,
+                self.user_b,
+                self.user_a,
+            )
+        self.assertEqual(
+            _linhas(
+                self.cliente_a.table("transacoes")
+                .select("id")
+                .eq("descricao", descricao)
                 .execute()
             ),
             [],
@@ -524,6 +544,7 @@ class SupabaseRlsIntegrationTests(unittest.TestCase):
                 f"{self.marcador}-anon-rpc-instituicao",
                 descricao_rpc,
                 self.user_a,
+                self.user_a,
             )
         self.assertEqual(
             _linhas(
@@ -546,10 +567,11 @@ class SupabaseRlsIntegrationTests(unittest.TestCase):
         self.assertEqual(len(linhas), 1)
         return linhas[0]
 
-    def _chamar_rpc(self, cliente, instituicao, descricao, user_id_forjado):
+    def _chamar_rpc(self, cliente, instituicao, descricao, p_user_id, user_id_forjado):
         cliente.rpc(
             "substituir_lote_importado",
             {
+                "p_user_id": p_user_id,
                 "p_mes_referencia": self.mes_referencia,
                 "p_instituicao_financeira": instituicao,
                 "p_tipo_documento": self.tipo_documento,

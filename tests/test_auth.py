@@ -255,6 +255,19 @@ class AuthTests(unittest.TestCase):
         self.assertIn("Verifique sua caixa de entrada ou spam", APP_SOURCE)
         self.assertIn("Se você acabou de criar a conta", APP_SOURCE)
 
+    def test_app_usa_categorias_de_receita_no_lancamento_manual(self):
+        trecho = APP_SOURCE.split('with st.sidebar.form("form_transacao"', 1)[-1]
+        trecho = trecho.split('ano_atual = datetime.datetime.now().year', 1)[0]
+        trecho_antes_form = APP_SOURCE.split('with st.sidebar.form("form_transacao"', 1)[0]
+
+        self.assertIn("key=\"tipo_transacao_manual\"", trecho_antes_form)
+        self.assertIn("CATEGORIAS_RECEITA if tipo_transacao == \"Receita\"", trecho)
+        self.assertIn("else CATEGORIAS_DESPESA", trecho)
+        self.assertIn("key=f\"categoria_manual_{tipo_transacao.lower()}\"", trecho)
+        self.assertIn("\"Salário\"", APP_SOURCE)
+        self.assertIn("\"Moradia\"", APP_SOURCE)
+        self.assertIn("\"Dívidas & Financiamentos\"", APP_SOURCE)
+
     def test_app_nao_falha_quando_smtp_nao_esta_configurado(self):
         trecho = APP_SOURCE.split("def disparar_bot_fiscal_email", 1)[-1]
         trecho = trecho.split("# ==========================================", 1)[0]

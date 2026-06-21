@@ -69,9 +69,9 @@ def calcular_resumo_financeiro(transacoes) -> dict[str, float]:
 
     total_documentos = sum(totais_documentos.values(), Decimal("0.00"))
     balanco = (
-        total_documentos + despesas_manuais - receitas_manuais
+        receitas_manuais - (total_documentos + despesas_manuais)
         if totais_documentos
-        else despesas - receitas
+        else receitas - despesas
     )
 
     return {
