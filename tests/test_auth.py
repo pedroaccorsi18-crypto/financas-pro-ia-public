@@ -222,6 +222,15 @@ class AuthTests(unittest.TestCase):
         self.assertIn("st.session_state.autenticado = False", trecho)
         self.assertIn("st.rerun()", trecho)
 
+    def test_app_preserva_config_do_cliente_supabase_apos_login(self):
+        trecho = APP_SOURCE.split("def limpar_sessao_usuario", 1)[-1]
+        trecho = trecho.split("def iniciar_sessao_autenticada", 1)[0]
+
+        self.assertIn('st.session_state.get("_supabase_client")', trecho)
+        self.assertIn('st.session_state.get("_supabase_config")', trecho)
+        self.assertIn('st.session_state["_supabase_client"] = cliente_supabase', trecho)
+        self.assertIn('st.session_state["_supabase_config"] = config_supabase', trecho)
+
     def test_app_avisa_usuario_quando_logout_nao_e_confirmado(self):
         trecho = APP_SOURCE.split("def encerrar_sessao_usuario():", 1)[-1]
         trecho = trecho.split("st.set_page_config", 1)[0]
@@ -238,6 +247,13 @@ class AuthTests(unittest.TestCase):
         self.assertIn("enviar_email_recuperacao_senha(email_recuperacao)", APP_SOURCE)
         self.assertIn("Se houver uma conta associada a este e-mail", APP_SOURCE)
         self.assertNotIn("e-mail não encontrado", APP_SOURCE.lower())
+
+    def test_app_orienta_confirmacao_de_email_apos_cadastro(self):
+        self.assertIn('resultado == "confirmar_email"', APP_SOURCE)
+        self.assertIn("st.session_state.aviso_sessao", APP_SOURCE)
+        self.assertIn("confirme o e-mail de confirmação", APP_SOURCE)
+        self.assertIn("Verifique sua caixa de entrada ou spam", APP_SOURCE)
+        self.assertIn("Se você acabou de criar a conta", APP_SOURCE)
 
     def test_app_nao_falha_quando_smtp_nao_esta_configurado(self):
         trecho = APP_SOURCE.split("def disparar_bot_fiscal_email", 1)[-1]

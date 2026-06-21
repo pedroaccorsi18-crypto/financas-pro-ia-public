@@ -65,10 +65,13 @@ CATEGORIAS_VALIDAS = [
 def limpar_sessao_usuario(preservar_cliente_supabase=False):
     """Remove dados do usuário anterior, incluindo estados automáticos de widgets."""
     cliente_supabase = st.session_state.get("_supabase_client") if preservar_cliente_supabase else None
+    config_supabase = st.session_state.get("_supabase_config") if preservar_cliente_supabase else None
     for chave in list(st.session_state.keys()):
         del st.session_state[chave]
     if cliente_supabase is not None:
         st.session_state["_supabase_client"] = cliente_supabase
+    if config_supabase is not None:
+        st.session_state["_supabase_config"] = config_supabase
 
 def iniciar_sessao_autenticada(email_usuario, usuario_id):
     """Inicia uma sessão limpa e vinculada exclusivamente ao usuário autenticado."""
@@ -205,7 +208,10 @@ if not st.session_state.autenticado and st.session_state.tela_atual == "login":
                     st.toast("Autenticação autorizada com sucesso!", icon="🔐")
                     st.rerun()
                 else: 
-                    st.error("E-mail ou senha incorretos.")
+                    st.error(
+                        "E-mail ou senha incorretos. Se você acabou de criar a conta, "
+                        "confirme o e-mail de confirmação antes de entrar."
+                    )
             else: 
                 st.warning("Por favor, preencha todos os campos.")
     if st.button("Não tem uma conta? Cadastre-se aqui"):
@@ -257,7 +263,10 @@ elif not st.session_state.autenticado and st.session_state.tela_atual == "cadast
                         if resultado == "existe": 
                             st.error("Esse e-mail já está cadastrado!")
                         elif resultado == "confirmar_email":
-                            st.success("Conta criada! Confirme o e-mail antes de entrar.")
+                            st.session_state.aviso_sessao = (
+                                "Conta criada! Verifique sua caixa de entrada ou spam, "
+                                "confirme o e-mail de confirmação e depois entre com seu e-mail e senha."
+                            )
                             st.session_state.tela_atual = "login"
                             st.rerun()
                         elif resultado is True:

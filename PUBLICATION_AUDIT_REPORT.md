@@ -82,19 +82,21 @@ Achados:
 
 ## Testes
 
-Comando tentado:
+Comando executado nesta revisao:
 
 ```powershell
-..\.venv\Scripts\python.exe -m unittest discover -s tests -v
+python -m unittest discover -s tests -v
 ```
 
 Resultado:
 
 ```text
-Unable to create process using the local virtualenv Python: Acesso negado.
+Ran 62 tests
+OK (skipped=1)
 ```
 
-Nao havia `python`, `py`, `python3` ou `uv` disponivel no PATH desta sessao. Portanto, os testes nao foram executados por bloqueio do runtime local, nao por falha identificada na pasta limpa.
+O teste pulado e a suite opt-in de integracao RLS, que exige um projeto Supabase
+de teste com variaveis reais configuradas.
 
 ## Recomendacao antes de publicar
 
