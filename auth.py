@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 LIMITE_TENTATIVAS_LOGIN = 5
 JANELA_TENTATIVAS_SEGUNDOS = 300
 CHAVE_CLIENTE_SUPABASE_SESSAO = "_supabase_client"
+CHAVE_CONFIG_SUPABASE_SESSAO = "_supabase_config"
 
 
 def validar_chave_publica_supabase(chave: str) -> None:
@@ -48,13 +49,20 @@ def mostrar_erro_seguro(erro: Exception, email_usuario: str = None) -> str:
 
 def obter_conexao_supabase() -> Client:
     """Retorna um cliente exclusivo da sessao Streamlit atual."""
-    if CHAVE_CLIENTE_SUPABASE_SESSAO not in st.session_state:
-        chave = st.secrets["SUPABASE_KEY"]
+    url = st.secrets["SUPABASE_URL"]
+    chave = st.secrets["SUPABASE_KEY"]
+    config_atual = (url, chave)
+
+    if (
+        CHAVE_CLIENTE_SUPABASE_SESSAO not in st.session_state
+        or st.session_state.get(CHAVE_CONFIG_SUPABASE_SESSAO) != config_atual
+    ):
         validar_chave_publica_supabase(chave)
         st.session_state[CHAVE_CLIENTE_SUPABASE_SESSAO] = create_client(
-            st.secrets["SUPABASE_URL"],
+            url,
             chave,
         )
+        st.session_state[CHAVE_CONFIG_SUPABASE_SESSAO] = config_atual
     return st.session_state[CHAVE_CLIENTE_SUPABASE_SESSAO]
 
 

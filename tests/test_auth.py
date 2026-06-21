@@ -88,6 +88,40 @@ class AuthTests(unittest.TestCase):
         self.assertIsNot(primeiro, segundo)
         self.assertEqual(len(chamadas), 2)
 
+    def test_cliente_supabase_e_recriado_quando_configuracao_muda(self):
+        clientes = [object(), object()]
+        chamadas = []
+
+        def criar_cliente(url, chave):
+            chamadas.append((url, chave))
+            return clientes[len(chamadas) - 1]
+
+        with (
+            patch.object(auth.st, "session_state", SessionStateFake()),
+            patch.object(auth, "create_client", criar_cliente),
+        ):
+            with patch.object(
+                auth.st,
+                "secrets",
+                {"SUPABASE_URL": "url-antiga", "SUPABASE_KEY": "sb_publishable_antiga"},
+            ):
+                primeiro = auth.obter_conexao_supabase()
+            with patch.object(
+                auth.st,
+                "secrets",
+                {"SUPABASE_URL": "url-nova", "SUPABASE_KEY": "sb_publishable_nova"},
+            ):
+                segundo = auth.obter_conexao_supabase()
+
+        self.assertIsNot(primeiro, segundo)
+        self.assertEqual(
+            chamadas,
+            [
+                ("url-antiga", "sb_publishable_antiga"),
+                ("url-nova", "sb_publishable_nova"),
+            ],
+        )
+
     def test_bloqueia_jwt_service_role_antes_de_criar_cliente(self):
         payload = base64.urlsafe_b64encode(
             json.dumps({"role": "service_role"}).encode("utf-8")
