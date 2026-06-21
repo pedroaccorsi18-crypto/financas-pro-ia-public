@@ -139,6 +139,27 @@ class AuthTests(unittest.TestCase):
 
         self.assertFalse(auth.validar_sessao_atual())
 
+    def test_envia_recuperacao_de_senha_normalizando_email(self):
+        chamadas = []
+        auth.supabase = SimpleNamespace(
+            auth=SimpleNamespace(
+                reset_password_for_email=lambda email: chamadas.append(email)
+            )
+        )
+
+        self.assertTrue(auth.enviar_email_recuperacao_senha(" Pessoa@Exemplo.com "))
+        self.assertEqual(chamadas, ["pessoa@exemplo.com"])
+
+    def test_recuperacao_de_senha_retorna_falha_sem_lancar_erro(self):
+        def falhar(_email):
+            raise RuntimeError("servico indisponivel")
+
+        auth.supabase = SimpleNamespace(
+            auth=SimpleNamespace(reset_password_for_email=falhar)
+        )
+
+        self.assertFalse(auth.enviar_email_recuperacao_senha("pessoa@exemplo.com"))
+
     def test_logout_revoga_sessao_auth(self):
         chamadas = []
         auth.supabase = SimpleNamespace(
@@ -177,6 +198,12 @@ class AuthTests(unittest.TestCase):
         self.assertNotIn("client = inicializar_cliente_gemini()", APP_SOURCE)
         self.assertIn("def obter_cliente_gemini():", APP_SOURCE)
         self.assertIn("obter_cliente_gemini(),", APP_SOURCE)
+
+    def test_app_tem_fluxo_de_recuperacao_de_senha_sem_enumerar_usuario(self):
+        self.assertIn('st.session_state.tela_atual = "recuperar_senha"', APP_SOURCE)
+        self.assertIn("enviar_email_recuperacao_senha(email_recuperacao)", APP_SOURCE)
+        self.assertIn("Se houver uma conta associada a este e-mail", APP_SOURCE)
+        self.assertNotIn("e-mail não encontrado", APP_SOURCE.lower())
 
     def test_app_nao_falha_quando_smtp_nao_esta_configurado(self):
         trecho = APP_SOURCE.split("def disparar_bot_fiscal_email", 1)[-1]

@@ -118,6 +118,17 @@ def fazer_login(email: str, senha: str) -> dict | bool:
     return False
 
 
+def enviar_email_recuperacao_senha(email: str) -> bool:
+    """Solicita ao Supabase Auth o envio do e-mail de recuperacao de senha."""
+    email_limpo = email.strip().lower()
+    try:
+        supabase.auth.reset_password_for_email(email_limpo)
+        return True
+    except Exception:
+        logger.warning("Falha ao solicitar recuperacao de senha", exc_info=True)
+        return False
+
+
 def validar_sessao_atual() -> dict | bool:
     """Revalida a identidade atual diretamente no Supabase Auth."""
     try:

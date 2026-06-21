@@ -8,6 +8,7 @@ from auth import (
     auditar_saude_plataforma,
     cadastrar_usuario,
     encerrar_autenticacao_supabase,
+    enviar_email_recuperacao_senha,
     fazer_login,
     mostrar_erro_seguro,
     supabase,
@@ -209,6 +210,35 @@ if not st.session_state.autenticado and st.session_state.tela_atual == "login":
                 st.warning("Por favor, preencha todos os campos.")
     if st.button("Não tem uma conta? Cadastre-se aqui"):
         st.session_state.tela_atual = "cadastro"
+        st.rerun()
+    if st.button("Esqueci minha senha"):
+        st.session_state.tela_atual = "recuperar_senha"
+        st.rerun()
+
+elif not st.session_state.autenticado and st.session_state.tela_atual == "recuperar_senha":
+    st.title("Recuperar senha")
+    st.caption(
+        "Informe o e-mail da sua conta. Se ele estiver cadastrado, enviaremos "
+        "as instruções de redefinição."
+    )
+    with st.form("formulario_recuperacao_senha"):
+        email_recuperacao = st.text_input("E-mail").strip().lower()
+        if st.form_submit_button("Enviar instruções"):
+            if email_recuperacao:
+                if enviar_email_recuperacao_senha(email_recuperacao):
+                    st.success(
+                        "Se houver uma conta associada a este e-mail, você receberá "
+                        "as instruções de recuperação em alguns minutos."
+                    )
+                else:
+                    st.error(
+                        "Não foi possível solicitar a recuperação agora. "
+                        "Tente novamente em alguns minutos."
+                    )
+            else:
+                st.warning("Informe seu e-mail para continuar.")
+    if st.button("Voltar para o login"):
+        st.session_state.tela_atual = "login"
         st.rerun()
 
 elif not st.session_state.autenticado and st.session_state.tela_atual == "cadastro":

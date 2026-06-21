@@ -31,6 +31,7 @@ Times de Analytics e Growth lidam todos os dias com dados fragmentados, inconsis
 ## Funcionalidades
 
 - Cadastro, login, revalidação de sessão e logout com Supabase Auth.
+- Recuperação de senha via e-mail pelo Supabase Auth, sem revelar se a conta existe.
 - Isolamento multiusuário com `user_id`, foreign keys para `auth.users` e policies RLS.
 - Lançamentos manuais de receitas e despesas.
 - Upload de PDFs com consentimento explícito para processamento externo.
@@ -145,7 +146,6 @@ Este projeto permite explicar, com base no código:
 
 - `app.py` ainda concentra muita responsabilidade de UI, orquestração, IA e persistência.
 - A autorização administrativa ainda depende de `ADMIN_EMAILS`.
-- Não há fluxo completo de recuperação de senha na interface.
 - Não há CI configurado neste repositório público.
 - Screenshots reais ainda precisam ser adicionados com dados demonstrativos.
 - A suíte RLS real exige um projeto Supabase de teste e execução opt-in.
@@ -241,7 +241,6 @@ Veja `tests/integration/README.md` antes de executar.
 - Extrair camada de repositórios Supabase para reduzir acoplamento em `app.py`.
 - Criar testes end-to-end para os principais fluxos Streamlit.
 - Mover autorização administrativa para claims ou tabela protegida por RLS.
-- Adicionar recuperação de senha.
 - Melhorar observabilidade para erros de IA, SMTP e banco.
 - Criar documentação do modelo de dados com diagrama ERD.
 - Avaliar qualidade das extrações por IA com casos de teste anonimizados.
