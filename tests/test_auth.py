@@ -1,0 +1,193 @@
+import base64
+import json
+import sys
+import unittest
+from pathlib import Path
+from types import ModuleType, SimpleNamespace
+from unittest.mock import patch
+
+
+streamlit_fake = ModuleType("streamlit")
+streamlit_fake.session_state = {}
+streamlit_fake.secrets = {}
+streamlit_fake.error = lambda mensagem: None
+
+supabase_fake = ModuleType("supabase")
+supabase_fake.Client = object
+supabase_fake.create_client = lambda url, chave: object()
+
+sys.modules["streamlit"] = streamlit_fake
+sys.modules["supabase"] = supabase_fake
+
+import auth
+
+
+APP_SOURCE = (Path(__file__).parents[1] / "app.py").read_text(encoding="utf-8")
+AUTH_SOURCE = (Path(__file__).parents[1] / "auth.py").read_text(encoding="utf-8")
+REQUIREMENTS = (Path(__file__).parents[1] / "requirements.txt").read_text(encoding="utf-8")
+
+
+class SessionStateFake(dict):
+    def __getattr__(self, nome):
+        return self[nome]
+
+    def __setattr__(self, nome, valor):
+        self[nome] = valor
+
+
+class AuthTests(unittest.TestCase):
+    def setUp(self):
+        self.session_state = SessionStateFake()
+        self.original_supabase = auth.supabase
+
+    def tearDown(self):
+        auth.supabase = self.original_supabase
+
+    def test_login_retorna_identidade_do_supabase_auth(self):
+        resposta = SimpleNamespace(
+            user=SimpleNamespace(id="user-123", email="Pessoa@Exemplo.com")
+        )
+        auth.supabase = SimpleNamespace(
+            auth=SimpleNamespace(sign_in_with_password=lambda credenciais: resposta)
+        )
+
+        with patch.object(auth.st, "session_state", self.session_state):
+            usuario = auth.fazer_login("pessoa@exemplo.com", "senha-segura")
+
+        self.assertEqual(
+            usuario,
+            {"id": "user-123", "email": "pessoa@exemplo.com"},
+        )
+        self.assertEqual(self.session_state["tentativas_login"], [])
+
+    def test_cliente_supabase_e_reutilizado_apenas_na_mesma_sessao(self):
+        clientes = [object(), object()]
+        chamadas = []
+
+        def criar_cliente(url, chave):
+            chamadas.append((url, chave))
+            return clientes[len(chamadas) - 1]
+
+        sessao_um = SessionStateFake()
+        sessao_dois = SessionStateFake()
+        with (
+            patch.object(
+                auth.st,
+                "secrets",
+                {"SUPABASE_URL": "url", "SUPABASE_KEY": "sb_publishable_teste"},
+            ),
+            patch.object(auth, "create_client", criar_cliente),
+        ):
+            with patch.object(auth.st, "session_state", sessao_um):
+                primeiro = auth.obter_conexao_supabase()
+                repetido = auth.obter_conexao_supabase()
+            with patch.object(auth.st, "session_state", sessao_dois):
+                segundo = auth.obter_conexao_supabase()
+
+        self.assertIs(primeiro, repetido)
+        self.assertIsNot(primeiro, segundo)
+        self.assertEqual(len(chamadas), 2)
+
+    def test_bloqueia_jwt_service_role_antes_de_criar_cliente(self):
+        payload = base64.urlsafe_b64encode(
+            json.dumps({"role": "service_role"}).encode("utf-8")
+        ).decode("ascii").rstrip("=")
+        chave = f"cabecalho.{payload}.assinatura"
+
+        with (
+            patch.object(auth.st, "session_state", SessionStateFake()),
+            patch.object(auth.st, "secrets", {"SUPABASE_URL": "url", "SUPABASE_KEY": chave}),
+            patch.object(auth, "create_client") as criar_cliente,
+        ):
+            with self.assertRaises(RuntimeError):
+                auth.obter_conexao_supabase()
+
+        criar_cliente.assert_not_called()
+
+    def test_bloqueia_chave_secreta_moderna(self):
+        with self.assertRaises(RuntimeError):
+            auth.validar_chave_publica_supabase("sb_secret_nao_permitida")
+
+    def test_aceita_jwt_legado_com_role_anon(self):
+        payload = base64.urlsafe_b64encode(
+            json.dumps({"role": "anon"}).encode("utf-8")
+        ).decode("ascii").rstrip("=")
+
+        auth.validar_chave_publica_supabase(f"cabecalho.{payload}.assinatura")
+
+    def test_revalida_identidade_com_supabase_auth(self):
+        auth.supabase = SimpleNamespace(
+            auth=SimpleNamespace(
+                get_user=lambda: SimpleNamespace(
+                    user=SimpleNamespace(id="user-456", email="Pessoa@Exemplo.com")
+                )
+            )
+        )
+
+        self.assertEqual(
+            auth.validar_sessao_atual(),
+            {"id": "user-456", "email": "pessoa@exemplo.com"},
+        )
+
+    def test_sessao_revogada_falha_na_revalidacao(self):
+        def sessao_revogada():
+            raise RuntimeError("token revogado")
+
+        auth.supabase = SimpleNamespace(
+            auth=SimpleNamespace(get_user=sessao_revogada)
+        )
+
+        self.assertFalse(auth.validar_sessao_atual())
+
+    def test_logout_revoga_sessao_auth(self):
+        chamadas = []
+        auth.supabase = SimpleNamespace(
+            auth=SimpleNamespace(sign_out=lambda: chamadas.append("sign_out"))
+        )
+
+        resultado = auth.encerrar_autenticacao_supabase()
+
+        self.assertTrue(resultado)
+        self.assertEqual(chamadas, ["sign_out"])
+
+    def test_logout_retorna_falha_quando_supabase_nao_confirma(self):
+        def falhar_logout():
+            raise RuntimeError("indisponivel")
+
+        auth.supabase = SimpleNamespace(
+            auth=SimpleNamespace(sign_out=falhar_logout)
+        )
+
+        self.assertFalse(auth.encerrar_autenticacao_supabase())
+
+    def test_app_limpa_sessao_local_quando_revalidacao_falha(self):
+        self.assertIn("identidade_revalidada = validar_sessao_atual()", APP_SOURCE)
+        trecho = APP_SOURCE.split("if not identidade_revalidada:", 1)[-1]
+        self.assertIn("limpar_sessao_usuario()", trecho)
+        self.assertIn("st.session_state.autenticado = False", trecho)
+        self.assertIn("st.rerun()", trecho)
+
+    def test_app_avisa_usuario_quando_logout_nao_e_confirmado(self):
+        trecho = APP_SOURCE.split("def encerrar_sessao_usuario():", 1)[-1]
+        trecho = trecho.split("st.set_page_config", 1)[0]
+        self.assertIn("if not logout_confirmado:", trecho)
+        self.assertIn("st.session_state.aviso_sessao", trecho)
+
+    def test_app_inicializa_gemini_somente_quando_necessario(self):
+        self.assertNotIn("client = inicializar_cliente_gemini()", APP_SOURCE)
+        self.assertIn("def obter_cliente_gemini():", APP_SOURCE)
+        self.assertIn("obter_cliente_gemini(),", APP_SOURCE)
+
+    def test_app_nao_falha_quando_smtp_nao_esta_configurado(self):
+        trecho = APP_SOURCE.split("def disparar_bot_fiscal_email", 1)[-1]
+        trecho = trecho.split("# ==========================================", 1)[0]
+        self.assertIn("if not all(configuracao.values()):", trecho)
+        self.assertIn("return False", trecho)
+
+    def test_autenticacao_nao_depende_de_bcrypt(self):
+        self.assertNotIn("bcrypt", AUTH_SOURCE.lower())
+        self.assertNotIn("bcrypt", REQUIREMENTS.lower())
+
+
+if __name__ == "__main__":
+    unittest.main()

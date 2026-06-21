@@ -1,0 +1,68 @@
+# Secrets e configuracoes locais
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+.streamlit/*.toml
+!.streamlit/secrets.example.toml
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Ambientes e dependencias locais
+.venv/
+venv/
+env/
+.python-version
+
+# Caches Python e ferramentas
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tmp/
+tmp/
+
+# Dados, uploads, exports e backups
+backups/
+backup/
+dumps/
+uploads/
+exports/
+data/
+*.dump
+*.backup
+*.bak
+*.sql.gz
+*.sqlite
+*.db
+*.xlsx
+*.xls
+*.csv
+*.pdf
+
+# Logs e arquivos locais
+logs/
+*.log
+*.out
+*.err
+*.local
+
+# Arquivos legados ou temporarios
+app_backup.py
+app_backup*.py
+estrutura.txt
+tatus
+
+# Sistema operacional e editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
