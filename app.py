@@ -28,6 +28,11 @@ from finance_categories import (
     CATEGORIAS_RECEITA,
     CATEGORIAS_VALIDAS,
 )
+from finance_constants import (
+    TIPO_DESPESA,
+    TIPO_RECEITA,
+    TIPOS_TRANSACAO,
+)
 from repositories.finance_repository import (
     atualizar_categoria_transacao,
     buscar_lote_importado,
@@ -298,14 +303,14 @@ elif st.session_state.autenticado:
     st.sidebar.subheader("➕ Lançamento Manual")
     tipo_transacao = st.sidebar.selectbox(
         "Tipo",
-        ["Despesa", "Receita"],
+        TIPOS_TRANSACAO,
         key="tipo_transacao_manual",
     )
     with st.sidebar.form("form_transacao", clear_on_submit=True):
         desc = st.text_input("Descrição (Ex: Uber)")
         val = st.number_input("Valor (R$)", min_value=0.0, format="%.2f")
         categorias_manuais = (
-            CATEGORIAS_RECEITA if tipo_transacao == "Receita" else CATEGORIAS_DESPESA
+            CATEGORIAS_RECEITA if tipo_transacao == TIPO_RECEITA else CATEGORIAS_DESPESA
         )
         cat_manual = st.selectbox(
             "Categoria",
@@ -456,7 +461,7 @@ elif st.session_state.autenticado:
                                         properties={
                                             "descricao": types.Schema(type=types.Type.STRING),
                                             "valor": types.Schema(type=types.Type.NUMBER),
-                                            "tipo": types.Schema(type=types.Type.STRING, enum=["Despesa", "Receita"]),
+                                            "tipo": types.Schema(type=types.Type.STRING, enum=TIPOS_TRANSACAO),
                                             "categoria": types.Schema(type=types.Type.STRING, enum=CATEGORIAS_VALIDAS),
                                         },
                                         required=["descricao", "valor", "tipo", "categoria"],
@@ -507,7 +512,7 @@ elif st.session_state.autenticado:
             column_config={
                 "descricao": st.column_config.TextColumn("Descrição da Transação", disabled=True, width="medium"),
                 "valor": st.column_config.NumberColumn("Valor (R$)", disabled=True, format="R$ %.2f"),
-                "tipo": st.column_config.SelectboxColumn("Fluxo", options=["Despesa", "Receita"], required=True),
+                "tipo": st.column_config.SelectboxColumn("Fluxo", options=TIPOS_TRANSACAO, required=True),
                 "categoria": st.column_config.SelectboxColumn("Classificação IA", options=CATEGORIAS_VALIDAS, required=True)
             },
             hide_index=True,
@@ -539,7 +544,7 @@ elif st.session_state.autenticado:
                                 raise ValueError("Nenhum lançamento pode conter uma descrição vazia.")
                             if val_item <= 0:
                                 raise ValueError(f"O lançamento '{desc_original}' possui valor nulo ou negativo inválido.")
-                            if tipo_final not in ["Despesa", "Receita"]:
+                            if tipo_final not in TIPOS_TRANSACAO:
                                 raise ValueError(f"O tipo do lançamento '{desc_original}' deve ser estritamente 'Despesa' ou 'Receita'.")
                             if categoria_final not in CATEGORIAS_VALIDAS:
                                 raise ValueError(f"A categoria '{categoria_final}' no item '{desc_original}' não faz parte do catálogo permitido.")
@@ -547,7 +552,7 @@ elif st.session_state.autenticado:
                             if any(k in desc_original.lower() for k in ["pmbmetro", "metro", "cptm", "autopass"]):
                                 categoria_final = "Transporte"
                                 
-                            if tipo_final == "Despesa": gastos_reais += val_item
+                            if tipo_final == TIPO_DESPESA: gastos_reais += val_item
                             else: creditos_reais += val_item
                             
                             transacoes_para_inserir.append({
@@ -689,7 +694,7 @@ elif st.session_state.autenticado:
                 
                 metas_usuario = listar_metas_usuario_mes(usuario_id, mes_selecionado)
                 dict_metas = {m["categoria"]: float(m["valor_meta"]) for m in metas_usuario}
-                df_despesas = df_mes[df_mes["tipo"] == "Despesa"]
+                df_despesas = df_mes[df_mes["tipo"] == TIPO_DESPESA]
                 
                 for cat in CATEGORIAS_DESPESA:
                     gasto_atual = df_despesas[df_despesas["categoria"] == cat]["valor"].sum() if not df_despesas.empty else 0.0
@@ -715,7 +720,7 @@ elif st.session_state.autenticado:
             st.markdown("---")
 
         st.subheader(f"📊 Central de Análise de Grupos ({mes_selecionado})")
-        df_despesas = df_mes[df_mes["tipo"] == "Despesa"]
+        df_despesas = df_mes[df_mes["tipo"] == TIPO_DESPESA]
         
         if not df_despesas.empty:
             try:
@@ -735,7 +740,7 @@ elif st.session_state.autenticado:
                         if c not in todas_categorias_ordenadas: todas_categorias_ordenadas.append(c)
                     
                     for cat in todas_categorias_ordenadas:
-                        v_cat = df_mes[(df_mes["categoria"] == cat) & (df_mes["tipo"] == "Despesa")]["valor"].sum()
+                        v_cat = df_mes[(df_mes["categoria"] == cat) & (df_mes["tipo"] == TIPO_DESPESA)]["valor"].sum()
                         st.markdown(f"""
                         <div style="background: linear-gradient(90deg, #16161a, #1a1a22); padding: 11px 20px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03); margin-bottom: 7px; display: flex; justify-content: space-between; align-items: center;">
                             <span style="color: #a1a1aa; font-size: 13px; font-weight: 600; text-transform: uppercase;">{cat}</span>
@@ -753,7 +758,7 @@ elif st.session_state.autenticado:
         st.subheader("🕵️‍♂️ Central de Auditoria Contábil")
         for cat in CATEGORIAS_DESPESA:
             try:
-                df_filtrado_categoria = df_mes[(df_mes["categoria"] == cat) & (df_mes["tipo"] == "Despesa")][["descricao", "valor", "instituicao_financeira", "origem_importacao"]]
+                df_filtrado_categoria = df_mes[(df_mes["categoria"] == cat) & (df_mes["tipo"] == TIPO_DESPESA)][["descricao", "valor", "instituicao_financeira", "origem_importacao"]]
                 if not df_filtrado_categoria.empty:
                     df_exibicao = df_filtrado_categoria.rename(columns={"descricao": "Estabelecimento / Compra", "valor": "Valor (R$)", "instituicao_financeira": "Banco/Cartão", "origem_importacao": "Origem"})
                     with st.expander(f"📁 Linhas Auditadas de '{cat}' ({len(df_filtrado_categoria)} itens)"):
@@ -768,11 +773,11 @@ elif st.session_state.autenticado:
         st.markdown("---")
         st.subheader(f"📋 Histórico Geral de Movimentações de {mes_selecionado}")
         for t in reversed(lista_transacoes):
-            cor = "🟢" if t["tipo"] == "Receita" else "🔴"
-            status_tipo = "Entrada" if t["tipo"] == "Receita" else "Saída"
+            cor = "🟢" if t["tipo"] == TIPO_RECEITA else "🔴"
+            status_tipo = "Entrada" if t["tipo"] == TIPO_RECEITA else "Saída"
             banco_tag = t.get("instituicao_financeira", "Manual")
             origem_label = "✍️" if t.get("origem_importacao") == "Manual" else "🤖"
-            categoria_tag = f" [{t.get('categoria', 'Geral')}]" if t["tipo"] == "Despesa" else ""
+            categoria_tag = f" [{t.get('categoria', 'Geral')}]" if t["tipo"] == TIPO_DESPESA else ""
             st.markdown(f"{cor} **{t['descricao']}**{categoria_tag} | {formatar_brl(t['valor'])} ({status_tipo} | {origem_label} {banco_tag})")
     else:
         st.info("Nenhum dado disponível. Adicione lançamentos manuais ou suba um PDF.")

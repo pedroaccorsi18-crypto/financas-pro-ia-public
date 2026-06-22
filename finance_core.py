@@ -3,6 +3,8 @@ import re
 from collections import defaultdict
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 
+from finance_constants import TIPO_DESPESA, TIPO_RECEITA
+
 
 CENTAVOS = Decimal("0.01")
 
@@ -49,11 +51,11 @@ def calcular_resumo_financeiro(transacoes) -> dict[str, float]:
         tipo = transacao.get("tipo")
         meta_fatura = para_decimal(transacao.get("meta_fatura"))
 
-        if tipo == "Despesa":
+        if tipo == TIPO_DESPESA:
             despesas += valor
             if meta_fatura == 0:
                 despesas_manuais += valor
-        elif tipo == "Receita":
+        elif tipo == TIPO_RECEITA:
             receitas += valor
             if meta_fatura == 0:
                 receitas_manuais += valor
@@ -108,9 +110,9 @@ def resumir_historico_para_ia(transacoes, limite=200) -> str:
         mes = str(transacao.get("mes_referencia") or "Sem mês")
         categoria = str(transacao.get("categoria") or "Sem categoria")
         tipo = transacao.get("tipo")
-        if tipo == "Despesa":
+        if tipo == TIPO_DESPESA:
             agrupado[(mes, categoria)]["despesas"] += para_decimal(transacao.get("valor"))
-        elif tipo == "Receita":
+        elif tipo == TIPO_RECEITA:
             agrupado[(mes, categoria)]["receitas"] += para_decimal(transacao.get("valor"))
 
     linhas = []
@@ -127,9 +129,9 @@ def criar_lote_demonstrativo(mes_referencia: str) -> dict:
         raise ValueError("O mês demonstrativo deve usar o formato MM/AAAA.")
 
     transacoes = [
-        {"descricao": "Mercado Demonstrativo", "valor": 125.50, "tipo": "Despesa", "categoria": "Mercado"},
-        {"descricao": "Transporte Demonstrativo", "valor": 24.90, "tipo": "Despesa", "categoria": "Transporte"},
-        {"descricao": "Crédito Demonstrativo", "valor": 50.00, "tipo": "Receita", "categoria": "Compras Gerais"},
+        {"descricao": "Mercado Demonstrativo", "valor": 125.50, "tipo": TIPO_DESPESA, "categoria": "Mercado"},
+        {"descricao": "Transporte Demonstrativo", "valor": 24.90, "tipo": TIPO_DESPESA, "categoria": "Transporte"},
+        {"descricao": "Crédito Demonstrativo", "valor": 50.00, "tipo": TIPO_RECEITA, "categoria": "Compras Gerais"},
     ]
     return {
         "instituicao": "Banco Demonstração",

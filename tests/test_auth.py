@@ -25,6 +25,7 @@ import auth
 APP_SOURCE = (Path(__file__).parents[1] / "app.py").read_text(encoding="utf-8")
 AUTH_SOURCE = (Path(__file__).parents[1] / "auth.py").read_text(encoding="utf-8")
 FINANCE_CATEGORIES_SOURCE = (Path(__file__).parents[1] / "finance_categories.py").read_text(encoding="utf-8")
+FINANCE_CONSTANTS_SOURCE = (Path(__file__).parents[1] / "finance_constants.py").read_text(encoding="utf-8")
 APP_CONFIG_SOURCE = (Path(__file__).parents[1] / "app_config.py").read_text(encoding="utf-8")
 REQUIREMENTS = (Path(__file__).parents[1] / "requirements.txt").read_text(encoding="utf-8")
 
@@ -263,10 +264,14 @@ class AuthTests(unittest.TestCase):
         trecho_antes_form = APP_SOURCE.split('with st.sidebar.form("form_transacao"', 1)[0]
 
         self.assertIn("key=\"tipo_transacao_manual\"", trecho_antes_form)
-        self.assertIn("CATEGORIAS_RECEITA if tipo_transacao == \"Receita\"", trecho)
+        self.assertIn("CATEGORIAS_RECEITA if tipo_transacao == TIPO_RECEITA", trecho)
         self.assertIn("else CATEGORIAS_DESPESA", trecho)
         self.assertIn("key=f\"categoria_manual_{tipo_transacao.lower()}\"", trecho)
         self.assertIn("from finance_categories import (", APP_SOURCE)
+        self.assertIn("from finance_constants import (", APP_SOURCE)
+        self.assertIn("TIPOS_TRANSACAO", trecho_antes_form)
+        self.assertIn("TIPO_DESPESA = \"Despesa\"", FINANCE_CONSTANTS_SOURCE)
+        self.assertIn("TIPO_RECEITA = \"Receita\"", FINANCE_CONSTANTS_SOURCE)
         self.assertIn("\"Salário\"", FINANCE_CATEGORIES_SOURCE)
         self.assertIn("\"Moradia\"", FINANCE_CATEGORIES_SOURCE)
         self.assertIn("\"Dívidas & Financiamentos\"", FINANCE_CATEGORIES_SOURCE)
