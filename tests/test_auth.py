@@ -230,15 +230,14 @@ class AuthTests(unittest.TestCase):
         trecho = SESSION_STATE_SOURCE.split("def limpar_sessao_usuario", 1)[-1]
         trecho = trecho.split("def iniciar_sessao_autenticada", 1)[0]
 
-        self.assertIn("from session_state import iniciar_sessao_autenticada, limpar_sessao_usuario", APP_SOURCE)
+        self.assertIn("from session_state import (", APP_SOURCE)
         self.assertIn('st.session_state.get("_supabase_client")', trecho)
         self.assertIn('st.session_state.get("_supabase_config")', trecho)
         self.assertIn('st.session_state["_supabase_client"] = cliente_supabase', trecho)
         self.assertIn('st.session_state["_supabase_config"] = config_supabase', trecho)
 
     def test_app_avisa_usuario_quando_logout_nao_e_confirmado(self):
-        trecho = APP_SOURCE.split("def encerrar_sessao_usuario():", 1)[-1]
-        trecho = trecho.split("st.set_page_config", 1)[0]
+        trecho = SESSION_STATE_SOURCE.split("def encerrar_sessao_usuario():", 1)[-1]
         self.assertIn("if not logout_confirmado:", trecho)
         self.assertIn("st.session_state.aviso_sessao", trecho)
 

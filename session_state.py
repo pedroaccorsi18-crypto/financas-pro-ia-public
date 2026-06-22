@@ -1,5 +1,7 @@
 import streamlit as st
 
+from auth import encerrar_autenticacao_supabase
+
 
 def limpar_sessao_usuario(preservar_cliente_supabase=False):
     """Remove dados do usuário anterior, incluindo estados automáticos de widgets."""
@@ -24,3 +26,17 @@ def iniciar_sessao_autenticada(email_usuario, usuario_id):
     st.session_state.historico_oraculo_enviado = None
     st.session_state.feedback_enviado = False
     st.session_state.dados_pre_visualizacao = None
+
+
+def encerrar_sessao_usuario():
+    """Encerra a sessão sem preservar dados sensíveis do usuário."""
+    logout_confirmado = encerrar_autenticacao_supabase()
+    limpar_sessao_usuario()
+    st.session_state.autenticado = False
+    st.session_state.tela_atual = "login"
+    if not logout_confirmado:
+        st.session_state.aviso_sessao = (
+            "A sessao local foi encerrada, mas o Supabase nao confirmou a revogacao. "
+            "Feche esta aba antes de tentar novamente."
+        )
+    return logout_confirmado

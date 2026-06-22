@@ -8,7 +8,6 @@ from app_config import SMTP_SECRET_KEYS
 from auth import (
     auditar_saude_plataforma,
     cadastrar_usuario,
-    encerrar_autenticacao_supabase,
     enviar_email_recuperacao_senha,
     fazer_login,
     mostrar_erro_seguro,
@@ -46,7 +45,11 @@ from repositories.finance_repository import (
     salvar_meta_financeira,
     substituir_lote_importado,
 )
-from session_state import iniciar_sessao_autenticada, limpar_sessao_usuario
+from session_state import (
+    encerrar_sessao_usuario,
+    iniciar_sessao_autenticada,
+    limpar_sessao_usuario,
+)
 from utils.authorization import eh_usuario_admin
 from utils.bot_fiscal import agendar_alerta_fiscal
 from utils.formatting import formatar_brl
@@ -73,19 +76,6 @@ def mostrar_erro_seguro(erro: Exception, email_usuario: str = None) -> str:
     if "permission denied" in texto_erro or "42501" in texto_erro:
         return "O Supabase bloqueou esta operação por falta de permissão. Verifique as políticas da tabela."
     return "Ocorreu um problema interno. Tente novamente mais tarde."
-
-def encerrar_sessao_usuario():
-    """Encerra a sessão sem preservar dados sensíveis do usuário."""
-    logout_confirmado = encerrar_autenticacao_supabase()
-    limpar_sessao_usuario()
-    st.session_state.autenticado = False
-    st.session_state.tela_atual = "login"
-    if not logout_confirmado:
-        st.session_state.aviso_sessao = (
-            "A sessao local foi encerrada, mas o Supabase nao confirmou a revogacao. "
-            "Feche esta aba antes de tentar novamente."
-        )
-    return logout_confirmado
 
 # Configuração da página em modo WIDE para melhor aproveitamento do espaço visual
 st.set_page_config(page_title="Finanças Pro IA", page_icon="💰", layout="wide")
