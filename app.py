@@ -46,6 +46,7 @@ from repositories.finance_repository import (
     salvar_meta_financeira,
     substituir_lote_importado,
 )
+from session_state import iniciar_sessao_autenticada, limpar_sessao_usuario
 from utils.authorization import eh_usuario_admin
 from utils.bot_fiscal import agendar_alerta_fiscal
 from utils.formatting import formatar_brl
@@ -72,29 +73,6 @@ def mostrar_erro_seguro(erro: Exception, email_usuario: str = None) -> str:
     if "permission denied" in texto_erro or "42501" in texto_erro:
         return "O Supabase bloqueou esta operação por falta de permissão. Verifique as políticas da tabela."
     return "Ocorreu um problema interno. Tente novamente mais tarde."
-
-def limpar_sessao_usuario(preservar_cliente_supabase=False):
-    """Remove dados do usuário anterior, incluindo estados automáticos de widgets."""
-    cliente_supabase = st.session_state.get("_supabase_client") if preservar_cliente_supabase else None
-    config_supabase = st.session_state.get("_supabase_config") if preservar_cliente_supabase else None
-    for chave in list(st.session_state.keys()):
-        del st.session_state[chave]
-    if cliente_supabase is not None:
-        st.session_state["_supabase_client"] = cliente_supabase
-    if config_supabase is not None:
-        st.session_state["_supabase_config"] = config_supabase
-
-def iniciar_sessao_autenticada(email_usuario, usuario_id):
-    """Inicia uma sessão limpa e vinculada exclusivamente ao usuário autenticado."""
-    limpar_sessao_usuario(preservar_cliente_supabase=True)
-    st.session_state.autenticado = True
-    st.session_state.tela_atual = "login"
-    st.session_state.usuario_email = email_usuario
-    st.session_state.usuario_id = usuario_id
-    st.session_state.resposta_oraculo_texto = None
-    st.session_state.historico_oraculo_enviado = None
-    st.session_state.feedback_enviado = False
-    st.session_state.dados_pre_visualizacao = None
 
 def encerrar_sessao_usuario():
     """Encerra a sessão sem preservar dados sensíveis do usuário."""

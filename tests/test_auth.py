@@ -24,6 +24,7 @@ import auth
 
 APP_SOURCE = (Path(__file__).parents[1] / "app.py").read_text(encoding="utf-8")
 AUTH_SOURCE = (Path(__file__).parents[1] / "auth.py").read_text(encoding="utf-8")
+SESSION_STATE_SOURCE = (Path(__file__).parents[1] / "session_state.py").read_text(encoding="utf-8")
 FINANCE_CATEGORIES_SOURCE = (Path(__file__).parents[1] / "finance_categories.py").read_text(encoding="utf-8")
 FINANCE_CONSTANTS_SOURCE = (Path(__file__).parents[1] / "finance_constants.py").read_text(encoding="utf-8")
 APP_CONFIG_SOURCE = (Path(__file__).parents[1] / "app_config.py").read_text(encoding="utf-8")
@@ -226,9 +227,10 @@ class AuthTests(unittest.TestCase):
         self.assertIn("st.rerun()", trecho)
 
     def test_app_preserva_config_do_cliente_supabase_apos_login(self):
-        trecho = APP_SOURCE.split("def limpar_sessao_usuario", 1)[-1]
+        trecho = SESSION_STATE_SOURCE.split("def limpar_sessao_usuario", 1)[-1]
         trecho = trecho.split("def iniciar_sessao_autenticada", 1)[0]
 
+        self.assertIn("from session_state import iniciar_sessao_autenticada, limpar_sessao_usuario", APP_SOURCE)
         self.assertIn('st.session_state.get("_supabase_client")', trecho)
         self.assertIn('st.session_state.get("_supabase_config")', trecho)
         self.assertIn('st.session_state["_supabase_client"] = cliente_supabase', trecho)
