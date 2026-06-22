@@ -22,6 +22,11 @@ from finance_core import (
     ordenar_meses_cronologicamente,
     resumir_historico_para_ia,
 )
+from finance_categories import (
+    CATEGORIAS_DESPESA,
+    CATEGORIAS_RECEITA,
+    CATEGORIAS_VALIDAS,
+)
 from repositories.finance_repository import (
     atualizar_categoria_transacao,
     buscar_lote_importado,
@@ -58,30 +63,6 @@ def mostrar_erro_seguro(erro: Exception, email_usuario: str = None) -> str:
     if "permission denied" in texto_erro or "42501" in texto_erro:
         return "O Supabase bloqueou esta operação por falta de permissão. Verifique as políticas da tabela."
     return "Ocorreu um problema interno. Tente novamente mais tarde."
-
-
-# --- CONSTANTES CENTRALIZADAS DE CATEGORIAS FINANCEIRAS ---
-CATEGORIAS_DESPESA = [
-    "Moradia",
-    "Mercado", 
-    "Alimentação Fora",
-    "Transporte", 
-    "Saúde",
-    "Educação",
-    "Lazer",
-    "Assinaturas & Serviços", 
-    "Impostos & Taxas",
-    "Dívidas & Financiamentos",
-    "Compras Gerais"
-]
-CATEGORIAS_RECEITA = [
-    "Salário",
-    "Freelance",
-    "Rendimentos",
-    "Reembolso",
-    "Outras Receitas",
-]
-CATEGORIAS_VALIDAS = CATEGORIAS_DESPESA + CATEGORIAS_RECEITA
 
 def limpar_sessao_usuario(preservar_cliente_supabase=False):
     """Remove dados do usuário anterior, incluindo estados automáticos de widgets."""
