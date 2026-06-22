@@ -10,6 +10,9 @@ MIGRACAO = (
     / "202606100001_endurecer_rpc_substituir_lote.sql"
 )
 APP_SOURCE = (Path(__file__).parents[1] / "app.py").read_text(encoding="utf-8").lower()
+REPOSITORY_SOURCE = (
+    Path(__file__).parents[1] / "repositories" / "finance_repository.py"
+).read_text(encoding="utf-8").lower()
 
 
 class MigrationContractTests(unittest.TestCase):
@@ -156,8 +159,11 @@ class MigrationContractTests(unittest.TestCase):
             1,
         )[0]
 
-        self.assertIn('supabase.rpc("substituir_lote_importado"', trecho_importacao)
-        self.assertIn('"p_user_id": usuario_id', trecho_importacao)
+        self.assertIn("substituir_lote_importado(", trecho_importacao)
+        self.assertIn('supabase.rpc(', REPOSITORY_SOURCE)
+        self.assertIn('"substituir_lote_importado"', REPOSITORY_SOURCE)
+        self.assertIn('"p_user_id": usuario_id', REPOSITORY_SOURCE)
+        self.assertNotIn('supabase.rpc("substituir_lote_importado"', APP_SOURCE)
         self.assertNotIn(
             'supabase.table("transacoes").insert(transacoes_para_inserir)',
             APP_SOURCE,

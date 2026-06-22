@@ -11,7 +11,6 @@ from auth import (
     enviar_email_recuperacao_senha,
     fazer_login,
     mostrar_erro_seguro,
-    supabase,
     validar_chave_publica_supabase,
     validar_sessao_atual,
 )
@@ -22,6 +21,16 @@ from finance_core import (
     mes_referencia_valido,
     ordenar_meses_cronologicamente,
     resumir_historico_para_ia,
+)
+from repositories.finance_repository import (
+    atualizar_categoria_transacao,
+    buscar_lote_importado,
+    inserir_transacao,
+    listar_metas_usuario_mes,
+    listar_transacoes_usuario,
+    salvar_feedback_oraculo,
+    salvar_meta_financeira,
+    substituir_lote_importado,
 )
 from utils.authorization import eh_usuario_admin
 from utils.bot_fiscal import agendar_alerta_fiscal
@@ -301,8 +310,7 @@ elif st.session_state.autenticado:
     usuario_id = st.session_state.usuario_id
 
     try:
-        resposta = supabase.table("transacoes").select("*").eq("user_id", usuario_id).order("created_at", desc=False).execute()
-        lista_total_banco = resposta.data if resposta.data else []
+        lista_total_banco = listar_transacoes_usuario(usuario_id)
     except Exception as e_fetch:
         msg = mostrar_erro_seguro(e_fetch, email_usuario)
         st.error(msg)
@@ -341,7 +349,7 @@ elif st.session_state.autenticado:
                     if not mes_referencia_valido(mes_manual):
                         st.error("Formato do mês de referência inválido.")
                     else:
-                        supabase.table("transacoes").insert({
+                        inserir_transacao({
                             "user_id": usuario_id,
                             "usuario_email": email_usuario, 
                             "descricao": desc.strip(), 
@@ -353,7 +361,7 @@ elif st.session_state.autenticado:
                             "instituicao_financeira": banco_manual.strip() if banco_manual else "Manual",
                             "tipo_documento": "Manual",
                             "origem_importacao": "Manual"
-                        }).execute()
+                        })
                         st.toast("Lançamento computado com sucesso!", icon="✅")
                         st.rerun()
                 except Exception as e_insert:
@@ -374,7 +382,7 @@ elif st.session_state.autenticado:
                             desc_lower = item.get("descricao", "").lower()
                             if any(k in desc_lower for k in ["pmbmetro", "metro", "cptm", "autopass"]):
                                 if item.get("categoria") != "Transporte":
-                                    supabase.table("transacoes").update({"categoria": "Transporte"}).eq("id", item["id"]).execute()
+                                    atualizar_categoria_transacao(item["id"], "Transporte")
 
                         linhas_para_atualizar = [t for t in lista_total_banco if t.get("categoria") in ["Compras & Assinaturas", "Geral", None] and t.get("descricao")]
                         
@@ -391,7 +399,7 @@ elif st.session_state.autenticado:
                                 cat_inferida = mapa_categorias.get(item["descricao"], "Compras Gerais")
                                 if cat_inferida not in CATEGORIAS_VALIDAS:
                                     cat_inferida = "Compras Gerais"
-                                supabase.table("transacoes").update({"categoria": cat_inferida}).eq("id", item["id"]).execute()
+                                atualizar_categoria_transacao(item["id"], cat_inferida)
                             
                         st.sidebar.success("Histórico totalmente saneado!")
                         st.rerun()
@@ -574,29 +582,21 @@ elif st.session_state.autenticado:
                             })
                             
                         if transacoes_para_inserir:
-                            campos_comparacao = [
-                                "descricao", "valor", "tipo", "categoria", "mes_referencia",
-                                "meta_fatura", "instituicao_financeira", "tipo_documento", "origem_importacao"
-                            ]
-
-                            resposta_lote_existente = supabase.table("transacoes")\
-                                .select("id," + ",".join(campos_comparacao))\
-                                .eq("user_id", usuario_id)\
-                                .eq("mes_referencia", pre_vis["mes_referencia"].strip())\
-                                .eq("instituicao_financeira", pre_vis["instituicao"].strip())\
-                                .eq("tipo_documento", pre_vis["tipo_documento"])\
-                                .eq("origem_importacao", "Automático").execute()
-
-                            lote_existente = resposta_lote_existente.data or []
+                            lote_existente = buscar_lote_importado(
+                                usuario_id=usuario_id,
+                                mes_referencia=pre_vis["mes_referencia"].strip(),
+                                instituicao_financeira=pre_vis["instituicao"].strip(),
+                                tipo_documento=pre_vis["tipo_documento"],
+                            )
 
                             if not lotes_sao_iguais(transacoes_para_inserir, lote_existente):
-                                supabase.rpc("substituir_lote_importado", {
-                                    "p_user_id": usuario_id,
-                                    "p_mes_referencia": pre_vis["mes_referencia"].strip(),
-                                    "p_instituicao_financeira": pre_vis["instituicao"].strip(),
-                                    "p_tipo_documento": pre_vis["tipo_documento"],
-                                    "p_transacoes": transacoes_para_inserir,
-                                }).execute()
+                                substituir_lote_importado(
+                                    usuario_id=usuario_id,
+                                    mes_referencia=pre_vis["mes_referencia"].strip(),
+                                    instituicao_financeira=pre_vis["instituicao"].strip(),
+                                    tipo_documento=pre_vis["tipo_documento"],
+                                    transacoes=transacoes_para_inserir,
+                                )
 
                         if pre_vis["total_documento"] > 0:
                             disparar_bot_fiscal_email(email_usuario, pre_vis["instituicao"], pre_vis["tipo_documento"], pre_vis["mes_referencia"], gastos_reais, creditos_reais, pre_vis["total_documento"])
@@ -703,17 +703,17 @@ elif st.session_state.autenticado:
                         st.write("<br>", unsafe_allow_html=True)
                         if st.button("Definir Meta", use_container_width=True):
                             try:
-                                supabase.table("metas_financeiras").upsert({
+                                salvar_meta_financeira({
                                     "user_id": usuario_id, "usuario_email": email_usuario, "categoria": cat_meta_sel, "mes_referencia": mes_selecionado, "valor_meta": valor_meta_sel
-                                }, on_conflict="user_id,categoria,mes_referencia").execute()
+                                })
                                 st.toast(f"Meta de {cat_meta_sel} salva!", icon="🎯")
                                 st.rerun()
                             except Exception as e_upsert:
                                 msg = mostrar_erro_seguro(e_upsert, email_usuario)
                                 st.error(msg)
                 
-                res_metas = supabase.table("metas_financeiras").select("*").eq("user_id", usuario_id).eq("mes_referencia", mes_selecionado).execute()
-                dict_metas = {m["categoria"]: float(m["valor_meta"]) for m in res_metas.data} if res_metas.data else {}
+                metas_usuario = listar_metas_usuario_mes(usuario_id, mes_selecionado)
+                dict_metas = {m["categoria"]: float(m["valor_meta"]) for m in metas_usuario}
                 df_despesas = df_mes[df_mes["tipo"] == "Despesa"]
                 
                 for cat in CATEGORIAS_DESPESA:
@@ -850,11 +850,11 @@ elif st.session_state.autenticado:
             with col_fb1:
                 if st.button("👍 Ficou Top", use_container_width=True):
                     try:
-                        supabase.table("feedbacks_oraculo").insert({
+                        salvar_feedback_oraculo({
                             "user_id": usuario_id, "usuario_email": email_usuario, "status_resposta": "TOP",
                             "resposta_ia": anonimizar_dados(st.session_state.resposta_oraculo_texto),
                             "dados_enviados": anonimizar_dados(st.session_state.historico_oraculo_enviado)
-                        }).execute()
+                        })
                         st.session_state.feedback_enviado = True
                         st.rerun()
                     except Exception as err: 
@@ -863,11 +863,11 @@ elif st.session_state.autenticado:
             with col_fb2:
                 if st.button("👎 Resposta Ruim/Falsa", use_container_width=True):
                     try:
-                        supabase.table("feedbacks_oraculo").insert({
+                        salvar_feedback_oraculo({
                             "user_id": usuario_id, "usuario_email": email_usuario, "status_resposta": "RUIM",
                             "resposta_ia": anonimizar_dados(st.session_state.resposta_oraculo_texto),
                             "dados_enviados": anonimizar_dados(st.session_state.historico_oraculo_enviado)
-                        }).execute()
+                        })
                         st.session_state.feedback_enviado = True
                         st.rerun()
                     except Exception as err: 
