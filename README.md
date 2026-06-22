@@ -48,20 +48,13 @@ Times de Analytics e Growth lidam todos os dias com dados fragmentados, inconsis
 
 ## Screenshots
 
-As imagens abaixo devem ser adicionadas em `docs/screenshots/` após rodar a aplicação com dados demonstrativos. Elas não estão versionadas com dados reais para evitar exposição de informações sensíveis.
+Capturas geradas com conta e dados demonstrativos, sem informações financeiras reais.
 
-| Screenshot sugerido | O que deve mostrar |
-| --- | --- |
-| `docs/screenshots/login.png` | Tela de autenticação. |
-| `docs/screenshots/dashboard.png` | Métricas mensais, gráficos e metas. |
-| `docs/screenshots/importacao-ia.png` | Upload, consentimento e homologação da extração por IA. |
-| `docs/screenshots/analise-ia.png` | Análise gerada a partir de dados agregados. |
+![Finanças Pro IA - visão geral da aplicação](docs/screenshots/financas-pro-ia-1.png)
 
-Exemplo após adicionar uma imagem:
+![Finanças Pro IA - continuação da visão geral](docs/screenshots/financas-pro-ia-2.png)
 
-```md
-![Dashboard financeiro](docs/screenshots/dashboard.png)
-```
+![Finanças Pro IA - detalhes finais](docs/screenshots/financas-pro-ia-3.png)
 
 ## Arquitetura
 
@@ -154,7 +147,6 @@ Este projeto permite explicar, com base no código:
 
 - `app.py` ainda concentra muita responsabilidade de UI, orquestração e IA, apesar da extração da camada Supabase para `repositories`.
 - A autorização administrativa ainda depende de `ADMIN_EMAILS`.
-- Screenshots reais ainda precisam ser adicionados com dados demonstrativos.
 - A suíte RLS real exige um projeto Supabase de teste e execução opt-in.
 
 Essas limitações são intencionais para um projeto de portfólio em evolução e formam parte do roadmap técnico.
@@ -243,7 +235,6 @@ Veja `tests/integration/README.md` antes de executar.
 
 ## Roadmap
 
-- Adicionar screenshots reais com dados demonstrativos.
 - Criar um vídeo curto de demonstração do fluxo completo.
 - Criar testes end-to-end para os principais fluxos Streamlit.
 - Mover autorização administrativa para claims ou tabela protegida por RLS.
@@ -255,6 +246,7 @@ Concluído recentemente:
 - Extrair camada de repositórios Supabase para reduzir acoplamento em `app.py`.
 - Melhorar observabilidade para erros de IA, SMTP e banco.
 - Criar documentação do modelo de dados com diagrama ERD.
+- Adicionar screenshots reais com dados demonstrativos.
 
 ## Status do projeto
 Projeto em versão publicável para portfólio técnico. O foco é demonstrar raciocínio de produto, analytics, segurança multiusuário, integração com IA generativa e boas práticas de publicação sem credenciais reais.
