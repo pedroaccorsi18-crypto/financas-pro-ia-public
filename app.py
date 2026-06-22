@@ -47,6 +47,7 @@ from repositories.finance_repository import (
 )
 from session_state import (
     encerrar_sessao_usuario,
+    inicializar_estado_sessao,
     iniciar_sessao_autenticada,
     limpar_sessao_usuario,
 )
@@ -109,19 +110,7 @@ def gerar_conteudo_gemini(*, tentativas=3, **kwargs):
         **kwargs,
     )
 
-# Inicialização segura do Session State
-if "autenticado" not in st.session_state:
-    st.session_state.autenticado = False
-if "tela_atual" not in st.session_state:
-    st.session_state.tela_atual = "login"
-if "resposta_oraculo_texto" not in st.session_state:
-    st.session_state.resposta_oraculo_texto = None
-if "historico_oraculo_enviado" not in st.session_state:
-    st.session_state.historico_oraculo_enviado = None
-if "feedback_enviado" not in st.session_state:
-    st.session_state.feedback_enviado = False
-if "dados_pre_visualizacao" not in st.session_state:
-    st.session_state.dados_pre_visualizacao = None
+inicializar_estado_sessao()
 
 if st.session_state.autenticado:
     identidade_revalidada = validar_sessao_atual()

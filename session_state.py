@@ -3,6 +3,22 @@ import streamlit as st
 from auth import encerrar_autenticacao_supabase
 
 
+def inicializar_estado_sessao():
+    """Inicializa chaves esperadas do Session State sem sobrescrever valores existentes."""
+    if "autenticado" not in st.session_state:
+        st.session_state.autenticado = False
+    if "tela_atual" not in st.session_state:
+        st.session_state.tela_atual = "login"
+    if "resposta_oraculo_texto" not in st.session_state:
+        st.session_state.resposta_oraculo_texto = None
+    if "historico_oraculo_enviado" not in st.session_state:
+        st.session_state.historico_oraculo_enviado = None
+    if "feedback_enviado" not in st.session_state:
+        st.session_state.feedback_enviado = False
+    if "dados_pre_visualizacao" not in st.session_state:
+        st.session_state.dados_pre_visualizacao = None
+
+
 def limpar_sessao_usuario(preservar_cliente_supabase=False):
     """Remove dados do usuário anterior, incluindo estados automáticos de widgets."""
     cliente_supabase = st.session_state.get("_supabase_client") if preservar_cliente_supabase else None

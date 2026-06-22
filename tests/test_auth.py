@@ -220,6 +220,10 @@ class AuthTests(unittest.TestCase):
         self.assertFalse(auth.encerrar_autenticacao_supabase())
 
     def test_app_limpa_sessao_local_quando_revalidacao_falha(self):
+        self.assertIn("inicializar_estado_sessao()", APP_SOURCE)
+        self.assertIn('if "autenticado" not in st.session_state:', SESSION_STATE_SOURCE)
+        self.assertIn('st.session_state.tela_atual = "login"', SESSION_STATE_SOURCE)
+        self.assertIn("st.session_state.dados_pre_visualizacao = None", SESSION_STATE_SOURCE)
         self.assertIn("identidade_revalidada = validar_sessao_atual()", APP_SOURCE)
         trecho = APP_SOURCE.split("if not identidade_revalidada:", 1)[-1]
         self.assertIn("limpar_sessao_usuario()", trecho)
