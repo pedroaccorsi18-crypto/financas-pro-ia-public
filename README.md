@@ -69,11 +69,12 @@ Exemplo após adicionar uma imagem:
 flowchart LR
     U["Usuário"] --> UI["Streamlit / app.py"]
     UI --> AUTH["auth.py / Supabase Auth"]
+    UI --> REPO["repositories/ / Supabase access"]
     UI --> CORE["finance_core.py"]
     UI --> AI["Google Gemini"]
     UI --> SMTP["SMTP opcional"]
     AUTH --> DB["Supabase Postgres"]
-    UI --> DB
+    REPO --> DB
     DB --> RLS["RLS por auth.uid()"]
     DB --> RPC["RPC substituir_lote_importado"]
 ```
@@ -84,10 +85,16 @@ flowchart LR
 | --- | --- | --- |
 | Interface | `app.py` | Fluxos Streamlit: login, upload, dashboard, metas, IA e feedback. |
 | Autenticação | `auth.py` | Supabase Auth, cliente por sessão, validação de chave e revalidação de usuário. |
+| Repositórios | `repositories/` | Camada de acesso ao Supabase para transações, metas, feedbacks e RPC. |
 | Domínio financeiro | `finance_core.py` | Cálculos, validação de mês, comparação de lotes e resumo agregado para IA. |
-| Utilitários | `utils/` | Formatação, privacidade, chamadas Gemini, tratamento de erros e SMTP. |
+| Utilitários | `utils/` | Formatação, privacidade, chamadas Gemini, observabilidade, tratamento de erros e SMTP. |
 | Banco | `supabase/migrations/` | Migrações operacionais, RPC e endurecimento de `user_id`. |
-| Qualidade | `tests/` | Testes unitários, contratos SQL e integração RLS opt-in. |
+| Documentação | `docs/modelo-dados.md` | Modelo de dados, ERD, relacionamentos e regras de segurança. |
+| Qualidade | `.github/workflows/`, `tests/` | CI, secret scanning, testes unitários, contratos SQL e integração RLS opt-in. |
+
+## Modelo de dados
+
+O modelo relacional, o diagrama ERD e as regras de isolamento por `user_id` estão documentados em [`docs/modelo-dados.md`](docs/modelo-dados.md).
 
 ## Decisões técnicas relevantes
 
@@ -99,6 +106,7 @@ flowchart LR
 - **Validação antes de mutação:** a RPC valida parâmetros, payload vazio, tipos e consistência antes de qualquer `DELETE` ou `INSERT`.
 - **Menor exposição para IA:** o assistente analítico usa agregados por mês/categoria em vez de descrições individuais.
 
+## Decisões técnicas relevantes
 ## Stack
 
 - Python 3.11+
@@ -144,23 +152,23 @@ Este projeto permite explicar, com base no código:
 
 ## Limitações conhecidas
 
-- `app.py` ainda concentra muita responsabilidade de UI, orquestração, IA e persistência.
+- `app.py` ainda concentra muita responsabilidade de UI, orquestração e IA, apesar da extração da camada Supabase para `repositories`.
 - A autorização administrativa ainda depende de `ADMIN_EMAILS`.
-- Não há CI configurado neste repositório público.
 - Screenshots reais ainda precisam ser adicionados com dados demonstrativos.
 - A suíte RLS real exige um projeto Supabase de teste e execução opt-in.
 
 Essas limitações são intencionais para um projeto de portfólio em evolução e formam parte do roadmap técnico.
 
 ## Estrutura
-
 ```text
 app.py                  Interface e orquestração Streamlit
 auth.py                 Autenticação Supabase e cliente por sessão
+repositories/           Acesso ao Supabase e RPCs
 finance_core.py         Regras financeiras puras
-utils/                  Utilitários de privacidade, formatação, IA e SMTP
+utils/                  Utilitários de privacidade, observabilidade, formatação, IA e SMTP
 supabase/migrations/    Migrações operacionais do banco
 tests/                  Testes unitários, contratos e integração opt-in
+docs/modelo-dados.md    ERD, dicionário de dados e regras de segurança
 docs/screenshots/       Espaço para imagens demonstrativas
 ```
 
@@ -237,14 +245,16 @@ Veja `tests/integration/README.md` antes de executar.
 
 - Adicionar screenshots reais com dados demonstrativos.
 - Criar um vídeo curto de demonstração do fluxo completo.
-- Adicionar CI com testes e secret scanning.
-- Extrair camada de repositórios Supabase para reduzir acoplamento em `app.py`.
 - Criar testes end-to-end para os principais fluxos Streamlit.
 - Mover autorização administrativa para claims ou tabela protegida por RLS.
-- Melhorar observabilidade para erros de IA, SMTP e banco.
-- Criar documentação do modelo de dados com diagrama ERD.
 - Avaliar qualidade das extrações por IA com casos de teste anonimizados.
 
-## Status do projeto
+Concluído recentemente:
 
+- Adicionar CI com testes e secret scanning.
+- Extrair camada de repositórios Supabase para reduzir acoplamento em `app.py`.
+- Melhorar observabilidade para erros de IA, SMTP e banco.
+- Criar documentação do modelo de dados com diagrama ERD.
+
+## Status do projeto
 Projeto em versão publicável para portfólio técnico. O foco é demonstrar raciocínio de produto, analytics, segurança multiusuário, integração com IA generativa e boas práticas de publicação sem credenciais reais.
