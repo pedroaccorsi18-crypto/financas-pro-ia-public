@@ -24,6 +24,7 @@ import auth
 
 APP_SOURCE = (Path(__file__).parents[1] / "app.py").read_text(encoding="utf-8")
 AUTH_SOURCE = (Path(__file__).parents[1] / "auth.py").read_text(encoding="utf-8")
+FINANCE_CATEGORIES_SOURCE = (Path(__file__).parents[1] / "finance_categories.py").read_text(encoding="utf-8")
 REQUIREMENTS = (Path(__file__).parents[1] / "requirements.txt").read_text(encoding="utf-8")
 
 
@@ -264,9 +265,10 @@ class AuthTests(unittest.TestCase):
         self.assertIn("CATEGORIAS_RECEITA if tipo_transacao == \"Receita\"", trecho)
         self.assertIn("else CATEGORIAS_DESPESA", trecho)
         self.assertIn("key=f\"categoria_manual_{tipo_transacao.lower()}\"", trecho)
-        self.assertIn("\"Salário\"", APP_SOURCE)
-        self.assertIn("\"Moradia\"", APP_SOURCE)
-        self.assertIn("\"Dívidas & Financiamentos\"", APP_SOURCE)
+        self.assertIn("from finance_categories import (", APP_SOURCE)
+        self.assertIn("\"Salário\"", FINANCE_CATEGORIES_SOURCE)
+        self.assertIn("\"Moradia\"", FINANCE_CATEGORIES_SOURCE)
+        self.assertIn("\"Dívidas & Financiamentos\"", FINANCE_CATEGORIES_SOURCE)
 
     def test_app_nao_falha_quando_smtp_nao_esta_configurado(self):
         trecho = APP_SOURCE.split("def disparar_bot_fiscal_email", 1)[-1]

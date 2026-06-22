@@ -1,4 +1,4 @@
-﻿from auth import supabase
+from auth import supabase
 
 
 ORIGEM_IMPORTACAO_AUTOMATICA = "Automático"
