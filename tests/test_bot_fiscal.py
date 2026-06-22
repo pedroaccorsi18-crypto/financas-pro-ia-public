@@ -72,6 +72,27 @@ class BotFiscalTests(unittest.TestCase):
         self.assertFalse(enviado)
         smtp.assert_not_called()
 
+    def test_log_smtp_nao_expoe_senha(self):
+        instancias = []
+
+        def criar_smtp(*args, **kwargs):
+            instancia = SmtpFake(*args, **kwargs)
+            instancias.append(instancia)
+            return instancia
+
+        with self.assertLogs("utils.bot_fiscal", level="INFO") as logs:
+            enviar_alerta_fiscal(
+                CONFIGURACAO,
+                smtp_factory=criar_smtp,
+                **DADOS,
+            )
+
+        saida = "\n".join(logs.output)
+        self.assertIn("Alerta fiscal enviado por SMTP", saida)
+        self.assertIn("smtp.exemplo.com", saida)
+        self.assertNotIn("senha", saida)
+
+
     def test_agendamento_usa_thread_daemon(self):
         with patch("utils.bot_fiscal.threading.Thread") as thread:
             instancia = thread.return_value

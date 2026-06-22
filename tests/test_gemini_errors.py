@@ -69,6 +69,36 @@ class GeminiClientTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             gerar_conteudo_gemini(cliente, tentativas=0)
 
+    def test_registra_retry_sem_prompt_ou_chave(self):
+        chamadas = []
+
+        def gerar(**kwargs):
+            chamadas.append(kwargs)
+            if len(chamadas) == 1:
+                raise RuntimeError("503 UNAVAILABLE: overloaded")
+            return "ok"
+
+        cliente = SimpleNamespace(models=SimpleNamespace(generate_content=gerar))
+
+        with self.assertLogs("utils.gemini_client", level="INFO") as logs:
+            resultado = gerar_conteudo_gemini(
+                cliente,
+                model="gemini-teste",
+                contents="dado financeiro sensivel",
+                api_key="segredo",
+                tentativas=2,
+                pausar=lambda _: None,
+            )
+
+        saida = "\n".join(logs.output)
+        self.assertEqual(resultado, "ok")
+        self.assertIn("Chamada Gemini falhou", saida)
+        self.assertIn("Chamada Gemini concluida", saida)
+        self.assertIn("gemini-teste", saida)
+        self.assertNotIn("dado financeiro sensivel", saida)
+        self.assertNotIn("segredo", saida)
+
+
 
 if __name__ == "__main__":
     unittest.main()

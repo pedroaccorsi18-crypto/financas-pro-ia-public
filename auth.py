@@ -5,6 +5,7 @@ import time
 
 import streamlit as st
 from supabase import Client, create_client
+from utils.observability import fingerprint, registrar_evento
 
 
 logger = logging.getLogger(__name__)
@@ -113,13 +114,27 @@ def fazer_login(email: str, senha: str) -> dict | bool:
             {"email": email_limpo, "password": senha}
         )
         if resposta.user:
+            registrar_evento(
+                logger,
+                logging.INFO,
+                "Login Supabase Auth aprovado",
+                contexto={"usuario_fp": fingerprint(email_limpo)},
+            )
             st.session_state.tentativas_login = []
             return {
                 "id": str(resposta.user.id),
                 "email": (resposta.user.email or email_limpo).strip().lower(),
             }
-    except Exception:
-        logger.info("Tentativa de login recusada para %s", email_limpo)
+    except Exception as erro:
+        registrar_evento(
+            logger,
+            logging.INFO,
+            "Tentativa de login recusada pelo Supabase Auth",
+            contexto={
+                "usuario_fp": fingerprint(email_limpo),
+                "tipo_erro": type(erro).__name__,
+            },
+        )
 
     tentativas.append(agora)
     st.session_state.tentativas_login = tentativas
@@ -131,9 +146,24 @@ def enviar_email_recuperacao_senha(email: str) -> bool:
     email_limpo = email.strip().lower()
     try:
         supabase.auth.reset_password_for_email(email_limpo)
+        registrar_evento(
+            logger,
+            logging.INFO,
+            "Recuperacao de senha solicitada ao Supabase Auth",
+            contexto={"usuario_fp": fingerprint(email_limpo)},
+        )
         return True
-    except Exception:
-        logger.warning("Falha ao solicitar recuperacao de senha", exc_info=True)
+    except Exception as erro:
+        registrar_evento(
+            logger,
+            logging.WARNING,
+            "Falha ao solicitar recuperacao de senha no Supabase Auth",
+            contexto={
+                "usuario_fp": fingerprint(email_limpo),
+                "tipo_erro": type(erro).__name__,
+            },
+            exc_info=True,
+        )
         return False
 
 
@@ -147,8 +177,13 @@ def validar_sessao_atual() -> dict | bool:
             "id": str(resposta.user.id),
             "email": resposta.user.email.strip().lower(),
         }
-    except Exception:
-        logger.info("Sessao Supabase Auth ausente, expirada ou revogada")
+    except Exception as erro:
+        registrar_evento(
+            logger,
+            logging.INFO,
+            "Sessao Supabase Auth ausente, expirada ou revogada",
+            contexto={"tipo_erro": type(erro).__name__},
+        )
         return False
 
 
@@ -157,8 +192,14 @@ def encerrar_autenticacao_supabase() -> bool:
     try:
         supabase.auth.sign_out()
         return True
-    except Exception:
-        logger.warning("Falha ao encerrar sessao no Supabase Auth", exc_info=True)
+    except Exception as erro:
+        registrar_evento(
+            logger,
+            logging.WARNING,
+            "Falha ao encerrar sessao no Supabase Auth",
+            contexto={"tipo_erro": type(erro).__name__},
+            exc_info=True,
+        )
         return False
 
 
@@ -169,6 +210,13 @@ def auditar_saude_plataforma() -> dict:
         supabase.table("transacoes").select("id").limit(1).execute()
         status["supabase"] = "Conectado"
         status["seguranca"] = "Sessao Auth e RLS ativos"
-    except Exception:
+    except Exception as erro:
+        registrar_evento(
+            logger,
+            logging.WARNING,
+            "Auditoria de saude Supabase falhou",
+            contexto={"tipo_erro": type(erro).__name__},
+            exc_info=True,
+        )
         status["supabase"] = "Erro de acesso"
     return status

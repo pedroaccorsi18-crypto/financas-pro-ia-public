@@ -4,6 +4,7 @@ import threading
 from email.mime.text import MIMEText
 
 from utils.formatting import formatar_brl
+from utils.observability import fingerprint, registrar_evento
 
 
 logger = logging.getLogger(__name__)
@@ -25,6 +26,17 @@ def enviar_alerta_fiscal(
     balanco_calculado = total_gastos - total_creditos
     divergencia = abs(balanco_calculado - valor_declarado)
     if divergencia <= 0.05:
+        registrar_evento(
+            logger,
+            logging.INFO,
+            "Alerta fiscal nao enviado: sem divergencia relevante",
+            contexto={
+                "usuario_fp": fingerprint(usuario),
+                "instituicao": instituicao,
+                "mes": mes,
+                "divergencia": round(divergencia, 2),
+            },
+        )
         return False
 
     remetente = configuracao["SMTP_EMAIL_REMETENTE"]
@@ -57,6 +69,19 @@ Divergencia: {formatar_brl(divergencia)}
         servidor.starttls()
         servidor.login(remetente, configuracao["SMTP_SENHA_REMETENTE"])
         servidor.sendmail(remetente, [destinatario], mensagem.as_string())
+        registrar_evento(
+            logger,
+            logging.INFO,
+            "Alerta fiscal enviado por SMTP",
+            contexto={
+                "usuario_fp": fingerprint(usuario),
+                "instituicao": instituicao,
+                "mes": mes,
+                "smtp_server": configuracao.get("SMTP_SERVER"),
+                "smtp_port": configuracao.get("SMTP_PORT"),
+                "divergencia": round(divergencia, 2),
+            },
+        )
     finally:
         servidor.quit()
     return True
@@ -66,8 +91,19 @@ def agendar_alerta_fiscal(configuracao: dict, **dados) -> threading.Thread:
     def executar():
         try:
             enviar_alerta_fiscal(configuracao, **dados)
-        except Exception:
-            logger.warning("Falha ao enviar alerta fiscal", exc_info=True)
+        except Exception as erro:
+            registrar_evento(
+                logger,
+                logging.WARNING,
+                "Falha ao enviar alerta fiscal",
+                contexto={
+                    "usuario_fp": fingerprint(dados.get("usuario")),
+                    "instituicao": dados.get("instituicao"),
+                    "mes": dados.get("mes"),
+                    "tipo_erro": type(erro).__name__,
+                },
+                exc_info=True,
+            )
 
     thread = threading.Thread(
         target=executar,
