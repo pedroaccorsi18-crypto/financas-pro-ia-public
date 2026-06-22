@@ -4,6 +4,7 @@ import datetime
 import logging
 from google import genai
 from google.genai import types
+from app_config import SMTP_SECRET_KEYS
 from auth import (
     auditar_saude_plataforma,
     cadastrar_usuario,
@@ -164,14 +165,7 @@ if st.session_state.autenticado:
 # 🤖 BOT FISCAL DE CONCILIAÇÃO ASSÍNCRONA
 # ==========================================
 def disparar_bot_fiscal_email(usuario, instituicao, tipo_doc, mes, total_gastos, total_creditos, valor_declarado):
-    chaves = (
-        "SMTP_SERVER",
-        "SMTP_PORT",
-        "SMTP_EMAIL_REMETENTE",
-        "SMTP_SENHA_REMETENTE",
-        "EMAIL_DESTINATARIO_ALERTAS",
-    )
-    configuracao = {chave: st.secrets.get(chave) for chave in chaves}
+    configuracao = {chave: st.secrets.get(chave) for chave in SMTP_SECRET_KEYS}
     if not all(configuracao.values()):
         logger.info("Alerta fiscal nao enviado: configuracao SMTP incompleta")
         return False

@@ -25,6 +25,7 @@ import auth
 APP_SOURCE = (Path(__file__).parents[1] / "app.py").read_text(encoding="utf-8")
 AUTH_SOURCE = (Path(__file__).parents[1] / "auth.py").read_text(encoding="utf-8")
 FINANCE_CATEGORIES_SOURCE = (Path(__file__).parents[1] / "finance_categories.py").read_text(encoding="utf-8")
+APP_CONFIG_SOURCE = (Path(__file__).parents[1] / "app_config.py").read_text(encoding="utf-8")
 REQUIREMENTS = (Path(__file__).parents[1] / "requirements.txt").read_text(encoding="utf-8")
 
 
@@ -273,6 +274,10 @@ class AuthTests(unittest.TestCase):
     def test_app_nao_falha_quando_smtp_nao_esta_configurado(self):
         trecho = APP_SOURCE.split("def disparar_bot_fiscal_email", 1)[-1]
         trecho = trecho.split("# ==========================================", 1)[0]
+        self.assertIn("from app_config import SMTP_SECRET_KEYS", APP_SOURCE)
+        self.assertIn("SMTP_SECRET_KEYS", trecho)
+        self.assertIn("\"SMTP_SERVER\"", APP_CONFIG_SOURCE)
+        self.assertIn("\"EMAIL_DESTINATARIO_ALERTAS\"", APP_CONFIG_SOURCE)
         self.assertIn("if not all(configuracao.values()):", trecho)
         self.assertIn("return False", trecho)
 
