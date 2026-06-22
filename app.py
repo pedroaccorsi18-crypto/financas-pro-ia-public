@@ -29,7 +29,10 @@ from finance_categories import (
     CATEGORIAS_VALIDAS,
 )
 from finance_constants import (
+    ORIGEM_AUTOMATICA,
+    ORIGEM_MANUAL,
     TIPO_DESPESA,
+    TIPO_DOCUMENTO_MANUAL,
     TIPO_RECEITA,
     TIPOS_TRANSACAO,
 )
@@ -321,7 +324,7 @@ elif st.session_state.autenticado:
         ano_atual = datetime.datetime.now().year
         meses_ano = [f"{m:02d}/{ano_atual}" for m in range(1, 13)]
         mes_manual = st.selectbox("Mês de Referência", meses_ano, index=datetime.datetime.now().month - 1)
-        banco_manual = st.text_input("Instituição (Opcional)", value="Manual").strip()
+        banco_manual = st.text_input("Instituição (Opcional)", value=ORIGEM_MANUAL).strip()
         
         if st.form_submit_button("Salvar Lançamento"):
             if desc and val > 0:
@@ -338,9 +341,9 @@ elif st.session_state.autenticado:
                             "categoria": cat_manual if cat_manual in categorias_manuais else categorias_manuais[-1],
                             "mes_referencia": mes_manual,
                             "meta_fatura": 0.0,
-                            "instituicao_financeira": banco_manual.strip() if banco_manual else "Manual",
-                            "tipo_documento": "Manual",
-                            "origem_importacao": "Manual"
+                            "instituicao_financeira": banco_manual.strip() if banco_manual else ORIGEM_MANUAL,
+                            "tipo_documento": TIPO_DOCUMENTO_MANUAL,
+                            "origem_importacao": ORIGEM_MANUAL
                         })
                         st.toast("Lançamento computado com sucesso!", icon="✅")
                         st.rerun()
@@ -558,7 +561,7 @@ elif st.session_state.autenticado:
                             transacoes_para_inserir.append({
                                 "user_id": usuario_id, "usuario_email": email_usuario, "descricao": desc_original, "valor": val_item, "tipo": tipo_final,
                                 "categoria": categoria_final, "mes_referencia": pre_vis["mes_referencia"].strip(), "meta_fatura": pre_vis["total_documento"],
-                                "instituicao_financeira": pre_vis["instituicao"].strip(), "tipo_documento": pre_vis["tipo_documento"], "origem_importacao": "Automático"
+                                "instituicao_financeira": pre_vis["instituicao"].strip(), "tipo_documento": pre_vis["tipo_documento"], "origem_importacao": ORIGEM_AUTOMATICA
                             })
                             
                         if transacoes_para_inserir:
@@ -775,8 +778,8 @@ elif st.session_state.autenticado:
         for t in reversed(lista_transacoes):
             cor = "🟢" if t["tipo"] == TIPO_RECEITA else "🔴"
             status_tipo = "Entrada" if t["tipo"] == TIPO_RECEITA else "Saída"
-            banco_tag = t.get("instituicao_financeira", "Manual")
-            origem_label = "✍️" if t.get("origem_importacao") == "Manual" else "🤖"
+            banco_tag = t.get("instituicao_financeira", ORIGEM_MANUAL)
+            origem_label = "✍️" if t.get("origem_importacao") == ORIGEM_MANUAL else "🤖"
             categoria_tag = f" [{t.get('categoria', 'Geral')}]" if t["tipo"] == TIPO_DESPESA else ""
             st.markdown(f"{cor} **{t['descricao']}**{categoria_tag} | {formatar_brl(t['valor'])} ({status_tipo} | {origem_label} {banco_tag})")
     else:
