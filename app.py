@@ -56,6 +56,7 @@ from utils.gemini_client import (
 )
 from utils.import_staging import preparar_transacoes_importadas
 from utils.manual_entry import preparar_transacao_manual
+from utils.goals import calcular_status_meta
 from utils.privacy import anonimizar_dados
 from utils.trends import TENDENCIA_SEM_HISTORICO, calcular_textos_tendencia
 import pandas as pd
@@ -586,14 +587,10 @@ elif st.session_state.autenticado:
                     meta_cadastrada = dict_metas.get(cat, 0.0)
                     
                     if meta_cadastrada > 0:
-                        pct = (gasto_atual / meta_cadastrada)
-                        restante = meta_cadastrada - gasto_atual
-                        if pct >= 1.0:
-                            cor_barra, txt_status = "red", f"🚨 Orçamento Estourado por {formatar_brl(abs(restante))}!"
-                        elif pct >= 0.8:
-                            cor_barra, txt_status = "orange", f"⚠️ Atenção! Você consumiu {pct*100:.1f}% do teto. Restam {formatar_brl(restante)}."
-                        else:
-                            cor_barra, txt_status = "green", f"✅ Sob Controle. Restam {formatar_brl(restante)} disponíveis."
+                        pct, cor_barra, txt_status = calcular_status_meta(
+                            gasto_atual,
+                            meta_cadastrada,
+                        )
                         
                         st.markdown(f"**{cat}** | Gasto: {formatar_brl(gasto_atual)} de Meta: {formatar_brl(meta_cadastrada)} ({pct*100:.1f}%)")
                         st.progress(min(pct, 1.0))
