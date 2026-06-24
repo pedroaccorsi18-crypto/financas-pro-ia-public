@@ -47,6 +47,7 @@ from session_state import (
     limpar_sessao_usuario,
 )
 from utils.authorization import eh_usuario_admin
+from utils.audit import preparar_dataframe_auditoria_categoria
 from utils.bot_fiscal import disparar_bot_fiscal_email
 from utils.category_analysis import preparar_dados_analise_categorias
 from utils.error_handling import mostrar_erro_seguro
@@ -638,10 +639,9 @@ elif st.session_state.autenticado:
         st.subheader("🕵️‍♂️ Central de Auditoria Contábil")
         for cat in CATEGORIAS_DESPESA:
             try:
-                df_filtrado_categoria = df_mes[(df_mes["categoria"] == cat) & (df_mes["tipo"] == TIPO_DESPESA)][["descricao", "valor", "instituicao_financeira", "origem_importacao"]]
-                if not df_filtrado_categoria.empty:
-                    df_exibicao = df_filtrado_categoria.rename(columns={"descricao": "Estabelecimento / Compra", "valor": "Valor (R$)", "instituicao_financeira": "Banco/Cartão", "origem_importacao": "Origem"})
-                    with st.expander(f"📁 Linhas Auditadas de '{cat}' ({len(df_filtrado_categoria)} itens)"):
+                df_exibicao = preparar_dataframe_auditoria_categoria(df_mes, cat)
+                if not df_exibicao.empty:
+                    with st.expander(f"📁 Linhas Auditadas de '{cat}' ({len(df_exibicao)} itens)"):
                         st.dataframe(df_exibicao, use_container_width=True, hide_index=True)
                 else:
                     with st.expander(f"📁 Linhas Auditadas de '{cat}' (Zerado)"):
