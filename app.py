@@ -25,10 +25,8 @@ from finance_categories import (
     CATEGORIAS_VALIDAS,
 )
 from finance_constants import (
-    ORIGEM_AUTOMATICA,
     ORIGEM_MANUAL,
     TIPO_DESPESA,
-    TIPO_DOCUMENTO_MANUAL,
     TIPO_RECEITA,
     TIPOS_TRANSACAO,
 )
@@ -56,7 +54,10 @@ from utils.gemini_client import (
     criar_cliente_gemini,
     gerar_conteudo_gemini as gerar_com_cliente_gemini,
 )
+from utils.import_staging import preparar_transacoes_importadas
+from utils.manual_entry import preparar_transacao_manual
 from utils.privacy import anonimizar_dados
+from utils.trends import TENDENCIA_SEM_HISTORICO, calcular_textos_tendencia
 import pandas as pd
 import plotly.express as px
 
@@ -251,19 +252,19 @@ elif st.session_state.autenticado:
                     if not mes_referencia_valido(mes_manual):
                         st.error("Formato do mês de referência inválido.")
                     else:
-                        inserir_transacao({
-                            "user_id": usuario_id,
-                            "usuario_email": email_usuario, 
-                            "descricao": desc.strip(), 
-                            "valor": float(val), 
-                            "tipo": tipo_transacao,
-                            "categoria": cat_manual if cat_manual in categorias_manuais else categorias_manuais[-1],
-                            "mes_referencia": mes_manual,
-                            "meta_fatura": 0.0,
-                            "instituicao_financeira": banco_manual.strip() if banco_manual else ORIGEM_MANUAL,
-                            "tipo_documento": TIPO_DOCUMENTO_MANUAL,
-                            "origem_importacao": ORIGEM_MANUAL
-                        })
+                        inserir_transacao(
+                            preparar_transacao_manual(
+                                descricao=desc,
+                                valor=val,
+                                tipo_transacao=tipo_transacao,
+                                categoria=cat_manual,
+                                categorias_validas=categorias_manuais,
+                                mes_referencia=mes_manual,
+                                instituicao=banco_manual,
+                                usuario_id=usuario_id,
+                                email_usuario=email_usuario,
+                            )
+                        )
                         st.toast("Lançamento computado com sucesso!", icon="✅")
                         st.rerun()
                 except Exception as e_insert:
@@ -395,7 +396,7 @@ elif st.session_state.autenticado:
                         config_ia = types.GenerateContentConfig(response_mime_type="application/json", response_schema=esquema_json, temperature=0.0)
                         response = gerar_conteudo_gemini(
                             model='gemini-2.5-flash',
-                            contents=[genai.types.Part.from_bytes(data=dados_pdf, mime_type='application/pdf'), prompt_mestre],
+                            contents=[types.Part.from_bytes(data=dados_pdf, mime_type='application/pdf'), prompt_mestre],
                             config=config_ia
                         )
 
@@ -447,42 +448,13 @@ elif st.session_state.autenticado:
             if st.button("💾 Confirmar e Salvar no Supabase", type="primary", use_container_width=True):
                 with st.spinner("Consolidando dados no Supabase..."):
                     try:
-                        if not pre_vis["instituicao"] or str(pre_vis["instituicao"]).strip() == "":
-                            raise ValueError("A identificação da instituição financeira não pode estar vazia.")
+                        transacoes_para_inserir, gastos_reais, creditos_reais = preparar_transacoes_importadas(
+                            df_editavel,
+                            pre_vis,
+                            usuario_id,
+                            email_usuario,
+                        )
                         
-                        if not mes_referencia_valido(str(pre_vis["mes_referencia"])):
-                            raise ValueError("O mês de referência extraído do PDF deve seguir estritamente o formato MM/AAAA.")
-                        
-                        gastos_reais, creditos_reais = 0.0, 0.0
-                        transacoes_para_inserir = []
-                        
-                        for _, row in df_editavel.iterrows():
-                            val_item = float(row["valor"])
-                            desc_original = str(row["descricao"]).strip()
-                            categoria_final = str(row["categoria"]).strip()
-                            tipo_final = str(row["tipo"]).strip()
-                            
-                            if not desc_original or desc_original == "":
-                                raise ValueError("Nenhum lançamento pode conter uma descrição vazia.")
-                            if val_item <= 0:
-                                raise ValueError(f"O lançamento '{desc_original}' possui valor nulo ou negativo inválido.")
-                            if tipo_final not in TIPOS_TRANSACAO:
-                                raise ValueError(f"O tipo do lançamento '{desc_original}' deve ser estritamente 'Despesa' ou 'Receita'.")
-                            if categoria_final not in CATEGORIAS_VALIDAS:
-                                raise ValueError(f"A categoria '{categoria_final}' no item '{desc_original}' não faz parte do catálogo permitido.")
-                                
-                            if any(k in desc_original.lower() for k in ["pmbmetro", "metro", "cptm", "autopass"]):
-                                categoria_final = "Transporte"
-                                
-                            if tipo_final == TIPO_DESPESA: gastos_reais += val_item
-                            else: creditos_reais += val_item
-                            
-                            transacoes_para_inserir.append({
-                                "user_id": usuario_id, "usuario_email": email_usuario, "descricao": desc_original, "valor": val_item, "tipo": tipo_final,
-                                "categoria": categoria_final, "mes_referencia": pre_vis["mes_referencia"].strip(), "meta_fatura": pre_vis["total_documento"],
-                                "instituicao_financeira": pre_vis["instituicao"].strip(), "tipo_documento": pre_vis["tipo_documento"], "origem_importacao": ORIGEM_AUTOMATICA
-                            })
-                            
                         if transacoes_para_inserir:
                             lote_existente = buscar_lote_importado(
                                 usuario_id=usuario_id,
@@ -538,7 +510,7 @@ elif st.session_state.autenticado:
         total_pagamentos = resumo_mes["receitas"]
         valor_balanco_final = resumo_mes["balanco"]
 
-        txt_tendencia_gastos = txt_tendencia_pagamentos = txt_tendencia_balanco = '<span style="color: #a1a1aa; font-size: 12px; font-weight: 500;">• Sem histórico base</span>'
+        txt_tendencia_gastos = txt_tendencia_pagamentos = txt_tendencia_balanco = TENDENCIA_SEM_HISTORICO
 
         if mes_selecionado and mes_selecionado in meses_disponiveis:
             idx_atual = meses_disponiveis.index(mes_selecionado)
@@ -549,19 +521,10 @@ elif st.session_state.autenticado:
                 if lista_anterior:
                     try:
                         resumo_anterior = calcular_resumo_financeiro(lista_anterior)
-                        gastos_ant = resumo_anterior["despesas"]
-                        pag_ant = resumo_anterior["receitas"]
-                        bal_ant = resumo_anterior["balanco"]
-                        
-                        if gastos_ant > 0:
-                            var_gastos = ((total_compras - gastos_ant) / gastos_ant) * 100
-                            txt_tendencia_gastos = f'<span style="color: #a3b899; font-size: 12px; font-weight: 600;">▼ {abs(var_gastos):.1f}%</span>' if var_gastos < 0 else f'<span style="color: #ef4444; font-size: 12px; font-weight: 600;">▲ {var_gastos:.1f}%</span>'
-                        if pag_ant > 0:
-                            var_pag = ((total_pagamentos - pag_ant) / pag_ant) * 100
-                            txt_tendencia_pagamentos = f'<span style="color: #a3b899; font-size: 12px; font-weight: 600;">▲ {var_pag:.1f}%</span>' if var_pag > 0 else f'<span style="color: #ef4444; font-size: 12px; font-weight: 600;">▼ {abs(var_pag):.1f}%</span>'
-                        if bal_ant > 0:
-                            var_bal = ((valor_balanco_final - bal_ant) / bal_ant) * 100
-                            txt_tendencia_balanco = f'<span style="color: #a3b899; font-size: 12px; font-weight: 600;">▲ {var_bal:.1f}%</span>' if var_bal > 0 else f'<span style="color: #ef4444; font-size: 12px; font-weight: 600;">▼ {abs(var_bal):.1f}%</span>'
+                        txt_tendencia_gastos, txt_tendencia_pagamentos, txt_tendencia_balanco = calcular_textos_tendencia(
+                            resumo_mes,
+                            resumo_anterior,
+                        )
                     except Exception as e_trend:
                         msg = mostrar_erro_seguro(e_trend, email_usuario)
                         st.error(msg)
