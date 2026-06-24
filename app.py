@@ -48,6 +48,7 @@ from session_state import (
 )
 from utils.authorization import eh_usuario_admin
 from utils.bot_fiscal import disparar_bot_fiscal_email
+from utils.category_analysis import preparar_dados_analise_categorias
 from utils.error_handling import mostrar_erro_seguro
 from utils.formatting import formatar_brl
 from utils.gemini_client import (
@@ -608,21 +609,18 @@ elif st.session_state.autenticado:
             try:
                 col_grafico, col_subtotais = st.columns([50, 50])
                 with col_grafico:
-                    df_agrupado = df_despesas.groupby("categoria")["valor"].sum().reset_index().sort_values(by="valor", ascending=True)
-                    df_agrupado = df_agrupado.rename(columns={"categoria": "Categoria", "valor": "Total (R$)"})
+                    df_agrupado, subtotais_categorias = preparar_dados_analise_categorias(
+                        df_mes,
+                        df_despesas,
+                        CATEGORIAS_DESPESA,
+                    )
                     fig_barras = px.bar(df_agrupado, x="Total (R$)", y="Categoria", orientation="h", text="Total (R$)", color="Total (R$)", color_continuous_scale="Plotly3")
                     fig_barras.update_traces(texttemplate='R$ %{text:,.2f}', textposition='outside', cliponaxis=False, marker_line_width=0, hovertemplate="<b>%{y}</b><br>R$ %{x:,.2f}<extra></extra>")
                     fig_barras.update_layout(template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", margin=dict(t=10, b=10, l=10, r=40), height=380, xaxis=dict(showgrid=False, title="", showticklabels=False, fixedrange=True), yaxis=dict(title="", tickfont=dict(size=12, color="#a1a1aa"), fixedrange=True), coloraxis_showscale=False, dragmode=False)
                     st.plotly_chart(fig_barras, use_container_width=True, config={'displayModeBar': False})
                 
                 with col_subtotais:
-                    df_ordenado_lista = df_despesas.groupby("categoria")["valor"].sum().sort_values(ascending=False).reset_index()
-                    todas_categorias_ordenadas = df_ordenado_lista["categoria"].tolist()
-                    for c in CATEGORIAS_DESPESA:
-                        if c not in todas_categorias_ordenadas: todas_categorias_ordenadas.append(c)
-                    
-                    for cat in todas_categorias_ordenadas:
-                        v_cat = df_mes[(df_mes["categoria"] == cat) & (df_mes["tipo"] == TIPO_DESPESA)]["valor"].sum()
+                    for cat, v_cat in subtotais_categorias:
                         st.markdown(f"""
                         <div style="background: linear-gradient(90deg, #16161a, #1a1a22); padding: 11px 20px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03); margin-bottom: 7px; display: flex; justify-content: space-between; align-items: center;">
                             <span style="color: #a1a1aa; font-size: 13px; font-weight: 600; text-transform: uppercase;">{cat}</span>
