@@ -1,7 +1,8 @@
 import unittest
 from types import SimpleNamespace
+from unittest.mock import Mock
 
-from utils.gemini_client import gerar_conteudo_gemini
+from utils.gemini_client import criar_cliente_gemini, gerar_conteudo_gemini
 from utils.gemini_errors import classificar_erro_gemini, mensagem_erro_gemini
 
 
@@ -26,6 +27,16 @@ class GeminiErrorsTests(unittest.TestCase):
 
 
 class GeminiClientTests(unittest.TestCase):
+    def test_cria_cliente_gemini_com_header_da_chave(self):
+        client = Mock()
+        criado = criar_cliente_gemini("chave-teste", client_factory=client)
+
+        self.assertIs(criado, client.return_value)
+        client.assert_called_once_with(
+            api_key="chave-teste",
+            http_options={"headers": {"x-goog-api-key": "chave-teste"}},
+        )
+
     def test_repete_indisponibilidade_com_backoff(self):
         chamadas = []
         pausas = []

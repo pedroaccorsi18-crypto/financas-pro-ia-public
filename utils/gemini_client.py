@@ -8,6 +8,18 @@ from utils.observability import registrar_evento
 logger = logging.getLogger(__name__)
 
 
+def criar_cliente_gemini(chave: str, client_factory=None):
+    if client_factory is None:
+        from google import genai
+
+        client_factory = genai.Client
+
+    return client_factory(
+        api_key=chave,
+        http_options={"headers": {"x-goog-api-key": chave}},
+    )
+
+
 def gerar_conteudo_gemini(
     cliente,
     *,

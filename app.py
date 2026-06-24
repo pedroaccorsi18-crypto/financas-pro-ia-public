@@ -2,7 +2,6 @@ import streamlit as st
 import json
 import datetime
 import logging
-from google import genai
 from google.genai import types
 from auth import (
     auditar_saude_plataforma,
@@ -53,7 +52,10 @@ from utils.authorization import eh_usuario_admin
 from utils.bot_fiscal import disparar_bot_fiscal_email
 from utils.error_handling import mostrar_erro_seguro
 from utils.formatting import formatar_brl
-from utils.gemini_client import gerar_conteudo_gemini as gerar_com_cliente_gemini
+from utils.gemini_client import (
+    criar_cliente_gemini,
+    gerar_conteudo_gemini as gerar_com_cliente_gemini,
+)
 from utils.privacy import anonimizar_dados
 import pandas as pd
 import plotly.express as px
@@ -80,10 +82,7 @@ def obter_cliente_gemini():
     chave = str(st.secrets.get("GEMINI_API_KEY", "")).strip()
     if not chave:
         raise RuntimeError("GEMINI_API_KEY nao configurada")
-    return genai.Client(
-        api_key=chave,
-        http_options={"headers": {"x-goog-api-key": chave}},
-    )
+    return criar_cliente_gemini(chave)
 
 
 def gerar_conteudo_gemini(*, tentativas=3, **kwargs):
