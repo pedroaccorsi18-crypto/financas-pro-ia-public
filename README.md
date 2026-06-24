@@ -82,7 +82,7 @@ flowchart LR
 | Domínio financeiro | `finance_core.py` | Cálculos, validação de mês, comparação de lotes e resumo agregado para IA. |
 | Constantes e configuração | `finance_categories.py`, `finance_constants.py`, `app_config.py` | Categorias financeiras, tipos de transação, origens de dados e chaves de configuração. |
 | Sessão | `session_state.py` | Inicialização, limpeza e encerramento de sessão Streamlit. |
-| Utilitários | `utils/` | Formatação, privacidade, chamadas Gemini, observabilidade, tratamento de erros e SMTP. |
+| Utilitários | `utils/` | Formatação, privacidade, chamadas Gemini, observabilidade, tratamento de erros, SMTP e helpers puros de dashboard/importação. |
 | Banco | `supabase/migrations/` | Migrações operacionais, RPC e endurecimento de `user_id`. |
 | Documentação | `docs/modelo-dados.md` | Modelo de dados, ERD, relacionamentos e regras de segurança. |
 | Qualidade | `.github/workflows/`, `tests/` | CI, secret scanning, testes unitários, contratos SQL e integração RLS opt-in. |
@@ -162,7 +162,7 @@ finance_categories.py   Categorias válidas de receitas e despesas
 finance_constants.py    Tipos de transação, origens e documentos
 app_config.py           Chaves de configuração usadas pela aplicação
 session_state.py        Inicialização e limpeza do estado de sessão Streamlit
-utils/                  Utilitários de privacidade, observabilidade, formatação, IA e SMTP
+utils/                  Utilitários de privacidade, observabilidade, formatação, IA, SMTP e helpers de dashboard/importação
 supabase/migrations/    Migrações operacionais do banco
 tests/                  Testes unitários, contratos e integração opt-in
 docs/modelo-dados.md    ERD, dicionário de dados e regras de segurança
@@ -250,6 +250,7 @@ Concluído recentemente:
 - Adicionar CI com testes e secret scanning.
 - Extrair camada de repositórios Supabase para reduzir acoplamento em `app.py`.
 - Extrair categorias, constantes financeiras, configuração SMTP e estado de sessão para módulos dedicados.
+- Extrair helpers puros de importação, lançamentos manuais, tendências, metas e análise por categoria.
 - Melhorar observabilidade para erros de IA, SMTP e banco.
 - Criar documentação do modelo de dados com diagrama ERD.
 - Adicionar screenshots reais com dados demonstrativos.
