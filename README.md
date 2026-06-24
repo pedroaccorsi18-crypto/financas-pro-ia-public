@@ -80,6 +80,8 @@ flowchart LR
 | Autenticação | `auth.py` | Supabase Auth, cliente por sessão, validação de chave e revalidação de usuário. |
 | Repositórios | `repositories/` | Camada de acesso ao Supabase para transações, metas, feedbacks e RPC. |
 | Domínio financeiro | `finance_core.py` | Cálculos, validação de mês, comparação de lotes e resumo agregado para IA. |
+| Constantes e configuração | `finance_categories.py`, `finance_constants.py`, `app_config.py` | Categorias financeiras, tipos de transação, origens de dados e chaves de configuração. |
+| Sessão | `session_state.py` | Inicialização, limpeza e encerramento de sessão Streamlit. |
 | Utilitários | `utils/` | Formatação, privacidade, chamadas Gemini, observabilidade, tratamento de erros e SMTP. |
 | Banco | `supabase/migrations/` | Migrações operacionais, RPC e endurecimento de `user_id`. |
 | Documentação | `docs/modelo-dados.md` | Modelo de dados, ERD, relacionamentos e regras de segurança. |
@@ -99,7 +101,6 @@ O modelo relacional, o diagrama ERD e as regras de isolamento por `user_id` est�
 - **Validação antes de mutação:** a RPC valida parâmetros, payload vazio, tipos e consistência antes de qualquer `DELETE` ou `INSERT`.
 - **Menor exposição para IA:** o assistente analítico usa agregados por mês/categoria em vez de descrições individuais.
 
-## Decisões técnicas relevantes
 ## Stack
 
 - Python 3.11+
@@ -145,7 +146,7 @@ Este projeto permite explicar, com base no código:
 
 ## Limitações conhecidas
 
-- `app.py` ainda concentra muita responsabilidade de UI, orquestração e IA, apesar da extração da camada Supabase para `repositories`.
+- `app.py` ainda concentra parte relevante da UI e da orquestração, embora a camada Supabase, categorias, constantes, configuração e estado de sessão já tenham sido extraídos em módulos dedicados.
 - A autorização administrativa ainda depende de `ADMIN_EMAILS`.
 - A suíte RLS real exige um projeto Supabase de teste e execução opt-in.
 
@@ -157,6 +158,10 @@ app.py                  Interface e orquestração Streamlit
 auth.py                 Autenticação Supabase e cliente por sessão
 repositories/           Acesso ao Supabase e RPCs
 finance_core.py         Regras financeiras puras
+finance_categories.py   Categorias válidas de receitas e despesas
+finance_constants.py    Tipos de transação, origens e documentos
+app_config.py           Chaves de configuração usadas pela aplicação
+session_state.py        Inicialização e limpeza do estado de sessão Streamlit
 utils/                  Utilitários de privacidade, observabilidade, formatação, IA e SMTP
 supabase/migrations/    Migrações operacionais do banco
 tests/                  Testes unitários, contratos e integração opt-in
@@ -244,6 +249,7 @@ Concluído recentemente:
 
 - Adicionar CI com testes e secret scanning.
 - Extrair camada de repositórios Supabase para reduzir acoplamento em `app.py`.
+- Extrair categorias, constantes financeiras, configuração SMTP e estado de sessão para módulos dedicados.
 - Melhorar observabilidade para erros de IA, SMTP e banco.
 - Criar documentação do modelo de dados com diagrama ERD.
 - Adicionar screenshots reais com dados demonstrativos.
