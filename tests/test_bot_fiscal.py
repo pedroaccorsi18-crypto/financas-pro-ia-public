@@ -1,7 +1,11 @@
 import unittest
 from unittest.mock import patch
 
-from utils.bot_fiscal import agendar_alerta_fiscal, enviar_alerta_fiscal
+from utils.bot_fiscal import (
+    agendar_alerta_fiscal,
+    disparar_bot_fiscal_email,
+    enviar_alerta_fiscal,
+)
 
 
 CONFIGURACAO = {
@@ -42,6 +46,26 @@ class SmtpFake:
 
 
 class BotFiscalTests(unittest.TestCase):
+    def test_disparo_retorna_false_quando_smtp_nao_esta_configurado(self):
+        with patch("utils.bot_fiscal.agendar_alerta_fiscal") as agendar:
+            enviado = disparar_bot_fiscal_email(
+                {},
+                **DADOS,
+            )
+
+        self.assertFalse(enviado)
+        agendar.assert_not_called()
+
+    def test_disparo_agenda_alerta_quando_smtp_esta_configurado(self):
+        with patch("utils.bot_fiscal.agendar_alerta_fiscal") as agendar:
+            enviado = disparar_bot_fiscal_email(
+                CONFIGURACAO,
+                **DADOS,
+            )
+
+        self.assertTrue(enviado)
+        agendar.assert_called_once_with(CONFIGURACAO, **DADOS)
+
     def test_envia_alerta_com_timeout_quando_existe_divergencia(self):
         instancias = []
 

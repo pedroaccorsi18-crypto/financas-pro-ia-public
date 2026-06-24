@@ -4,7 +4,6 @@ import datetime
 import logging
 from google import genai
 from google.genai import types
-from app_config import SMTP_SECRET_KEYS
 from auth import (
     auditar_saude_plataforma,
     cadastrar_usuario,
@@ -51,7 +50,7 @@ from session_state import (
     limpar_sessao_usuario,
 )
 from utils.authorization import eh_usuario_admin
-from utils.bot_fiscal import agendar_alerta_fiscal
+from utils.bot_fiscal import disparar_bot_fiscal_email
 from utils.error_handling import mostrar_erro_seguro
 from utils.formatting import formatar_brl
 from utils.gemini_client import gerar_conteudo_gemini as gerar_com_cliente_gemini
@@ -109,26 +108,6 @@ if st.session_state.autenticado:
     else:
         st.session_state.usuario_id = identidade_revalidada["id"]
         st.session_state.usuario_email = identidade_revalidada["email"]
-
-# ==========================================
-# 🤖 BOT FISCAL DE CONCILIAÇÃO ASSÍNCRONA
-# ==========================================
-def disparar_bot_fiscal_email(usuario, instituicao, tipo_doc, mes, total_gastos, total_creditos, valor_declarado):
-    configuracao = {chave: st.secrets.get(chave) for chave in SMTP_SECRET_KEYS}
-    if not all(configuracao.values()):
-        logger.info("Alerta fiscal nao enviado: configuracao SMTP incompleta")
-        return False
-    agendar_alerta_fiscal(
-        configuracao,
-        usuario=usuario,
-        instituicao=instituicao,
-        tipo_doc=tipo_doc,
-        mes=mes,
-        total_gastos=total_gastos,
-        total_creditos=total_creditos,
-        valor_declarado=valor_declarado,
-    )
-    return True
 
 # ==========================================
 # CONTROLADOR DE TELAS (LOGIN / CADASTRO)
@@ -523,7 +502,7 @@ elif st.session_state.autenticado:
                                 )
 
                         if pre_vis["total_documento"] > 0:
-                            disparar_bot_fiscal_email(email_usuario, pre_vis["instituicao"], pre_vis["tipo_documento"], pre_vis["mes_referencia"], gastos_reais, creditos_reais, pre_vis["total_documento"])
+                            disparar_bot_fiscal_email(st.secrets, email_usuario, pre_vis["instituicao"], pre_vis["tipo_documento"], pre_vis["mes_referencia"], gastos_reais, creditos_reais, pre_vis["total_documento"])
                             
                         st.toast("Registros integrados com sucesso!", icon="⚡")
                         st.session_state.dados_pre_visualizacao = None

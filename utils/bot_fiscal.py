@@ -3,11 +3,39 @@ import smtplib
 import threading
 from email.mime.text import MIMEText
 
+from app_config import SMTP_SECRET_KEYS
 from utils.formatting import formatar_brl
 from utils.observability import fingerprint, registrar_evento
 
 
 logger = logging.getLogger(__name__)
+
+
+def disparar_bot_fiscal_email(
+    secrets,
+    usuario,
+    instituicao,
+    tipo_doc,
+    mes,
+    total_gastos,
+    total_creditos,
+    valor_declarado,
+) -> bool:
+    configuracao = {chave: secrets.get(chave) for chave in SMTP_SECRET_KEYS}
+    if not all(configuracao.values()):
+        logger.info("Alerta fiscal nao enviado: configuracao SMTP incompleta")
+        return False
+    agendar_alerta_fiscal(
+        configuracao,
+        usuario=usuario,
+        instituicao=instituicao,
+        tipo_doc=tipo_doc,
+        mes=mes,
+        total_gastos=total_gastos,
+        total_creditos=total_creditos,
+        valor_declarado=valor_declarado,
+    )
+    return True
 
 
 def enviar_alerta_fiscal(

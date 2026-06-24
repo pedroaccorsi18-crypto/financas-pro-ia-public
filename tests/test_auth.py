@@ -285,14 +285,15 @@ class AuthTests(unittest.TestCase):
         self.assertIn("\"Dívidas & Financiamentos\"", FINANCE_CATEGORIES_SOURCE)
 
     def test_app_nao_falha_quando_smtp_nao_esta_configurado(self):
-        trecho = APP_SOURCE.split("def disparar_bot_fiscal_email", 1)[-1]
-        trecho = trecho.split("# ==========================================", 1)[0]
-        self.assertIn("from app_config import SMTP_SECRET_KEYS", APP_SOURCE)
-        self.assertIn("SMTP_SECRET_KEYS", trecho)
+        bot_fiscal_source = (Path(__file__).parents[1] / "utils" / "bot_fiscal.py").read_text(encoding="utf-8")
+        self.assertIn("from utils.bot_fiscal import disparar_bot_fiscal_email", APP_SOURCE)
+        self.assertIn("disparar_bot_fiscal_email(st.secrets", APP_SOURCE)
+        self.assertIn("from app_config import SMTP_SECRET_KEYS", bot_fiscal_source)
+        self.assertIn("SMTP_SECRET_KEYS", bot_fiscal_source)
         self.assertIn("\"SMTP_SERVER\"", APP_CONFIG_SOURCE)
         self.assertIn("\"EMAIL_DESTINATARIO_ALERTAS\"", APP_CONFIG_SOURCE)
-        self.assertIn("if not all(configuracao.values()):", trecho)
-        self.assertIn("return False", trecho)
+        self.assertIn("if not all(configuracao.values()):", bot_fiscal_source)
+        self.assertIn("return False", bot_fiscal_source)
 
     def test_autenticacao_nao_depende_de_bcrypt(self):
         self.assertNotIn("bcrypt", AUTH_SOURCE.lower())
