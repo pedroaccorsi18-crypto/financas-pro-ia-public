@@ -1,6 +1,8 @@
 import unittest
+from unittest.mock import patch
 
 from utils.authorization import eh_usuario_admin
+from utils.error_handling import mostrar_erro_seguro
 from utils.formatting import formatar_brl
 from utils.privacy import anonimizar_dados
 
@@ -34,6 +36,37 @@ class PrivacyTests(unittest.TestCase):
     def test_preserva_texto_sem_valores_financeiros(self):
         texto = "Relatorio aprovado sem valores numericos."
         self.assertEqual(anonimizar_dados(texto), texto)
+
+
+class ErrorHandlingTests(unittest.TestCase):
+    def test_retorna_mensagem_generica_para_erro_desconhecido(self):
+        with patch("utils.error_handling.logger"):
+            mensagem = mostrar_erro_seguro(RuntimeError("falha inesperada"))
+
+        self.assertEqual(
+            mensagem,
+            "Ocorreu um problema interno. Tente novamente mais tarde.",
+        )
+
+    def test_orienta_migracao_quando_rpc_nao_existe(self):
+        with patch("utils.error_handling.logger"):
+            mensagem = mostrar_erro_seguro(RuntimeError("PGRST202"))
+
+        self.assertIn("reimportação", mensagem)
+        self.assertIn("migração SQL", mensagem)
+
+    def test_orienta_permissao_quando_supabase_bloqueia(self):
+        with patch("utils.error_handling.logger"):
+            mensagem = mostrar_erro_seguro(RuntimeError("permission denied"))
+
+        self.assertIn("falta de permissão", mensagem)
+        self.assertIn("políticas da tabela", mensagem)
+
+    def test_preserva_mensagem_especifica_para_cota_gemini(self):
+        with patch("utils.error_handling.logger"):
+            mensagem = mostrar_erro_seguro(RuntimeError("429 quota exceeded"))
+
+        self.assertIn("limite gratuito da API Gemini", mensagem)
 
 
 class AuthorizationTests(unittest.TestCase):

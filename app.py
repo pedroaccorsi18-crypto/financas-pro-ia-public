@@ -10,7 +10,6 @@ from auth import (
     cadastrar_usuario,
     enviar_email_recuperacao_senha,
     fazer_login,
-    mostrar_erro_seguro,
     validar_chave_publica_supabase,
     validar_sessao_atual,
 )
@@ -53,30 +52,15 @@ from session_state import (
 )
 from utils.authorization import eh_usuario_admin
 from utils.bot_fiscal import agendar_alerta_fiscal
+from utils.error_handling import mostrar_erro_seguro
 from utils.formatting import formatar_brl
 from utils.gemini_client import gerar_conteudo_gemini as gerar_com_cliente_gemini
-from utils.gemini_errors import mensagem_erro_gemini
 from utils.privacy import anonimizar_dados
 import pandas as pd
 import plotly.express as px
 
 logger = logging.getLogger(__name__)
 
-
-def mostrar_erro_seguro(erro: Exception, email_usuario: str = None) -> str:
-    logger.error(
-        "Falha na aplicação para usuário %s",
-        email_usuario or "não identificado",
-        exc_info=True,
-    )
-    texto_erro = str(erro).lower()
-    if mensagem_gemini := mensagem_erro_gemini(erro):
-        return mensagem_gemini
-    if "substituir_lote_importado" in texto_erro or "pgrst202" in texto_erro:
-        return "A função de reimportação ainda não está disponível no Supabase. Aplique a migração SQL e tente novamente."
-    if "permission denied" in texto_erro or "42501" in texto_erro:
-        return "O Supabase bloqueou esta operação por falta de permissão. Verifique as políticas da tabela."
-    return "Ocorreu um problema interno. Tente novamente mais tarde."
 
 # Configuração da página em modo WIDE para melhor aproveitamento do espaço visual
 st.set_page_config(page_title="Finanças Pro IA", page_icon="💰", layout="wide")
