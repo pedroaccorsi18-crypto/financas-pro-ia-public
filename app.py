@@ -56,6 +56,7 @@ from utils.gemini_client import (
     criar_cliente_gemini,
     gerar_conteudo_gemini as gerar_com_cliente_gemini,
 )
+from utils.history import formatar_linha_historico
 from utils.import_staging import preparar_transacoes_importadas
 from utils.manual_entry import preparar_transacao_manual
 from utils.goals import calcular_status_meta
@@ -653,12 +654,7 @@ elif st.session_state.autenticado:
         st.markdown("---")
         st.subheader(f"📋 Histórico Geral de Movimentações de {mes_selecionado}")
         for t in reversed(lista_transacoes):
-            cor = "🟢" if t["tipo"] == TIPO_RECEITA else "🔴"
-            status_tipo = "Entrada" if t["tipo"] == TIPO_RECEITA else "Saída"
-            banco_tag = t.get("instituicao_financeira", ORIGEM_MANUAL)
-            origem_label = "✍️" if t.get("origem_importacao") == ORIGEM_MANUAL else "🤖"
-            categoria_tag = f" [{t.get('categoria', 'Geral')}]" if t["tipo"] == TIPO_DESPESA else ""
-            st.markdown(f"{cor} **{t['descricao']}**{categoria_tag} | {formatar_brl(t['valor'])} ({status_tipo} | {origem_label} {banco_tag})")
+            st.markdown(formatar_linha_historico(t))
     else:
         st.info("Nenhum dado disponível. Adicione lançamentos manuais ou suba um PDF.")
 
