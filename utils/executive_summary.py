@@ -5,6 +5,7 @@ from utils.financial_profile import calcular_diagnostico_360, normalizar_perfil_
 from utils.financial_report import gerar_relatorio_consultivo_360
 from utils.goal_roadmap import gerar_roadmap_metas
 from utils.retirement_planning import calcular_planejamento_aposentadoria
+from utils.stress_test import gerar_stress_test_financeiro
 from utils.suitability import gerar_checklist_suitability
 
 
@@ -17,6 +18,7 @@ def gerar_resumo_executivo_markdown(perfil, resumo_transacoes=None):
     aposentadoria = calcular_planejamento_aposentadoria(perfil)
     suitability = gerar_checklist_suitability(perfil, resumo_transacoes)
     roadmap = gerar_roadmap_metas(perfil, resumo_transacoes)
+    stress = gerar_stress_test_financeiro(perfil, resumo_transacoes)
 
     secoes = [
         "# Resumo Executivo - Planejamento Financeiro 360",
@@ -53,7 +55,11 @@ def gerar_resumo_executivo_markdown(perfil, resumo_transacoes=None):
         "## 8. Roadmap de metas",
         *_linhas_roadmap(roadmap["metas"][:5]),
         "",
-        "## 9. Proximos 90 dias",
+        "## 9. Stress test",
+        f"- Severidade geral: {stress['severidade_geral']}",
+        *_linhas_stress(stress["cenarios"]),
+        "",
+        "## 10. Proximos 90 dias",
         *_linhas_plano_90(relatorio["plano_30_60_90"]),
         "",
         "## Observacao",
@@ -83,6 +89,13 @@ def _linhas_roadmap(metas):
     return [
         f"- {meta['prazo']}: {meta['nome']} - {meta['descricao']}"
         for meta in metas
+    ]
+
+
+def _linhas_stress(cenarios):
+    return [
+        f"- {cenario['nome']}: {cenario['severidade']} - {cenario['acao']}"
+        for cenario in cenarios[:4]
     ]
 
 

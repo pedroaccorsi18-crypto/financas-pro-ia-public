@@ -12,6 +12,7 @@ from utils.executive_summary import gerar_resumo_executivo_markdown
 from utils.financial_report import gerar_relatorio_consultivo_360
 from utils.goal_roadmap import gerar_roadmap_metas
 from utils.retirement_planning import calcular_planejamento_aposentadoria
+from utils.stress_test import gerar_stress_test_financeiro
 from utils.suitability import gerar_checklist_suitability
 
 
@@ -227,6 +228,12 @@ def render_perfil_financeiro_360(
         _render_metas("Medio prazo", roadmap_metas["medio_prazo"], formatar_brl)
         _render_metas("Longo prazo", roadmap_metas["longo_prazo"], formatar_brl)
 
+        stress_test = gerar_stress_test_financeiro(perfil_salvo, resumo_transacoes)
+        st.markdown("### Stress Test Financeiro")
+        st.markdown(f"**Severidade geral:** {stress_test['severidade_geral'].title()}")
+        _render_cenarios_stress(stress_test["cenarios"], formatar_brl)
+        _render_lista("Acoes prioritarias", stress_test["acoes_prioritarias"])
+
         resumo_executivo_exportavel = gerar_resumo_executivo_markdown(
             perfil_salvo,
             resumo_transacoes,
@@ -288,4 +295,14 @@ def _render_metas(titulo, metas, formatar_brl):
         st.markdown(
             f"- **{meta['nome']}:** {meta['descricao']} "
             f"Alvo: {formatar_brl(meta['valor_alvo'])}. {meta['racional']}"
+        )
+
+
+def _render_cenarios_stress(cenarios, formatar_brl):
+    st.markdown("**Cenarios:**")
+    for cenario in cenarios:
+        st.markdown(
+            f"- **{cenario['nome']} ({cenario['severidade']}):** "
+            f"impacto {formatar_brl(cenario['impacto'])}. "
+            f"{cenario['leitura']} {cenario['acao']}"
         )

@@ -27,7 +27,8 @@ class ExecutiveSummaryTests(unittest.TestCase):
         self.assertIn("## 4. Politica de planejamento", resumo)
         self.assertIn("## 7. Suitability e onboarding", resumo)
         self.assertIn("## 8. Roadmap de metas", resumo)
-        self.assertIn("## 9. Proximos 90 dias", resumo)
+        self.assertIn("## 9. Stress test", resumo)
+        self.assertIn("## 10. Proximos 90 dias", resumo)
         self.assertIn("Nao constitui recomendacao individualizada", resumo)
 
     def test_resumo_inclui_gap_de_aposentadoria_quando_dados_completos(self):
