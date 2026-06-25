@@ -7,6 +7,7 @@ from utils.financial_profile import (
     calcular_diagnostico_360,
     normalizar_perfil_financeiro,
 )
+from utils.client_policy import gerar_politica_planejamento_cliente
 from utils.financial_report import gerar_relatorio_consultivo_360
 from utils.retirement_planning import calcular_planejamento_aposentadoria
 
@@ -190,6 +191,17 @@ def render_perfil_financeiro_360(
         st.markdown("**Plano 30/60/90:**")
         for periodo, acoes in relatorio["plano_30_60_90"].items():
             st.markdown(f"- **{periodo.replace('_', ' ')}:** {'; '.join(acoes)}")
+
+        politica_cliente = gerar_politica_planejamento_cliente(
+            perfil_salvo,
+            resumo_transacoes,
+        )
+        st.markdown("### Politica de Planejamento do Cliente")
+        st.markdown(f"**Perfil consultivo:** {politica_cliente['perfil_consultivo']}")
+        _render_lista("Objetivos priorizados", politica_cliente["objetivos_priorizados"])
+        _render_lista("Diretrizes de alocacao", politica_cliente["diretrizes_de_alocacao"])
+        _render_lista("Restricoes e alertas", politica_cliente["restricoes_e_alertas"])
+        st.caption(politica_cliente["cadencia_de_revisao"])
 
         plano_aposentadoria = calcular_planejamento_aposentadoria(perfil_salvo)
         st.markdown("### Planejamento de Aposentadoria")
