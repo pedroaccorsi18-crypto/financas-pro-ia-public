@@ -219,6 +219,16 @@ Opcionais:
 
 ## Testes
 
+Para uma checagem local completa do projeto:
+
+```powershell
+.\scripts\check.ps1
+```
+
+Esse comando valida a estrutura basica, compila os modulos Python e roda a suite local de testes.
+
+Para rodar somente os testes diretamente:
+
 ```powershell
 python -m unittest discover -s tests -v
 ```
@@ -239,6 +249,8 @@ Veja `tests/integration/README.md` antes de executar.
 - Antes de publicar forks ou releases, rode secret scanning e revise o histórico Git.
 
 ## Roadmap
+
+Veja tambem a fila priorizada em [`docs/proximas-tarefas.md`](docs/proximas-tarefas.md).
 
 - Criar um vídeo curto de demonstração do fluxo completo.
 - Criar testes end-to-end para os principais fluxos Streamlit.
