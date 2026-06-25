@@ -1,5 +1,6 @@
 """Resumo executivo exportavel para conversa de planejamento financeiro."""
 
+from utils.advisory_meeting import gerar_roteiro_reuniao_consultiva
 from utils.client_policy import gerar_politica_planejamento_cliente
 from utils.financial_profile import calcular_diagnostico_360, normalizar_perfil_financeiro
 from utils.financial_report import gerar_relatorio_consultivo_360
@@ -19,6 +20,7 @@ def gerar_resumo_executivo_markdown(perfil, resumo_transacoes=None):
     suitability = gerar_checklist_suitability(perfil, resumo_transacoes)
     roadmap = gerar_roadmap_metas(perfil, resumo_transacoes)
     stress = gerar_stress_test_financeiro(perfil, resumo_transacoes)
+    reuniao = gerar_roteiro_reuniao_consultiva(perfil, resumo_transacoes)
 
     secoes = [
         "# Resumo Executivo - Planejamento Financeiro 360",
@@ -59,7 +61,12 @@ def gerar_resumo_executivo_markdown(perfil, resumo_transacoes=None):
         f"- Severidade geral: {stress['severidade_geral']}",
         *_linhas_stress(stress["cenarios"]),
         "",
-        "## 10. Proximos 90 dias",
+        "## 10. Preparacao da reuniao",
+        f"- Abertura: {reuniao['abertura']}",
+        *_linhas_lista(reuniao["perguntas_chave"][:3]),
+        f"- Fechamento: {reuniao['fechamento']}",
+        "",
+        "## 11. Proximos 90 dias",
         *_linhas_plano_90(relatorio["plano_30_60_90"]),
         "",
         "## Observacao",

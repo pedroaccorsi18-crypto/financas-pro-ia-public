@@ -1,5 +1,6 @@
 import streamlit as st
 
+from utils.advisory_meeting import gerar_roteiro_reuniao_consultiva
 from utils.financial_profile import (
     HORIZONTES_PLANEJAMENTO,
     OBJETIVOS_360,
@@ -233,6 +234,16 @@ def render_perfil_financeiro_360(
         st.markdown(f"**Severidade geral:** {stress_test['severidade_geral'].title()}")
         _render_cenarios_stress(stress_test["cenarios"], formatar_brl)
         _render_lista("Acoes prioritarias", stress_test["acoes_prioritarias"])
+
+        roteiro_reuniao = gerar_roteiro_reuniao_consultiva(
+            perfil_salvo,
+            resumo_transacoes,
+        )
+        st.markdown("### Roteiro de Reuniao Consultiva")
+        st.markdown(f"**Abertura:** {roteiro_reuniao['abertura']}")
+        _render_lista("Perguntas-chave", roteiro_reuniao["perguntas_chave"])
+        _render_lista("Decisoes da reuniao", roteiro_reuniao["decisoes_da_reuniao"])
+        st.caption(roteiro_reuniao["fechamento"])
 
         resumo_executivo_exportavel = gerar_resumo_executivo_markdown(
             perfil_salvo,
