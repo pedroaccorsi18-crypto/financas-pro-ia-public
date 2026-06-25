@@ -8,12 +8,10 @@ financas-pro-ia-github-public
 
 ## Resultado
 
-A pasta limpa esta preparada para ser usada como base de um novo repositorio publico no GitHub.
+A pasta limpa esta preparada e ja foi usada como base do repositorio publico no GitHub.
 
 Ela nao contem:
 
-- historico Git;
-- pasta `.git`;
 - `.env` real;
 - `.streamlit/secrets.toml` real;
 - backups;
@@ -32,7 +30,7 @@ Ela nao contem:
 - Utilitarios em `utils/`.
 - Migracoes operacionais em `supabase/migrations/`.
 - Testes unitarios, contratos e suite RLS opt-in em `tests/`.
-- Configuracao publica de devcontainer.
+- Workflow de CI com testes locais e secret scanning via Gitleaks.
 - `README.md` revisado para uso publico.
 - `.env.example` e `.streamlit/secrets.example.toml` com placeholders ficticios.
 - `.gitignore` endurecido para bloquear segredos, backups, dumps, logs, uploads, caches e arquivos locais.
@@ -88,20 +86,22 @@ Comando executado nesta revisao:
 python -m unittest discover -s tests -v
 ```
 
-Resultado:
+Resultado local atual:
 
 ```text
-Ran 62 tests
+Ran 96 tests
 OK (skipped=1)
 ```
 
 O teste pulado e a suite opt-in de integracao RLS, que exige um projeto Supabase
 de teste com variaveis reais configuradas.
 
+O workflow do GitHub Actions tambem executa Gitleaks, checagem de sintaxe e a
+suite local de testes em pushes e pull requests.
+
 ## Recomendacao antes de publicar
 
-1. Criar um novo repositorio Git a partir desta pasta limpa, nunca reutilizando o historico do repositorio original.
-2. Rodar os testes em um ambiente Python funcional.
-3. Rodar uma ferramenta dedicada de secret scanning antes do primeiro push.
-4. Rotacionar as credenciais reais que existiam no workspace original antes de qualquer publicacao.
-5. Configurar secrets reais somente no ambiente de deploy ou localmente, nunca no Git.
+1. Confirmar que o GitHub Actions esta verde apos cada push relevante.
+2. Rodar `.\scripts\check.ps1` antes de preparar novas publicacoes.
+3. Manter secrets reais somente no ambiente de deploy ou localmente, nunca no Git.
+4. Rotacionar credenciais reais antigas caso alguma tenha existido no workspace original.
