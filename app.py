@@ -74,6 +74,7 @@ from utils.oracle_analysis import (
 from utils.privacy import anonimizar_dados
 from utils.trends import TENDENCIA_SEM_HISTORICO, calcular_textos_tendencia
 from views.auth_views import render_fluxo_autenticacao
+from views.financial_profile_views import render_perfil_financeiro_360
 from views.sidebar_views import render_lancamento_manual
 import pandas as pd
 import plotly.express as px
@@ -204,6 +205,13 @@ elif st.session_state.autenticado:
             st.sidebar.markdown(f"● **Criptografia/SSL:** {status_infra['seguranca']}")
 
     st.title("📊 Painel de Controle Financeiro Inteligente")
+    resumo_geral_360 = calcular_resumo_financeiro(lista_total_banco)
+    render_perfil_financeiro_360(
+        resumo_transacoes=resumo_geral_360,
+        formatar_brl=formatar_brl,
+    )
+    st.markdown("---")
+
     st.markdown("### 🤖 Importação Inteligente por IA (Premium)")
     arquivo_subido = st.file_uploader("Suba aqui o seu extrato bancário, fatura ou comprovante em formato PDF", type=["pdf"])
     consentimento_pdf_ia = st.checkbox(
