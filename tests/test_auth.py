@@ -26,6 +26,9 @@ APP_SOURCE = (Path(__file__).parents[1] / "app.py").read_text(encoding="utf-8")
 AUTH_VIEWS_SOURCE = (
     Path(__file__).parents[1] / "views" / "auth_views.py"
 ).read_text(encoding="utf-8")
+SIDEBAR_VIEWS_SOURCE = (
+    Path(__file__).parents[1] / "views" / "sidebar_views.py"
+).read_text(encoding="utf-8")
 AUTH_SOURCE = (Path(__file__).parents[1] / "auth.py").read_text(encoding="utf-8")
 SESSION_STATE_SOURCE = (Path(__file__).parents[1] / "session_state.py").read_text(encoding="utf-8")
 FINANCE_CATEGORIES_SOURCE = (Path(__file__).parents[1] / "finance_categories.py").read_text(encoding="utf-8")
@@ -272,15 +275,15 @@ class AuthTests(unittest.TestCase):
         self.assertIn("Se voc", AUTH_VIEWS_SOURCE)
 
     def test_app_usa_categorias_de_receita_no_lancamento_manual(self):
-        trecho = APP_SOURCE.split('with st.sidebar.form("form_transacao"', 1)[-1]
+        trecho = SIDEBAR_VIEWS_SOURCE.split('with st.sidebar.form("form_transacao"', 1)[-1]
         trecho = trecho.split('ano_atual = datetime.datetime.now().year', 1)[0]
-        trecho_antes_form = APP_SOURCE.split('with st.sidebar.form("form_transacao"', 1)[0]
+        trecho_antes_form = SIDEBAR_VIEWS_SOURCE.split('with st.sidebar.form("form_transacao"', 1)[0]
 
         self.assertIn("key=\"tipo_transacao_manual\"", trecho_antes_form)
         self.assertIn("CATEGORIAS_RECEITA if tipo_transacao == TIPO_RECEITA", trecho)
         self.assertIn("else CATEGORIAS_DESPESA", trecho)
         self.assertIn("key=f\"categoria_manual_{tipo_transacao.lower()}\"", trecho)
-        self.assertIn("from finance_categories import (", APP_SOURCE)
+        self.assertIn("from finance_categories import CATEGORIAS_DESPESA, CATEGORIAS_RECEITA", SIDEBAR_VIEWS_SOURCE)
         self.assertIn("from finance_constants import (", APP_SOURCE)
         self.assertIn("TIPOS_TRANSACAO", trecho_antes_form)
         self.assertIn("TIPO_DESPESA = \"Despesa\"", FINANCE_CONSTANTS_SOURCE)

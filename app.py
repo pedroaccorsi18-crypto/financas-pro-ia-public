@@ -11,19 +11,15 @@ from finance_core import (
     calcular_resumo_financeiro,
     criar_lote_demonstrativo,
     lotes_sao_iguais,
-    mes_referencia_valido,
     ordenar_meses_cronologicamente,
     resumir_historico_para_ia,
 )
 from finance_categories import (
     CATEGORIAS_DESPESA,
-    CATEGORIAS_RECEITA,
     CATEGORIAS_VALIDAS,
 )
 from finance_constants import (
-    ORIGEM_MANUAL,
     TIPO_DESPESA,
-    TIPO_RECEITA,
     TIPOS_TRANSACAO,
 )
 from repositories.finance_repository import (
@@ -68,7 +64,6 @@ from utils.gemini_client import (
 )
 from utils.history import formatar_linha_historico
 from utils.import_workflow import processar_importacao_homologada
-from utils.manual_entry import preparar_transacao_manual
 from utils.goals import calcular_status_meta
 from utils.oracle_analysis import (
     montar_payload_feedback_oraculo,
@@ -79,6 +74,7 @@ from utils.oracle_analysis import (
 from utils.privacy import anonimizar_dados
 from utils.trends import TENDENCIA_SEM_HISTORICO, calcular_textos_tendencia
 from views.auth_views import render_fluxo_autenticacao
+from views.sidebar_views import render_lancamento_manual
 import pandas as pd
 import plotly.express as px
 
@@ -154,53 +150,11 @@ elif st.session_state.autenticado:
     st.sidebar.write(f"Usuário ativo: **{email_usuario}**")
     st.sidebar.markdown("---")
     
-    st.sidebar.subheader("➕ Lançamento Manual")
-    tipo_transacao = st.sidebar.selectbox(
-        "Tipo",
-        TIPOS_TRANSACAO,
-        key="tipo_transacao_manual",
+    render_lancamento_manual(
+        usuario_id=usuario_id,
+        email_usuario=email_usuario,
+        inserir_transacao=inserir_transacao,
     )
-    with st.sidebar.form("form_transacao", clear_on_submit=True):
-        desc = st.text_input("Descrição (Ex: Uber)")
-        val = st.number_input("Valor (R$)", min_value=0.0, format="%.2f")
-        categorias_manuais = (
-            CATEGORIAS_RECEITA if tipo_transacao == TIPO_RECEITA else CATEGORIAS_DESPESA
-        )
-        cat_manual = st.selectbox(
-            "Categoria",
-            categorias_manuais,
-            key=f"categoria_manual_{tipo_transacao.lower()}",
-        )
-        
-        ano_atual = datetime.datetime.now().year
-        meses_ano = [f"{m:02d}/{ano_atual}" for m in range(1, 13)]
-        mes_manual = st.selectbox("Mês de Referência", meses_ano, index=datetime.datetime.now().month - 1)
-        banco_manual = st.text_input("Instituição (Opcional)", value=ORIGEM_MANUAL).strip()
-        
-        if st.form_submit_button("Salvar Lançamento"):
-            if desc and val > 0:
-                try:
-                    if not mes_referencia_valido(mes_manual):
-                        st.error("Formato do mês de referência inválido.")
-                    else:
-                        inserir_transacao(
-                            preparar_transacao_manual(
-                                descricao=desc,
-                                valor=val,
-                                tipo_transacao=tipo_transacao,
-                                categoria=cat_manual,
-                                categorias_validas=categorias_manuais,
-                                mes_referencia=mes_manual,
-                                instituicao=banco_manual,
-                                usuario_id=usuario_id,
-                                email_usuario=email_usuario,
-                            )
-                        )
-                        st.toast("Lançamento computado com sucesso!", icon="✅")
-                        st.rerun()
-                except Exception as e_insert:
-                    msg = mostrar_erro_seguro(e_insert, email_usuario)
-                    st.error(msg)
 
     if eh_usuario_admin(email_usuario, st.secrets.get("ADMIN_EMAILS", [])):
         st.sidebar.markdown("---")
