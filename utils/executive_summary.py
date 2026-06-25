@@ -2,6 +2,7 @@
 
 from utils.advisory_meeting import gerar_roteiro_reuniao_consultiva
 from utils.client_policy import gerar_politica_planejamento_cliente
+from utils.financial_methodology import gerar_metodologia_financeira
 from utils.financial_profile import calcular_diagnostico_360, normalizar_perfil_financeiro
 from utils.financial_report import gerar_relatorio_consultivo_360
 from utils.goal_roadmap import gerar_roadmap_metas
@@ -23,6 +24,7 @@ def gerar_resumo_executivo_markdown(perfil, resumo_transacoes=None):
     stress = gerar_stress_test_financeiro(perfil, resumo_transacoes)
     reuniao = gerar_roteiro_reuniao_consultiva(perfil, resumo_transacoes)
     estrategia = gerar_matriz_estrategia_patrimonial(perfil, resumo_transacoes)
+    metodologia = gerar_metodologia_financeira()
 
     secoes = [
         "# Resumo Executivo - Planejamento Financeiro 360",
@@ -73,7 +75,12 @@ def gerar_resumo_executivo_markdown(perfil, resumo_transacoes=None):
         f"- Postura geral: {estrategia['postura_geral']}",
         *_linhas_estrategia(estrategia["frentes"][:5]),
         "",
-        "## 12. Proximos 90 dias",
+        "## 12. Metodologia e premissas",
+        *_linhas_lista(metodologia["escopo"]),
+        *_linhas_metodologia_aposentadoria(metodologia["aposentadoria"]),
+        *_linhas_lista(metodologia["limites"][:2]),
+        "",
+        "## 13. Proximos 90 dias",
         *_linhas_plano_90(relatorio["plano_30_60_90"]),
         "",
         "## Observacao",
@@ -118,6 +125,18 @@ def _linhas_estrategia(frentes):
         f"- {frente['nome']}: {frente['prioridade_texto']} - {frente['acao']}"
         for frente in frentes
     ]
+
+
+def _linhas_metodologia_aposentadoria(premissas):
+    linhas = []
+    for item in premissas:
+        retorno = item["retorno_real_anual"] * 100
+        retirada = item["taxa_retirada_anual"] * 100
+        linhas.append(
+            f"- Aposentadoria {item['cenario']}: retorno real {retorno:.1f}% a.a.; "
+            f"retirada {retirada:.1f}% a.a."
+        )
+    return linhas
 
 
 def _linhas_aposentadoria(aposentadoria):

@@ -10,6 +10,7 @@ from utils.financial_profile import (
 )
 from utils.client_policy import gerar_politica_planejamento_cliente
 from utils.executive_summary import gerar_resumo_executivo_markdown
+from utils.financial_methodology import gerar_metodologia_financeira
 from utils.financial_report import gerar_relatorio_consultivo_360
 from utils.goal_roadmap import gerar_roadmap_metas
 from utils.retirement_planning import calcular_planejamento_aposentadoria
@@ -196,6 +197,7 @@ def render_perfil_financeiro_360(
             perfil_salvo,
             resumo_transacoes,
         )
+        metodologia = gerar_metodologia_financeira()
 
         aba_diagnostico, aba_planejamento, aba_risco, aba_reuniao, aba_exportacao = st.tabs(
             [
@@ -288,6 +290,11 @@ def render_perfil_financeiro_360(
                 mime="text/markdown",
                 use_container_width=True,
             )
+            st.markdown("### Metodologia e Premissas")
+            _render_lista("Escopo", metodologia["escopo"])
+            _render_premissas_aposentadoria(metodologia["aposentadoria"])
+            _render_premissas_stress(metodologia["stress_test"])
+            _render_lista("Limites", metodologia["limites"])
 
 
 def _indice_ou_zero(opcoes, valor):
@@ -351,6 +358,23 @@ def _render_planejamento_aposentadoria(plano_aposentadoria, formatar_brl):
         )
     for observacao in plano_aposentadoria["observacoes"]:
         st.caption(observacao)
+
+
+def _render_premissas_aposentadoria(premissas):
+    st.markdown("**Aposentadoria:**")
+    for item in premissas:
+        retorno = item["retorno_real_anual"] * 100
+        retirada = item["taxa_retirada_anual"] * 100
+        st.markdown(
+            f"- **{item['cenario']}:** retorno real anual {retorno:.1f}% "
+            f"e taxa de retirada {retirada:.1f}% ao ano."
+        )
+
+
+def _render_premissas_stress(premissas):
+    st.markdown("**Stress test:**")
+    for item in premissas:
+        st.markdown(f"- **{item['nome']}:** {item['premissa']}")
 
 
 def _render_frentes_estrategia(frentes):
