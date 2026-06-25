@@ -48,6 +48,12 @@ from session_state import (
 )
 from utils.authorization import eh_usuario_admin
 from utils.audit import preparar_dataframe_auditoria_categoria
+from utils.ai_extraction import (
+    carregar_resultado_extracao,
+    montar_config_extracao_pdf,
+    montar_prompt_extracao_pdf,
+    normalizar_resultado_extracao,
+)
 from utils.bot_fiscal import disparar_bot_fiscal_email
 from utils.category_analysis import preparar_dados_analise_categorias
 from utils.error_handling import mostrar_erro_seguro
@@ -369,49 +375,19 @@ elif st.session_state.autenticado:
                         if len(dados_pdf) > 10 * 1024 * 1024:
                             raise ValueError("O PDF excede o limite de 10 MB.")
 
-                        prompt_mestre = (
-                            "Você é um extrator de dados contábeis de altíssima precisão. Sua meta é extrair transações de faturas ou extratos com temperatura zero.\n"
-                            "O campo 'mes_fatura' deve obrigatoriamente usar o formato MM/AAAA, por exemplo 05/2026.\n"
-                            "Gere um JSON estrito contendo um único objeto com os campos: 'instituicao_financeira', 'tipo_documento', 'total_documento', 'mes_fatura' e a lista 'transacoes' (descricao, valor, tipo, categoria)."
-                        )
-                        esquema_json = types.Schema(
-                            type=types.Type.OBJECT,
-                            properties={
-                                "instituicao_financeira": types.Schema(type=types.Type.STRING),
-                                "tipo_documento": types.Schema(type=types.Type.STRING, enum=["Fatura de Cartão", "Extrato Bancário", "Comprovante", "Outro"]),
-                                "total_documento": types.Schema(type=types.Type.NUMBER),
-                                "mes_fatura": types.Schema(type=types.Type.STRING, description="Mês no formato MM/AAAA"),
-                                "transacoes": types.Schema(
-                                    type=types.Type.ARRAY,
-                                    items=types.Schema(
-                                        type=types.Type.OBJECT,
-                                        properties={
-                                            "descricao": types.Schema(type=types.Type.STRING),
-                                            "valor": types.Schema(type=types.Type.NUMBER),
-                                            "tipo": types.Schema(type=types.Type.STRING, enum=TIPOS_TRANSACAO),
-                                            "categoria": types.Schema(type=types.Type.STRING, enum=CATEGORIAS_VALIDAS),
-                                        },
-                                        required=["descricao", "valor", "tipo", "categoria"],
-                                    ),
-                                )
-                            },
-                            required=["instituicao_financeira", "tipo_documento", "total_documento", "mes_fatura", "transacoes"]
-                        )
-                        config_ia = types.GenerateContentConfig(response_mime_type="application/json", response_schema=esquema_json, temperature=0.0)
+                        prompt_mestre = montar_prompt_extracao_pdf()
+                        config_ia = montar_config_extracao_pdf(types)
                         response = gerar_conteudo_gemini(
                             model='gemini-2.5-flash',
                             contents=[types.Part.from_bytes(data=dados_pdf, mime_type='application/pdf'), prompt_mestre],
                             config=config_ia
                         )
 
-                        resultado_ia = json.loads(response.text.strip())
-                        st.session_state.dados_pre_visualizacao = {
-                            "instituicao": resultado_ia["instituicao_financeira"],
-                            "tipo_documento": resultado_ia["tipo_documento"],
-                            "mes_referencia": resultado_ia["mes_fatura"],
-                            "total_documento": float(resultado_ia["total_documento"]) if resultado_ia["total_documento"] else 0.0,
-                            "df_transacoes": pd.DataFrame(resultado_ia["transacoes"])
-                        }
+                        resultado_ia = carregar_resultado_extracao(response.text)
+                        st.session_state.dados_pre_visualizacao = normalizar_resultado_extracao(
+                            resultado_ia,
+                            pd.DataFrame,
+                        )
                         st.toast("Extração contábil finalizada!", icon="🪄")
                     except Exception as erro:
                         msg = mostrar_erro_seguro(erro, email_usuario)
