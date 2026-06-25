@@ -4,6 +4,38 @@ Aplicação de analytics financeiro pessoal construída com **Python, Streamlit,
 
 Este repositório foi preparado como portfólio técnico para demonstrar competências aplicáveis a **Marketing Analytics, Growth Analytics, Product Analytics, Marketing Ops e posições técnicas júnior**: modelagem de dados, pipeline de ingestão, validação de qualidade, dashboards, automação, segurança e uso prático de IA generativa.
 
+## Financial Planning 360
+
+O projeto evoluiu de um dashboard financeiro pessoal para uma base de produto de **Financial Planning / Wealth Management**. Alem de importar, revisar e analisar dados financeiros, o app agora organiza um Perfil Financeiro 360 com diagnostico consultivo, planejamento de aposentadoria, suitability, stress test, roadmap de metas, roteiro de reuniao, matriz de estrategia patrimonial e resumo executivo exportavel.
+
+Principais blocos consultivos:
+
+- Perfil Financeiro 360 com renda, patrimonio, dividas, dependentes, risco, horizonte, aposentadoria, sucessao e protecao familiar.
+- Relatorio Consultivo 360 com diagnostico patrimonial, planejamento financeiro, aposentadoria, expansao patrimonial, sucessao e plano 30/60/90.
+- Politica de Planejamento do Cliente com objetivos priorizados, diretrizes, restricoes, alertas e cadencia de revisao.
+- Simulacao de aposentadoria por cenarios conservador, moderado e arrojado, com patrimonio necessario, gap e aporte mensal estimado.
+- Checklist de suitability e onboarding com pendencias, alertas, proximas perguntas e documentos sugeridos.
+- Roadmap de metas financeiras por curto, medio e longo prazo.
+- Stress test financeiro para choques de renda, despesas, carteira e emergencia familiar.
+- Roteiro de reuniao consultiva para abertura, perguntas-chave, decisoes e fechamento.
+- Matriz de estrategia patrimonial com frentes de liquidez, protecao, crescimento, aposentadoria e sucessao.
+- Resumo executivo exportavel em Markdown com metodologia, premissas e limites do modelo.
+
+## Rodar localmente
+
+Depois de instalar as dependencias e configurar os secrets, rode:
+
+```powershell
+streamlit run app.py
+```
+
+Se estiver usando o ambiente virtual local:
+
+```powershell
+.venv\Scripts\Activate.ps1
+streamlit run app.py
+```
+
 ## Por que este projeto importa
 
 Times de Analytics e Growth lidam todos os dias com dados fragmentados, inconsistentes e sensíveis: planilhas, eventos, uploads, integrações, métricas por período e regras de negócio que precisam ser auditáveis. O Finanças Pro IA aplica esse mesmo raciocínio a um domínio financeiro pessoal:
