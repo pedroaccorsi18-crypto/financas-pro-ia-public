@@ -8,6 +8,7 @@ from utils.financial_profile import (
     normalizar_perfil_financeiro,
 )
 from utils.financial_report import gerar_relatorio_consultivo_360
+from utils.retirement_planning import calcular_planejamento_aposentadoria
 
 
 PERFIL_SESSION_FIELD = "perfil_financeiro_360"
@@ -189,6 +190,33 @@ def render_perfil_financeiro_360(
         st.markdown("**Plano 30/60/90:**")
         for periodo, acoes in relatorio["plano_30_60_90"].items():
             st.markdown(f"- **{periodo.replace('_', ' ')}:** {'; '.join(acoes)}")
+
+        plano_aposentadoria = calcular_planejamento_aposentadoria(perfil_salvo)
+        st.markdown("### Planejamento de Aposentadoria")
+        if not plano_aposentadoria["completo"]:
+            st.info("Complete os dados abaixo para simular aposentadoria:")
+            for pendencia in plano_aposentadoria["motivos_pendentes"]:
+                st.markdown(f"- {pendencia}")
+        else:
+            st.markdown(
+                f"Anos ate aposentadoria: **{plano_aposentadoria['anos_ate_aposentadoria']}**"
+            )
+            for nome, cenario in plano_aposentadoria["cenarios"].items():
+                st.markdown(f"**Cenario {nome}:**")
+                st.markdown(
+                    "- Patrimonio necessario: "
+                    f"{formatar_brl(cenario['patrimonio_necessario'])}"
+                )
+                st.markdown(
+                    "- Gap estimado: "
+                    f"{formatar_brl(cenario['gap'])}"
+                )
+                st.markdown(
+                    "- Aporte mensal estimado: "
+                    f"{formatar_brl(cenario['aporte_mensal_necessario'])}"
+                )
+            for observacao in plano_aposentadoria["observacoes"]:
+                st.caption(observacao)
 
 
 def _indice_ou_zero(opcoes, valor):
