@@ -8,6 +8,7 @@ from utils.financial_profile import (
     normalizar_perfil_financeiro,
 )
 from utils.client_policy import gerar_politica_planejamento_cliente
+from utils.executive_summary import gerar_resumo_executivo_markdown
 from utils.financial_report import gerar_relatorio_consultivo_360
 from utils.retirement_planning import calcular_planejamento_aposentadoria
 
@@ -202,6 +203,18 @@ def render_perfil_financeiro_360(
         _render_lista("Diretrizes de alocacao", politica_cliente["diretrizes_de_alocacao"])
         _render_lista("Restricoes e alertas", politica_cliente["restricoes_e_alertas"])
         st.caption(politica_cliente["cadencia_de_revisao"])
+
+        resumo_executivo_exportavel = gerar_resumo_executivo_markdown(
+            perfil_salvo,
+            resumo_transacoes,
+        )
+        st.download_button(
+            "Baixar resumo executivo",
+            data=resumo_executivo_exportavel,
+            file_name="resumo-executivo-planejamento-360.md",
+            mime="text/markdown",
+            use_container_width=True,
+        )
 
         plano_aposentadoria = calcular_planejamento_aposentadoria(perfil_salvo)
         st.markdown("### Planejamento de Aposentadoria")
