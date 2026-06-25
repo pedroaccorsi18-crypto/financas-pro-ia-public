@@ -10,12 +10,12 @@ from utils.financial_profile import (
 from utils.financial_report import gerar_relatorio_consultivo_360
 
 
-PERFIL_SESSION_KEY = "perfil_financeiro_360"
+PERFIL_SESSION_FIELD = "perfil_financeiro_360"
 
 
 def render_perfil_financeiro_360(*, resumo_transacoes, formatar_brl):
     perfil_atual = normalizar_perfil_financeiro(
-        st.session_state.get(PERFIL_SESSION_KEY, {})
+        st.session_state.get(PERFIL_SESSION_FIELD, {})
     )
 
     with st.expander("Perfil Financeiro 360\u00ba", expanded=False):
@@ -118,7 +118,7 @@ def render_perfil_financeiro_360(*, resumo_transacoes, formatar_brl):
                 )
 
             if st.form_submit_button("Salvar Perfil 360\u00ba"):
-                st.session_state[PERFIL_SESSION_KEY] = normalizar_perfil_financeiro(
+                st.session_state[PERFIL_SESSION_FIELD] = normalizar_perfil_financeiro(
                     {
                         "idade": idade,
                         "dependentes": dependentes,
@@ -139,7 +139,7 @@ def render_perfil_financeiro_360(*, resumo_transacoes, formatar_brl):
                 st.rerun()
 
         perfil_salvo = normalizar_perfil_financeiro(
-            st.session_state.get(PERFIL_SESSION_KEY, perfil_atual)
+            st.session_state.get(PERFIL_SESSION_FIELD, perfil_atual)
         )
         diagnostico = calcular_diagnostico_360(perfil_salvo, resumo_transacoes)
         col_a, col_b, col_c, col_d = st.columns(4)
