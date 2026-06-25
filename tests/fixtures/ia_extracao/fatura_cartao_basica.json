@@ -1,0 +1,36 @@
+{
+  "case_id": "fatura_cartao_basica",
+  "source_summary": "Fatura sintetica de cartao com despesas recorrentes e pagamento recebido.",
+  "expected_output": {
+    "instituicao_financeira": "Banco Exemplo",
+    "tipo_documento": "Fatura de Cart\u00e3o",
+    "total_documento": 391.1,
+    "mes_fatura": "06/2026",
+    "transacoes": [
+      {
+        "descricao": "Mercado Bairro",
+        "valor": 185.3,
+        "tipo": "Despesa",
+        "categoria": "Mercado"
+      },
+      {
+        "descricao": "Streaming Exemplo",
+        "valor": 29.9,
+        "tipo": "Despesa",
+        "categoria": "Assinaturas & Servi\u00e7os"
+      },
+      {
+        "descricao": "Restaurante Central",
+        "valor": 75.9,
+        "tipo": "Despesa",
+        "categoria": "Alimenta\u00e7\u00e3o Fora"
+      },
+      {
+        "descricao": "Pagamento Fatura",
+        "valor": 100.0,
+        "tipo": "Receita",
+        "categoria": "Reembolso"
+      }
+    ]
+  }
+}

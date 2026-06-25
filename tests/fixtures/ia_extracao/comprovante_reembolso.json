@@ -1,0 +1,18 @@
+{
+  "case_id": "comprovante_reembolso",
+  "source_summary": "Comprovante sintetico de reembolso com uma unica receita.",
+  "expected_output": {
+    "instituicao_financeira": "Empresa Exemplo",
+    "tipo_documento": "Comprovante",
+    "total_documento": 248.75,
+    "mes_fatura": "08/2026",
+    "transacoes": [
+      {
+        "descricao": "Reembolso Despesas Projeto",
+        "valor": 248.75,
+        "tipo": "Receita",
+        "categoria": "Reembolso"
+      }
+    ]
+  }
+}

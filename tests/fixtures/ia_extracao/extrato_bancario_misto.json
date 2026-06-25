@@ -1,0 +1,36 @@
+{
+  "case_id": "extrato_bancario_misto",
+  "source_summary": "Extrato sintetico com salario, transporte e contas domesticas.",
+  "expected_output": {
+    "instituicao_financeira": "Conta Digital Exemplo",
+    "tipo_documento": "Extrato Banc\u00e1rio",
+    "total_documento": 3420.8,
+    "mes_fatura": "07/2026",
+    "transacoes": [
+      {
+        "descricao": "Salario Empresa Exemplo",
+        "valor": 3200.0,
+        "tipo": "Receita",
+        "categoria": "Sal\u00e1rio"
+      },
+      {
+        "descricao": "PMBMETRO Recarga",
+        "valor": 45.0,
+        "tipo": "Despesa",
+        "categoria": "Transporte"
+      },
+      {
+        "descricao": "Conta Energia",
+        "valor": 132.4,
+        "tipo": "Despesa",
+        "categoria": "Moradia"
+      },
+      {
+        "descricao": "Farmacia Exemplo",
+        "valor": 43.4,
+        "tipo": "Despesa",
+        "categoria": "Sa\u00fade"
+      }
+    ]
+  }
+}
