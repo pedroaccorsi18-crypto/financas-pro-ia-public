@@ -28,6 +28,9 @@ SESSION_STATE_SOURCE = (Path(__file__).parents[1] / "session_state.py").read_tex
 FINANCE_CATEGORIES_SOURCE = (Path(__file__).parents[1] / "finance_categories.py").read_text(encoding="utf-8")
 FINANCE_CONSTANTS_SOURCE = (Path(__file__).parents[1] / "finance_constants.py").read_text(encoding="utf-8")
 APP_CONFIG_SOURCE = (Path(__file__).parents[1] / "app_config.py").read_text(encoding="utf-8")
+IMPORT_WORKFLOW_SOURCE = (
+    Path(__file__).parents[1] / "utils" / "import_workflow.py"
+).read_text(encoding="utf-8")
 REQUIREMENTS = (Path(__file__).parents[1] / "requirements.txt").read_text(encoding="utf-8")
 
 
@@ -289,7 +292,8 @@ class AuthTests(unittest.TestCase):
     def test_app_nao_falha_quando_smtp_nao_esta_configurado(self):
         bot_fiscal_source = (Path(__file__).parents[1] / "utils" / "bot_fiscal.py").read_text(encoding="utf-8")
         self.assertIn("from utils.bot_fiscal import disparar_bot_fiscal_email", APP_SOURCE)
-        self.assertIn("disparar_bot_fiscal_email(st.secrets", APP_SOURCE)
+        self.assertIn("disparar_alerta(", IMPORT_WORKFLOW_SOURCE)
+        self.assertIn("secrets,", IMPORT_WORKFLOW_SOURCE)
         self.assertIn("from app_config import SMTP_SECRET_KEYS", bot_fiscal_source)
         self.assertIn("SMTP_SECRET_KEYS", bot_fiscal_source)
         self.assertIn("\"SMTP_SERVER\"", APP_CONFIG_SOURCE)

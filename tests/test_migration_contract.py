@@ -13,6 +13,9 @@ APP_SOURCE = (Path(__file__).parents[1] / "app.py").read_text(encoding="utf-8").
 REPOSITORY_SOURCE = (
     Path(__file__).parents[1] / "repositories" / "finance_repository.py"
 ).read_text(encoding="utf-8").lower()
+IMPORT_WORKFLOW_SOURCE = (
+    Path(__file__).parents[1] / "utils" / "import_workflow.py"
+).read_text(encoding="utf-8").lower()
 
 
 class MigrationContractTests(unittest.TestCase):
@@ -151,15 +154,8 @@ class MigrationContractTests(unittest.TestCase):
         self.assertNotIn("p_usuario_email text", self.sql)
 
     def test_app_grava_todo_lote_importado_pela_rpc(self):
-        trecho_importacao = APP_SOURCE.split(
-            "if transacoes_para_inserir:",
-            1,
-        )[1].split(
-            "if pre_vis[\"total_documento\"] > 0:",
-            1,
-        )[0]
-
-        self.assertIn("substituir_lote_importado(", trecho_importacao)
+        self.assertIn("processar_importacao_homologada(", APP_SOURCE)
+        self.assertIn("substituir_lote(", IMPORT_WORKFLOW_SOURCE)
         self.assertIn('supabase.rpc(', REPOSITORY_SOURCE)
         self.assertIn('"substituir_lote_importado"', REPOSITORY_SOURCE)
         self.assertIn('"p_user_id": usuario_id', REPOSITORY_SOURCE)
@@ -168,7 +164,7 @@ class MigrationContractTests(unittest.TestCase):
             'supabase.table("transacoes").insert(transacoes_para_inserir)',
             APP_SOURCE,
         )
-        self.assertNotIn("if lote_existente:", trecho_importacao)
+        self.assertNotIn("if lote_existente:", IMPORT_WORKFLOW_SOURCE)
 
 
 def cls_trecho_nova_rpc(sql):

@@ -71,7 +71,7 @@ from utils.gemini_client import (
     gerar_conteudo_gemini as gerar_com_cliente_gemini,
 )
 from utils.history import formatar_linha_historico
-from utils.import_staging import preparar_transacoes_importadas
+from utils.import_workflow import processar_importacao_homologada
 from utils.manual_entry import preparar_transacao_manual
 from utils.goals import calcular_status_meta
 from utils.oracle_analysis import (
@@ -437,32 +437,17 @@ elif st.session_state.autenticado:
             if st.button("💾 Confirmar e Salvar no Supabase", type="primary", use_container_width=True):
                 with st.spinner("Consolidando dados no Supabase..."):
                     try:
-                        transacoes_para_inserir, gastos_reais, creditos_reais = preparar_transacoes_importadas(
-                            df_editavel,
-                            pre_vis,
-                            usuario_id,
-                            email_usuario,
+                        processar_importacao_homologada(
+                            df_editavel=df_editavel,
+                            pre_visualizacao=pre_vis,
+                            usuario_id=usuario_id,
+                            email_usuario=email_usuario,
+                            secrets=st.secrets,
+                            buscar_lote=buscar_lote_importado,
+                            lotes_sao_iguais=lotes_sao_iguais,
+                            substituir_lote=substituir_lote_importado,
+                            disparar_alerta=disparar_bot_fiscal_email,
                         )
-                        
-                        if transacoes_para_inserir:
-                            lote_existente = buscar_lote_importado(
-                                usuario_id=usuario_id,
-                                mes_referencia=pre_vis["mes_referencia"].strip(),
-                                instituicao_financeira=pre_vis["instituicao"].strip(),
-                                tipo_documento=pre_vis["tipo_documento"],
-                            )
-
-                            if not lotes_sao_iguais(transacoes_para_inserir, lote_existente):
-                                substituir_lote_importado(
-                                    usuario_id=usuario_id,
-                                    mes_referencia=pre_vis["mes_referencia"].strip(),
-                                    instituicao_financeira=pre_vis["instituicao"].strip(),
-                                    tipo_documento=pre_vis["tipo_documento"],
-                                    transacoes=transacoes_para_inserir,
-                                )
-
-                        if pre_vis["total_documento"] > 0:
-                            disparar_bot_fiscal_email(st.secrets, email_usuario, pre_vis["instituicao"], pre_vis["tipo_documento"], pre_vis["mes_referencia"], gastos_reais, creditos_reais, pre_vis["total_documento"])
                             
                         st.toast("Registros integrados com sucesso!", icon="⚡")
                         st.session_state.dados_pre_visualizacao = None

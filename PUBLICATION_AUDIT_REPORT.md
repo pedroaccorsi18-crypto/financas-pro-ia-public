@@ -89,7 +89,7 @@ python -m unittest discover -s tests -v
 Resultado local atual:
 
 ```text
-Ran 114 tests
+Ran 117 tests
 OK (skipped=1)
 ```
 
