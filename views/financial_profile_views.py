@@ -13,9 +13,17 @@ from utils.financial_report import gerar_relatorio_consultivo_360
 PERFIL_SESSION_FIELD = "perfil_financeiro_360"
 
 
-def render_perfil_financeiro_360(*, resumo_transacoes, formatar_brl):
+def render_perfil_financeiro_360(
+    *,
+    resumo_transacoes,
+    formatar_brl,
+    usuario_id=None,
+    perfil_persistido=None,
+    salvar_perfil=None,
+    mostrar_erro=None,
+):
     perfil_atual = normalizar_perfil_financeiro(
-        st.session_state.get(PERFIL_SESSION_FIELD, {})
+        st.session_state.get(PERFIL_SESSION_FIELD, perfil_persistido or {})
     )
 
     with st.expander("Perfil Financeiro 360\u00ba", expanded=False):
@@ -118,7 +126,7 @@ def render_perfil_financeiro_360(*, resumo_transacoes, formatar_brl):
                 )
 
             if st.form_submit_button("Salvar Perfil 360\u00ba"):
-                st.session_state[PERFIL_SESSION_FIELD] = normalizar_perfil_financeiro(
+                perfil_normalizado = normalizar_perfil_financeiro(
                     {
                         "idade": idade,
                         "dependentes": dependentes,
@@ -135,6 +143,20 @@ def render_perfil_financeiro_360(*, resumo_transacoes, formatar_brl):
                         "possui_seguro": possui_seguro,
                     }
                 )
+                st.session_state[PERFIL_SESSION_FIELD] = perfil_normalizado
+                if salvar_perfil is not None and usuario_id:
+                    try:
+                        salvar_perfil(
+                            {
+                                "user_id": usuario_id,
+                                **perfil_normalizado,
+                            }
+                        )
+                    except Exception as erro:
+                        if mostrar_erro is not None:
+                            st.error(mostrar_erro(erro))
+                        else:
+                            raise
                 st.toast("Perfil Financeiro 360\u00ba atualizado.", icon="\U0001f3af")
                 st.rerun()
 

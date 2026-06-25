@@ -92,5 +92,24 @@ def listar_metas_usuario_mes(usuario_id: str, mes_referencia: str) -> list[dict]
     return resposta.data or []
 
 
+def buscar_perfil_financeiro_360(usuario_id: str) -> dict | None:
+    resposta = (
+        supabase.table("perfis_financeiros_360")
+        .select("*")
+        .eq("user_id", usuario_id)
+        .limit(1)
+        .execute()
+    )
+    linhas = resposta.data or []
+    return linhas[0] if linhas else None
+
+
+def salvar_perfil_financeiro_360(perfil: dict) -> None:
+    supabase.table("perfis_financeiros_360").upsert(
+        perfil,
+        on_conflict="user_id",
+    ).execute()
+
+
 def salvar_feedback_oraculo(feedback: dict) -> None:
     supabase.table("feedbacks_oraculo").insert(feedback).execute()

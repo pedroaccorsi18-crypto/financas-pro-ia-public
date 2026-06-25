@@ -24,12 +24,14 @@ from finance_constants import (
 )
 from repositories.finance_repository import (
     atualizar_categoria_transacao,
+    buscar_perfil_financeiro_360,
     buscar_lote_importado,
     inserir_transacao,
     listar_metas_usuario_mes,
     listar_transacoes_usuario,
     salvar_feedback_oraculo,
     salvar_meta_financeira,
+    salvar_perfil_financeiro_360,
     substituir_lote_importado,
 )
 from session_state import (
@@ -206,9 +208,19 @@ elif st.session_state.autenticado:
 
     st.title("📊 Painel de Controle Financeiro Inteligente")
     resumo_geral_360 = calcular_resumo_financeiro(lista_total_banco)
+    try:
+        perfil_financeiro_360 = buscar_perfil_financeiro_360(usuario_id)
+    except Exception as e_perfil:
+        msg_perfil = mostrar_erro_seguro(e_perfil, email_usuario)
+        st.info(msg_perfil)
+        perfil_financeiro_360 = None
     render_perfil_financeiro_360(
         resumo_transacoes=resumo_geral_360,
         formatar_brl=formatar_brl,
+        usuario_id=usuario_id,
+        perfil_persistido=perfil_financeiro_360,
+        salvar_perfil=salvar_perfil_financeiro_360,
+        mostrar_erro=lambda erro: mostrar_erro_seguro(erro, email_usuario),
     )
     st.markdown("---")
 
