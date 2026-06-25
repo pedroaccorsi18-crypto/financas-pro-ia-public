@@ -74,6 +74,12 @@ from utils.history import formatar_linha_historico
 from utils.import_staging import preparar_transacoes_importadas
 from utils.manual_entry import preparar_transacao_manual
 from utils.goals import calcular_status_meta
+from utils.oracle_analysis import (
+    montar_payload_feedback_oraculo,
+    montar_prompt_oraculo,
+    reforcar_prompt_oraculo,
+    resposta_oraculo_tem_secoes,
+)
 from utils.privacy import anonimizar_dados
 from utils.trends import TENDENCIA_SEM_HISTORICO, calcular_textos_tendencia
 import pandas as pd
@@ -655,17 +661,13 @@ elif st.session_state.autenticado:
                     historico_formatado = resumir_historico_para_ia(lista_total_banco)
                     
                     st.session_state.historico_oraculo_enviado = historico_formatado
-                    prompt_oraculo = (
-                        "Você é um cientista de dados e mentor comportamental financeiro.\n"
-                        f"Gere um relatório perspicaz baseado nas movimentações:\n{historico_formatado}\n\n"
-                        "ESTRUTURA OBRIGATÓRIA RIGOROSA:\n### 📊 1. Raio-X Comportamental\n### 📉 2. Tendências Preditivas\n### 📈 3. Plano de Evolução"
-                    )
+                    prompt_oraculo = montar_prompt_oraculo(historico_formatado)
                     
                     resposta_oraculo = gerar_conteudo_gemini(model='gemini-2.5-flash', contents=prompt_oraculo, config=types.GenerateContentConfig(temperature=0.1))
                     texto_final = resposta_oraculo.text
                     
-                    if not all(tag in texto_final for tag in ["Raio-X Comportamental", "Tendências Preditivas", "Plano de Evolução"]):
-                        resposta_oraculo = gerar_conteudo_gemini(model='gemini-2.5-flash', contents=prompt_oraculo + "\nUse rigorosamente os cabeçalhos em '### '.", config=types.GenerateContentConfig(temperature=0.0))
+                    if not resposta_oraculo_tem_secoes(texto_final):
+                        resposta_oraculo = gerar_conteudo_gemini(model='gemini-2.5-flash', contents=reforcar_prompt_oraculo(prompt_oraculo), config=types.GenerateContentConfig(temperature=0.0))
                         texto_final = resposta_oraculo.text
                     
                     st.session_state.resposta_oraculo_texto = texto_final
@@ -685,11 +687,16 @@ elif st.session_state.autenticado:
             with col_fb1:
                 if st.button("👍 Ficou Top", use_container_width=True):
                     try:
-                        salvar_feedback_oraculo({
-                            "user_id": usuario_id, "usuario_email": email_usuario, "status_resposta": "TOP",
-                            "resposta_ia": anonimizar_dados(st.session_state.resposta_oraculo_texto),
-                            "dados_enviados": anonimizar_dados(st.session_state.historico_oraculo_enviado)
-                        })
+                        salvar_feedback_oraculo(
+                            montar_payload_feedback_oraculo(
+                                usuario_id=usuario_id,
+                                email_usuario=email_usuario,
+                                status_resposta="TOP",
+                                resposta_ia=st.session_state.resposta_oraculo_texto,
+                                dados_enviados=st.session_state.historico_oraculo_enviado,
+                                anonimizar=anonimizar_dados,
+                            )
+                        )
                         st.session_state.feedback_enviado = True
                         st.rerun()
                     except Exception as err: 
@@ -698,11 +705,16 @@ elif st.session_state.autenticado:
             with col_fb2:
                 if st.button("👎 Resposta Ruim/Falsa", use_container_width=True):
                     try:
-                        salvar_feedback_oraculo({
-                            "user_id": usuario_id, "usuario_email": email_usuario, "status_resposta": "RUIM",
-                            "resposta_ia": anonimizar_dados(st.session_state.resposta_oraculo_texto),
-                            "dados_enviados": anonimizar_dados(st.session_state.historico_oraculo_enviado)
-                        })
+                        salvar_feedback_oraculo(
+                            montar_payload_feedback_oraculo(
+                                usuario_id=usuario_id,
+                                email_usuario=email_usuario,
+                                status_resposta="RUIM",
+                                resposta_ia=st.session_state.resposta_oraculo_texto,
+                                dados_enviados=st.session_state.historico_oraculo_enviado,
+                                anonimizar=anonimizar_dados,
+                            )
+                        )
                         st.session_state.feedback_enviado = True
                         st.rerun()
                     except Exception as err: 
