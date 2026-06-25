@@ -7,6 +7,7 @@ from utils.financial_profile import (
     calcular_diagnostico_360,
     normalizar_perfil_financeiro,
 )
+from utils.financial_report import gerar_relatorio_consultivo_360
 
 
 PERFIL_SESSION_KEY = "perfil_financeiro_360"
@@ -155,9 +156,27 @@ def render_perfil_financeiro_360(*, resumo_transacoes, formatar_brl):
         for prioridade in diagnostico["prioridades"]:
             st.markdown(f"- {prioridade}")
 
+        relatorio = gerar_relatorio_consultivo_360(perfil_salvo, resumo_transacoes)
+        st.markdown("### Relatorio Consultivo 360")
+        st.markdown(f"**Resumo executivo:** {relatorio['resumo_executivo']}")
+        _render_lista("Diagnostico patrimonial", relatorio["diagnostico_patrimonial"])
+        _render_lista("Planejamento financeiro", relatorio["planejamento_financeiro"])
+        _render_lista("Aposentadoria", relatorio["aposentadoria"])
+        _render_lista("Expansao patrimonial", relatorio["expansao_patrimonial"])
+        _render_lista("Sucessao", relatorio["sucessao"])
+        st.markdown("**Plano 30/60/90:**")
+        for periodo, acoes in relatorio["plano_30_60_90"].items():
+            st.markdown(f"- **{periodo.replace('_', ' ')}:** {'; '.join(acoes)}")
+
 
 def _indice_ou_zero(opcoes, valor):
     try:
         return opcoes.index(valor)
     except ValueError:
         return 0
+
+
+def _render_lista(titulo, itens):
+    st.markdown(f"**{titulo}:**")
+    for item in itens:
+        st.markdown(f"- {item}")
