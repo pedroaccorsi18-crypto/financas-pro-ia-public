@@ -4,9 +4,6 @@ import logging
 from google.genai import types
 from auth import (
     auditar_saude_plataforma,
-    cadastrar_usuario,
-    enviar_email_recuperacao_senha,
-    fazer_login,
     validar_chave_publica_supabase,
     validar_sessao_atual,
 )
@@ -42,7 +39,6 @@ from repositories.finance_repository import (
 from session_state import (
     encerrar_sessao_usuario,
     inicializar_estado_sessao,
-    iniciar_sessao_autenticada,
     limpar_sessao_usuario,
 )
 from utils.authorization import eh_usuario_admin
@@ -82,6 +78,7 @@ from utils.oracle_analysis import (
 )
 from utils.privacy import anonimizar_dados
 from utils.trends import TENDENCIA_SEM_HISTORICO, calcular_textos_tendencia
+from views.auth_views import render_fluxo_autenticacao
 import pandas as pd
 import plotly.express as px
 
@@ -136,98 +133,8 @@ if st.session_state.autenticado:
 # ==========================================
 # CONTROLADOR DE TELAS (LOGIN / CADASTRO)
 # ==========================================
-if aviso_sessao := st.session_state.pop("aviso_sessao", None):
-    st.warning(aviso_sessao)
-
-if not st.session_state.autenticado and st.session_state.tela_atual == "login":
-    st.title("💰 Finanças Pro IA")
-    st.subheader("Faça seu login para acessar o painel")
-    with st.form("formulario_login"):
-        email = st.text_input("E-mail").strip().lower()
-        senha = st.text_input("Senha", type="password")
-        if st.form_submit_button("Entrar"):
-            if email and senha:
-                usuario_autenticado = fazer_login(email, senha)
-                if usuario_autenticado:
-                    iniciar_sessao_autenticada(
-                        usuario_autenticado["email"],
-                        usuario_autenticado["id"],
-                    )
-                    st.toast("Autenticação autorizada com sucesso!", icon="🔐")
-                    st.rerun()
-                else: 
-                    st.error(
-                        "E-mail ou senha incorretos. Se você acabou de criar a conta, "
-                        "confirme o e-mail de confirmação antes de entrar."
-                    )
-            else: 
-                st.warning("Por favor, preencha todos os campos.")
-    if st.button("Não tem uma conta? Cadastre-se aqui"):
-        st.session_state.tela_atual = "cadastro"
-        st.rerun()
-    if st.button("Esqueci minha senha"):
-        st.session_state.tela_atual = "recuperar_senha"
-        st.rerun()
-
-elif not st.session_state.autenticado and st.session_state.tela_atual == "recuperar_senha":
-    st.title("Recuperar senha")
-    st.caption(
-        "Informe o e-mail da sua conta. Se ele estiver cadastrado, enviaremos "
-        "as instruções de redefinição."
-    )
-    with st.form("formulario_recuperacao_senha"):
-        email_recuperacao = st.text_input("E-mail").strip().lower()
-        if st.form_submit_button("Enviar instruções"):
-            if email_recuperacao:
-                if enviar_email_recuperacao_senha(email_recuperacao):
-                    st.success(
-                        "Se houver uma conta associada a este e-mail, você receberá "
-                        "as instruções de recuperação em alguns minutos."
-                    )
-                else:
-                    st.error(
-                        "Não foi possível solicitar a recuperação agora. "
-                        "Tente novamente em alguns minutos."
-                    )
-            else:
-                st.warning("Informe seu e-mail para continuar.")
-    if st.button("Voltar para o login"):
-        st.session_state.tela_atual = "login"
-        st.rerun()
-
-elif not st.session_state.autenticado and st.session_state.tela_atual == "cadastro":
-    st.title("📝 Criar Nova Conta")
-    with st.form("formulario_cadastro"):
-        novo_email = st.text_input("E-mail").strip().lower()
-        nova_senha = st.text_input("Senha", type="password")
-        confirmar_senha = st.text_input("Confirme a Senha", type="password")
-        if st.form_submit_button("Criar Conta"):
-            if novo_email and nova_senha and confirmar_senha:
-                if nova_senha == confirmar_senha:
-                    if len(nova_senha) < 10:
-                        st.error("A senha deve ter pelo menos 10 caracteres.")
-                    else:
-                        resultado = cadastrar_usuario(novo_email, nova_senha)
-                        if resultado == "existe": 
-                            st.error("Esse e-mail já está cadastrado!")
-                        elif resultado == "confirmar_email":
-                            st.session_state.aviso_sessao = (
-                                "Conta criada! Verifique sua caixa de entrada ou spam, "
-                                "confirme o e-mail de confirmação e depois entre com seu e-mail e senha."
-                            )
-                            st.session_state.tela_atual = "login"
-                            st.rerun()
-                        elif resultado is True:
-                            st.success("Conta criada! Redirecionando...")
-                            st.session_state.tela_atual = "login"
-                            st.rerun()
-                else: 
-                    st.error("As senhas não coincidem.")
-            else: 
-                st.warning("Preencha todos os campos.")
-    if st.button("Já tem uma conta? Voltar para o Login"):
-        st.session_state.tela_atual = "login"
-        st.rerun()
+if not st.session_state.autenticado:
+    render_fluxo_autenticacao()
 
 # ==========================================
 # PAINEL CORE DO SAAS (AUTENTICADO)

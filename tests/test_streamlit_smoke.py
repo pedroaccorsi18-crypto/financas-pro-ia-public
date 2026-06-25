@@ -119,7 +119,7 @@ class StreamlitSmokeTests(unittest.TestCase):
         express_fake = ModuleType("plotly.express")
         plotly_fake.express = express_fake
 
-        for nome in ("app_smoke", "auth", "session_state"):
+        for nome in ("app_smoke", "auth", "session_state", "views.auth_views"):
             self.substituir_modulo(nome, None)
         self.substituir_modulo("streamlit", streamlit_fake)
         self.substituir_modulo("supabase", supabase_fake)

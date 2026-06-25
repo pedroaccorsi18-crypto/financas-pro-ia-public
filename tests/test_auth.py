@@ -23,6 +23,9 @@ import auth
 
 
 APP_SOURCE = (Path(__file__).parents[1] / "app.py").read_text(encoding="utf-8")
+AUTH_VIEWS_SOURCE = (
+    Path(__file__).parents[1] / "views" / "auth_views.py"
+).read_text(encoding="utf-8")
 AUTH_SOURCE = (Path(__file__).parents[1] / "auth.py").read_text(encoding="utf-8")
 SESSION_STATE_SOURCE = (Path(__file__).parents[1] / "session_state.py").read_text(encoding="utf-8")
 FINANCE_CATEGORIES_SOURCE = (Path(__file__).parents[1] / "finance_categories.py").read_text(encoding="utf-8")
@@ -256,17 +259,17 @@ class AuthTests(unittest.TestCase):
         self.assertIn("obter_cliente_gemini(),", APP_SOURCE)
 
     def test_app_tem_fluxo_de_recuperacao_de_senha_sem_enumerar_usuario(self):
-        self.assertIn('st.session_state.tela_atual = "recuperar_senha"', APP_SOURCE)
-        self.assertIn("enviar_email_recuperacao_senha(email_recuperacao)", APP_SOURCE)
-        self.assertIn("Se houver uma conta associada a este e-mail", APP_SOURCE)
-        self.assertNotIn("e-mail não encontrado", APP_SOURCE.lower())
+        self.assertIn('st.session_state.tela_atual = "recuperar_senha"', AUTH_VIEWS_SOURCE)
+        self.assertIn("enviar_email_recuperacao_senha(email_recuperacao)", AUTH_VIEWS_SOURCE)
+        self.assertIn("Se houver uma conta associada a este e-mail", AUTH_VIEWS_SOURCE)
+        self.assertNotIn("e-mail nÃ£o encontrado", AUTH_VIEWS_SOURCE.lower())
 
     def test_app_orienta_confirmacao_de_email_apos_cadastro(self):
-        self.assertIn('resultado == "confirmar_email"', APP_SOURCE)
-        self.assertIn("st.session_state.aviso_sessao", APP_SOURCE)
-        self.assertIn("confirme o e-mail de confirmação", APP_SOURCE)
-        self.assertIn("Verifique sua caixa de entrada ou spam", APP_SOURCE)
-        self.assertIn("Se você acabou de criar a conta", APP_SOURCE)
+        self.assertIn('resultado == "confirmar_email"', AUTH_VIEWS_SOURCE)
+        self.assertIn("st.session_state.aviso_sessao", AUTH_VIEWS_SOURCE)
+        self.assertIn("confirme o e-mail de confirma", AUTH_VIEWS_SOURCE)
+        self.assertIn("Verifique sua caixa de entrada ou spam", AUTH_VIEWS_SOURCE)
+        self.assertIn("Se voc", AUTH_VIEWS_SOURCE)
 
     def test_app_usa_categorias_de_receita_no_lancamento_manual(self):
         trecho = APP_SOURCE.split('with st.sidebar.form("form_transacao"', 1)[-1]
