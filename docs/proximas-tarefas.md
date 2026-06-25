@@ -2,14 +2,19 @@
 
 Fila curta para manter o projeto evoluindo com pouco atrito e boa verificacao.
 
-## Prioridade agora
+## Concluido
 
 | Prioridade | Tarefa | Por que importa | Pronto quando |
 | --- | --- | --- | --- |
 | P0 | Validar o novo CI no GitHub | Garante que testes e secret scanning rodem fora da maquina local. | O primeiro push/PR executar `Gitleaks` e `Tests` com sucesso. |
 | P1 | Criar um smoke test leve do fluxo Streamlit | Protege os caminhos principais da interface, que ainda ficam concentrados em `app.py`. | Um teste automatizado cobre abertura do app e um fluxo basico sem depender de Supabase real. |
 | P1 | Revisar o fluxo de publicacao | Reduz risco de publicar arquivo local, segredo ou configuracao privada por acidente. | `PUBLICATION_AUDIT_REPORT.md`, `.gitignore`, exemplos de secrets e workflow estao coerentes. |
-| P2 | Definir caminho para autorizacao administrativa | `ADMIN_EMAILS` funciona para portfolio, mas e uma limitacao tecnica assumida. | Existe uma decisao documentada entre claims, tabela protegida por RLS ou manter como escopo futuro. |
+| P2 | Definir caminho para autorizacao administrativa | `ADMIN_EMAILS` funciona para portfolio, mas e uma limitacao tecnica assumida. | Decisao registrada em [`docs/autorizacao-admin.md`](autorizacao-admin.md). |
+
+## Prioridade agora
+
+| Prioridade | Tarefa | Por que importa | Pronto quando |
+| --- | --- | --- | --- |
 | P2 | Montar casos anonimizados para avaliar extracao por IA | Ajuda a medir qualidade da extracao antes de mexer em prompts ou schema. | Ha uma pequena suite de exemplos anonimizados com resultado esperado. |
 | P3 | Preparar demo curta do fluxo completo | Melhora o valor de portfolio e facilita explicar o projeto em entrevista. | Roteiro e capturas cobrem login, importacao, homologacao, dashboard, metas e IA. |
 
@@ -22,4 +27,4 @@ Fila curta para manter o projeto evoluindo com pouco atrito e boa verificacao.
 
 ## Proxima acao sugerida
 
-Depois de commitar e enviar as mudancas atuais, acompanhar a primeira execucao do CI no GitHub. Se passar, seguir para o smoke test leve do Streamlit.
+Montar casos anonimizados de avaliacao da extracao por IA.
