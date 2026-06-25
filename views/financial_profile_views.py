@@ -15,6 +15,7 @@ from utils.goal_roadmap import gerar_roadmap_metas
 from utils.retirement_planning import calcular_planejamento_aposentadoria
 from utils.stress_test import gerar_stress_test_financeiro
 from utils.suitability import gerar_checklist_suitability
+from utils.wealth_strategy import gerar_matriz_estrategia_patrimonial
 
 
 PERFIL_SESSION_FIELD = "perfil_financeiro_360"
@@ -245,6 +246,15 @@ def render_perfil_financeiro_360(
         _render_lista("Decisoes da reuniao", roteiro_reuniao["decisoes_da_reuniao"])
         st.caption(roteiro_reuniao["fechamento"])
 
+        matriz_estrategia = gerar_matriz_estrategia_patrimonial(
+            perfil_salvo,
+            resumo_transacoes,
+        )
+        st.markdown("### Matriz de Estrategia Patrimonial")
+        st.markdown(f"**Foco principal:** {matriz_estrategia['foco_principal']}")
+        st.caption(matriz_estrategia["postura_geral"])
+        _render_frentes_estrategia(matriz_estrategia["frentes"])
+
         resumo_executivo_exportavel = gerar_resumo_executivo_markdown(
             perfil_salvo,
             resumo_transacoes,
@@ -316,4 +326,13 @@ def _render_cenarios_stress(cenarios, formatar_brl):
             f"- **{cenario['nome']} ({cenario['severidade']}):** "
             f"impacto {formatar_brl(cenario['impacto'])}. "
             f"{cenario['leitura']} {cenario['acao']}"
+        )
+
+
+def _render_frentes_estrategia(frentes):
+    st.markdown("**Frentes:**")
+    for frente in frentes:
+        st.markdown(
+            f"- **{frente['nome']}:** {frente['prioridade_texto']}, "
+            f"postura {frente['postura']}. {frente['acao']}"
         )

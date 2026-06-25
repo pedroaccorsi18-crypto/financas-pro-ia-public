@@ -8,6 +8,7 @@ from utils.goal_roadmap import gerar_roadmap_metas
 from utils.retirement_planning import calcular_planejamento_aposentadoria
 from utils.stress_test import gerar_stress_test_financeiro
 from utils.suitability import gerar_checklist_suitability
+from utils.wealth_strategy import gerar_matriz_estrategia_patrimonial
 
 
 def gerar_resumo_executivo_markdown(perfil, resumo_transacoes=None):
@@ -21,6 +22,7 @@ def gerar_resumo_executivo_markdown(perfil, resumo_transacoes=None):
     roadmap = gerar_roadmap_metas(perfil, resumo_transacoes)
     stress = gerar_stress_test_financeiro(perfil, resumo_transacoes)
     reuniao = gerar_roteiro_reuniao_consultiva(perfil, resumo_transacoes)
+    estrategia = gerar_matriz_estrategia_patrimonial(perfil, resumo_transacoes)
 
     secoes = [
         "# Resumo Executivo - Planejamento Financeiro 360",
@@ -66,7 +68,12 @@ def gerar_resumo_executivo_markdown(perfil, resumo_transacoes=None):
         *_linhas_lista(reuniao["perguntas_chave"][:3]),
         f"- Fechamento: {reuniao['fechamento']}",
         "",
-        "## 11. Proximos 90 dias",
+        "## 11. Estrategia patrimonial",
+        f"- Foco principal: {estrategia['foco_principal']}",
+        f"- Postura geral: {estrategia['postura_geral']}",
+        *_linhas_estrategia(estrategia["frentes"][:5]),
+        "",
+        "## 12. Proximos 90 dias",
         *_linhas_plano_90(relatorio["plano_30_60_90"]),
         "",
         "## Observacao",
@@ -103,6 +110,13 @@ def _linhas_stress(cenarios):
     return [
         f"- {cenario['nome']}: {cenario['severidade']} - {cenario['acao']}"
         for cenario in cenarios[:4]
+    ]
+
+
+def _linhas_estrategia(frentes):
+    return [
+        f"- {frente['nome']}: {frente['prioridade_texto']} - {frente['acao']}"
+        for frente in frentes
     ]
 
 
