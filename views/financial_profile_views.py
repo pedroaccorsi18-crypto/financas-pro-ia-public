@@ -10,6 +10,7 @@ from utils.financial_profile import (
 from utils.client_policy import gerar_politica_planejamento_cliente
 from utils.executive_summary import gerar_resumo_executivo_markdown
 from utils.financial_report import gerar_relatorio_consultivo_360
+from utils.goal_roadmap import gerar_roadmap_metas
 from utils.retirement_planning import calcular_planejamento_aposentadoria
 from utils.suitability import gerar_checklist_suitability
 
@@ -216,6 +217,16 @@ def render_perfil_financeiro_360(
         _render_lista("Proximas perguntas", checklist_suitability["proximas_perguntas"])
         _render_lista("Documentos sugeridos", checklist_suitability["documentos_sugeridos"])
 
+        roadmap_metas = gerar_roadmap_metas(perfil_salvo, resumo_transacoes)
+        st.markdown("### Roadmap de Metas")
+        st.caption(
+            f"Capacidade mensal de aporte observada: "
+            f"{formatar_brl(roadmap_metas['capacidade_aporte'])}"
+        )
+        _render_metas("Curto prazo", roadmap_metas["curto_prazo"], formatar_brl)
+        _render_metas("Medio prazo", roadmap_metas["medio_prazo"], formatar_brl)
+        _render_metas("Longo prazo", roadmap_metas["longo_prazo"], formatar_brl)
+
         resumo_executivo_exportavel = gerar_resumo_executivo_markdown(
             perfil_salvo,
             resumo_transacoes,
@@ -267,3 +278,14 @@ def _render_lista(titulo, itens):
     st.markdown(f"**{titulo}:**")
     for item in itens:
         st.markdown(f"- {item}")
+
+
+def _render_metas(titulo, metas, formatar_brl):
+    if not metas:
+        return
+    st.markdown(f"**{titulo}:**")
+    for meta in metas:
+        st.markdown(
+            f"- **{meta['nome']}:** {meta['descricao']} "
+            f"Alvo: {formatar_brl(meta['valor_alvo'])}. {meta['racional']}"
+        )

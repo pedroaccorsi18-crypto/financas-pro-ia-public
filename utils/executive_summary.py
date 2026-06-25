@@ -3,6 +3,7 @@
 from utils.client_policy import gerar_politica_planejamento_cliente
 from utils.financial_profile import calcular_diagnostico_360, normalizar_perfil_financeiro
 from utils.financial_report import gerar_relatorio_consultivo_360
+from utils.goal_roadmap import gerar_roadmap_metas
 from utils.retirement_planning import calcular_planejamento_aposentadoria
 from utils.suitability import gerar_checklist_suitability
 
@@ -15,6 +16,7 @@ def gerar_resumo_executivo_markdown(perfil, resumo_transacoes=None):
     politica = gerar_politica_planejamento_cliente(perfil, resumo_transacoes)
     aposentadoria = calcular_planejamento_aposentadoria(perfil)
     suitability = gerar_checklist_suitability(perfil, resumo_transacoes)
+    roadmap = gerar_roadmap_metas(perfil, resumo_transacoes)
 
     secoes = [
         "# Resumo Executivo - Planejamento Financeiro 360",
@@ -48,7 +50,10 @@ def gerar_resumo_executivo_markdown(perfil, resumo_transacoes=None):
         *_linhas_lista(suitability["pendencias"][:4]),
         *_linhas_lista(suitability["alertas"][:4]),
         "",
-        "## 8. Proximos 90 dias",
+        "## 8. Roadmap de metas",
+        *_linhas_roadmap(roadmap["metas"][:5]),
+        "",
+        "## 9. Proximos 90 dias",
         *_linhas_plano_90(relatorio["plano_30_60_90"]),
         "",
         "## Observacao",
@@ -70,6 +75,15 @@ def _linhas_plano_90(plano):
         titulo = periodo.replace("_", " ")
         linhas.append(f"- {titulo}: {'; '.join(acoes)}")
     return linhas
+
+
+def _linhas_roadmap(metas):
+    if not metas:
+        return ["- Sem metas pendentes a partir dos dados informados."]
+    return [
+        f"- {meta['prazo']}: {meta['nome']} - {meta['descricao']}"
+        for meta in metas
+    ]
 
 
 def _linhas_aposentadoria(aposentadoria):
