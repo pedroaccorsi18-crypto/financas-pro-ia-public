@@ -172,127 +172,122 @@ def render_perfil_financeiro_360(
             st.session_state.get(PERFIL_SESSION_FIELD, perfil_atual)
         )
         diagnostico = calcular_diagnostico_360(perfil_salvo, resumo_transacoes)
-        col_a, col_b, col_c, col_d = st.columns(4)
-        col_a.metric("Maturidade 360\u00ba", f"{diagnostico['score']}/100")
-        col_b.metric("Reserva", f"{diagnostico['meses_reserva']:.1f} meses")
-        col_c.metric("Taxa de poupanca", f"{diagnostico['taxa_poupanca']*100:.1f}%")
-        col_d.metric(
-            "Patrimonio liquido",
-            formatar_brl(diagnostico["patrimonio_liquido"]),
-        )
-
-        st.markdown(f"**Classificacao:** {diagnostico['classificacao'].title()}")
-        st.markdown("**Prioridades consultivas:**")
-        for prioridade in diagnostico["prioridades"]:
-            st.markdown(f"- {prioridade}")
-
         relatorio = gerar_relatorio_consultivo_360(perfil_salvo, resumo_transacoes)
-        st.markdown("### Relatorio Consultivo 360")
-        st.markdown(f"**Resumo executivo:** {relatorio['resumo_executivo']}")
-        _render_lista("Diagnostico patrimonial", relatorio["diagnostico_patrimonial"])
-        _render_lista("Planejamento financeiro", relatorio["planejamento_financeiro"])
-        _render_lista("Aposentadoria", relatorio["aposentadoria"])
-        _render_lista("Expansao patrimonial", relatorio["expansao_patrimonial"])
-        _render_lista("Sucessao", relatorio["sucessao"])
-        st.markdown("**Plano 30/60/90:**")
-        for periodo, acoes in relatorio["plano_30_60_90"].items():
-            st.markdown(f"- **{periodo.replace('_', ' ')}:** {'; '.join(acoes)}")
-
         politica_cliente = gerar_politica_planejamento_cliente(
             perfil_salvo,
             resumo_transacoes,
         )
-        st.markdown("### Politica de Planejamento do Cliente")
-        st.markdown(f"**Perfil consultivo:** {politica_cliente['perfil_consultivo']}")
-        _render_lista("Objetivos priorizados", politica_cliente["objetivos_priorizados"])
-        _render_lista("Diretrizes de alocacao", politica_cliente["diretrizes_de_alocacao"])
-        _render_lista("Restricoes e alertas", politica_cliente["restricoes_e_alertas"])
-        st.caption(politica_cliente["cadencia_de_revisao"])
-
         checklist_suitability = gerar_checklist_suitability(
             perfil_salvo,
             resumo_transacoes,
         )
-        st.markdown("### Suitability e Onboarding")
-        st.markdown(f"**Status:** {checklist_suitability['status'].title()}")
-        _render_lista("Pendencias", checklist_suitability["pendencias"])
-        _render_lista("Alertas", checklist_suitability["alertas"])
-        _render_lista("Proximas perguntas", checklist_suitability["proximas_perguntas"])
-        _render_lista("Documentos sugeridos", checklist_suitability["documentos_sugeridos"])
-
         roadmap_metas = gerar_roadmap_metas(perfil_salvo, resumo_transacoes)
-        st.markdown("### Roadmap de Metas")
-        st.caption(
-            f"Capacidade mensal de aporte observada: "
-            f"{formatar_brl(roadmap_metas['capacidade_aporte'])}"
-        )
-        _render_metas("Curto prazo", roadmap_metas["curto_prazo"], formatar_brl)
-        _render_metas("Medio prazo", roadmap_metas["medio_prazo"], formatar_brl)
-        _render_metas("Longo prazo", roadmap_metas["longo_prazo"], formatar_brl)
-
         stress_test = gerar_stress_test_financeiro(perfil_salvo, resumo_transacoes)
-        st.markdown("### Stress Test Financeiro")
-        st.markdown(f"**Severidade geral:** {stress_test['severidade_geral'].title()}")
-        _render_cenarios_stress(stress_test["cenarios"], formatar_brl)
-        _render_lista("Acoes prioritarias", stress_test["acoes_prioritarias"])
-
         roteiro_reuniao = gerar_roteiro_reuniao_consultiva(
             perfil_salvo,
             resumo_transacoes,
         )
-        st.markdown("### Roteiro de Reuniao Consultiva")
-        st.markdown(f"**Abertura:** {roteiro_reuniao['abertura']}")
-        _render_lista("Perguntas-chave", roteiro_reuniao["perguntas_chave"])
-        _render_lista("Decisoes da reuniao", roteiro_reuniao["decisoes_da_reuniao"])
-        st.caption(roteiro_reuniao["fechamento"])
-
         matriz_estrategia = gerar_matriz_estrategia_patrimonial(
             perfil_salvo,
             resumo_transacoes,
         )
-        st.markdown("### Matriz de Estrategia Patrimonial")
-        st.markdown(f"**Foco principal:** {matriz_estrategia['foco_principal']}")
-        st.caption(matriz_estrategia["postura_geral"])
-        _render_frentes_estrategia(matriz_estrategia["frentes"])
-
+        plano_aposentadoria = calcular_planejamento_aposentadoria(perfil_salvo)
         resumo_executivo_exportavel = gerar_resumo_executivo_markdown(
             perfil_salvo,
             resumo_transacoes,
         )
-        st.download_button(
-            "Baixar resumo executivo",
-            data=resumo_executivo_exportavel,
-            file_name="resumo-executivo-planejamento-360.md",
-            mime="text/markdown",
-            use_container_width=True,
+
+        aba_diagnostico, aba_planejamento, aba_risco, aba_reuniao, aba_exportacao = st.tabs(
+            [
+                "Diagnostico",
+                "Planejamento",
+                "Risco e estrategia",
+                "Reuniao",
+                "Exportacao",
+            ]
         )
 
-        plano_aposentadoria = calcular_planejamento_aposentadoria(perfil_salvo)
-        st.markdown("### Planejamento de Aposentadoria")
-        if not plano_aposentadoria["completo"]:
-            st.info("Complete os dados abaixo para simular aposentadoria:")
-            for pendencia in plano_aposentadoria["motivos_pendentes"]:
-                st.markdown(f"- {pendencia}")
-        else:
-            st.markdown(
-                f"Anos ate aposentadoria: **{plano_aposentadoria['anos_ate_aposentadoria']}**"
+        with aba_diagnostico:
+            col_a, col_b, col_c, col_d = st.columns(4)
+            col_a.metric("Maturidade 360\u00ba", f"{diagnostico['score']}/100")
+            col_b.metric("Reserva", f"{diagnostico['meses_reserva']:.1f} meses")
+            col_c.metric("Taxa de poupanca", f"{diagnostico['taxa_poupanca']*100:.1f}%")
+            col_d.metric(
+                "Patrimonio liquido",
+                formatar_brl(diagnostico["patrimonio_liquido"]),
             )
-            for nome, cenario in plano_aposentadoria["cenarios"].items():
-                st.markdown(f"**Cenario {nome}:**")
-                st.markdown(
-                    "- Patrimonio necessario: "
-                    f"{formatar_brl(cenario['patrimonio_necessario'])}"
-                )
-                st.markdown(
-                    "- Gap estimado: "
-                    f"{formatar_brl(cenario['gap'])}"
-                )
-                st.markdown(
-                    "- Aporte mensal estimado: "
-                    f"{formatar_brl(cenario['aporte_mensal_necessario'])}"
-                )
-            for observacao in plano_aposentadoria["observacoes"]:
-                st.caption(observacao)
+
+            st.markdown(f"**Classificacao:** {diagnostico['classificacao'].title()}")
+            st.markdown("**Prioridades consultivas:**")
+            for prioridade in diagnostico["prioridades"]:
+                st.markdown(f"- {prioridade}")
+
+            st.markdown("### Relatorio Consultivo 360")
+            st.markdown(f"**Resumo executivo:** {relatorio['resumo_executivo']}")
+            _render_lista("Diagnostico patrimonial", relatorio["diagnostico_patrimonial"])
+            _render_lista("Planejamento financeiro", relatorio["planejamento_financeiro"])
+            _render_lista("Aposentadoria", relatorio["aposentadoria"])
+            _render_lista("Expansao patrimonial", relatorio["expansao_patrimonial"])
+            _render_lista("Sucessao", relatorio["sucessao"])
+            st.markdown("**Plano 30/60/90:**")
+            for periodo, acoes in relatorio["plano_30_60_90"].items():
+                st.markdown(f"- **{periodo.replace('_', ' ')}:** {'; '.join(acoes)}")
+
+        with aba_planejamento:
+            st.markdown("### Politica de Planejamento do Cliente")
+            st.markdown(f"**Perfil consultivo:** {politica_cliente['perfil_consultivo']}")
+            _render_lista("Objetivos priorizados", politica_cliente["objetivos_priorizados"])
+            _render_lista("Diretrizes de alocacao", politica_cliente["diretrizes_de_alocacao"])
+            _render_lista("Restricoes e alertas", politica_cliente["restricoes_e_alertas"])
+            st.caption(politica_cliente["cadencia_de_revisao"])
+
+            st.markdown("### Roadmap de Metas")
+            st.caption(
+                f"Capacidade mensal de aporte observada: "
+                f"{formatar_brl(roadmap_metas['capacidade_aporte'])}"
+            )
+            _render_metas("Curto prazo", roadmap_metas["curto_prazo"], formatar_brl)
+            _render_metas("Medio prazo", roadmap_metas["medio_prazo"], formatar_brl)
+            _render_metas("Longo prazo", roadmap_metas["longo_prazo"], formatar_brl)
+
+            _render_planejamento_aposentadoria(plano_aposentadoria, formatar_brl)
+
+        with aba_risco:
+            st.markdown("### Suitability e Onboarding")
+            st.markdown(f"**Status:** {checklist_suitability['status'].title()}")
+            _render_lista("Pendencias", checklist_suitability["pendencias"])
+            _render_lista("Alertas", checklist_suitability["alertas"])
+            _render_lista("Proximas perguntas", checklist_suitability["proximas_perguntas"])
+            _render_lista("Documentos sugeridos", checklist_suitability["documentos_sugeridos"])
+
+            st.markdown("### Stress Test Financeiro")
+            st.markdown(f"**Severidade geral:** {stress_test['severidade_geral'].title()}")
+            _render_cenarios_stress(stress_test["cenarios"], formatar_brl)
+            _render_lista("Acoes prioritarias", stress_test["acoes_prioritarias"])
+
+            st.markdown("### Matriz de Estrategia Patrimonial")
+            st.markdown(f"**Foco principal:** {matriz_estrategia['foco_principal']}")
+            st.caption(matriz_estrategia["postura_geral"])
+            _render_frentes_estrategia(matriz_estrategia["frentes"])
+
+        with aba_reuniao:
+            st.markdown("### Roteiro de Reuniao Consultiva")
+            st.markdown(f"**Abertura:** {roteiro_reuniao['abertura']}")
+            _render_lista("Perguntas-chave", roteiro_reuniao["perguntas_chave"])
+            _render_lista("Pontos de atencao", roteiro_reuniao["pontos_de_atencao"])
+            _render_lista("Decisoes da reuniao", roteiro_reuniao["decisoes_da_reuniao"])
+            st.caption(roteiro_reuniao["fechamento"])
+
+        with aba_exportacao:
+            st.markdown("### Resumo Executivo Exportavel")
+            st.caption("Documento em Markdown para preparar reuniao, entrevista ou registro consultivo.")
+            st.download_button(
+                "Baixar resumo executivo",
+                data=resumo_executivo_exportavel,
+                file_name="resumo-executivo-planejamento-360.md",
+                mime="text/markdown",
+                use_container_width=True,
+            )
 
 
 def _indice_ou_zero(opcoes, valor):
@@ -327,6 +322,35 @@ def _render_cenarios_stress(cenarios, formatar_brl):
             f"impacto {formatar_brl(cenario['impacto'])}. "
             f"{cenario['leitura']} {cenario['acao']}"
         )
+
+
+def _render_planejamento_aposentadoria(plano_aposentadoria, formatar_brl):
+    st.markdown("### Planejamento de Aposentadoria")
+    if not plano_aposentadoria["completo"]:
+        st.info("Complete os dados abaixo para simular aposentadoria:")
+        for pendencia in plano_aposentadoria["motivos_pendentes"]:
+            st.markdown(f"- {pendencia}")
+        return
+
+    st.markdown(
+        f"Anos ate aposentadoria: **{plano_aposentadoria['anos_ate_aposentadoria']}**"
+    )
+    for nome, cenario in plano_aposentadoria["cenarios"].items():
+        st.markdown(f"**Cenario {nome}:**")
+        st.markdown(
+            "- Patrimonio necessario: "
+            f"{formatar_brl(cenario['patrimonio_necessario'])}"
+        )
+        st.markdown(
+            "- Gap estimado: "
+            f"{formatar_brl(cenario['gap'])}"
+        )
+        st.markdown(
+            "- Aporte mensal estimado: "
+            f"{formatar_brl(cenario['aporte_mensal_necessario'])}"
+        )
+    for observacao in plano_aposentadoria["observacoes"]:
+        st.caption(observacao)
 
 
 def _render_frentes_estrategia(frentes):
