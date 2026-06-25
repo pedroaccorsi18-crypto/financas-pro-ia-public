@@ -1,5 +1,4 @@
 import streamlit as st
-import json
 import datetime
 import logging
 from google.genai import types
@@ -55,6 +54,15 @@ from utils.ai_extraction import (
     normalizar_resultado_extracao,
 )
 from utils.bot_fiscal import disparar_bot_fiscal_email
+from utils.category_maintenance import (
+    CATEGORIA_TRANSPORTE,
+    carregar_mapa_reclassificacao,
+    extrair_descricoes_para_reclassificar,
+    montar_prompt_reclassificacao_categorias,
+    preparar_atualizacoes_reclassificacao,
+    selecionar_linhas_para_reclassificar,
+    selecionar_transacoes_de_transporte,
+)
 from utils.category_analysis import preparar_dados_analise_categorias
 from utils.error_handling import mostrar_erro_seguro
 from utils.formatting import formatar_brl
@@ -291,28 +299,23 @@ elif st.session_state.autenticado:
             else:
                 with st.spinner("Higienizando e processando lote via inteligência analítica..."):
                     try:
-                        for item in lista_total_banco:
-                            desc_lower = item.get("descricao", "").lower()
-                            if any(k in desc_lower for k in ["pmbmetro", "metro", "cptm", "autopass"]):
-                                if item.get("categoria") != "Transporte":
-                                    atualizar_categoria_transacao(item["id"], "Transporte")
+                        for item in selecionar_transacoes_de_transporte(lista_total_banco):
+                            atualizar_categoria_transacao(item["id"], CATEGORIA_TRANSPORTE)
 
-                        linhas_para_atualizar = [t for t in lista_total_banco if t.get("categoria") in ["Compras & Assinaturas", "Geral", None] and t.get("descricao")]
+                        linhas_para_atualizar = selecionar_linhas_para_reclassificar(
+                            lista_total_banco
+                        )
                         
-                        if lines_to_fix := [l["descricao"] for l in linhas_para_atualizar]:
-                            prompt_lote = (
-                                f"Classifique estritamente cada item da lista abaixo nas seguintes categorias permitidas:\n{str(CATEGORIAS_VALIDAS)}\n\n"
-                                f"LISTA DE ITENS:\n{json.dumps(lines_to_fix)}\n\n"
-                                "Retorne a resposta estritamente em um JSON plano no formato: {\"item_descricao\": \"Categoria\"}"
-                            )
+                        if lines_to_fix := extrair_descricoes_para_reclassificar(linhas_para_atualizar):
+                            prompt_lote = montar_prompt_reclassificacao_categorias(lines_to_fix)
                             response_batch = gerar_conteudo_gemini(model='gemini-2.5-flash', contents=prompt_lote, config=types.GenerateContentConfig(response_mime_type="application/json"))
-                            mapa_categorias = json.loads(response_batch.text.strip())
+                            mapa_categorias = carregar_mapa_reclassificacao(response_batch.text)
                             
-                            for item in linhas_para_atualizar:
-                                cat_inferida = mapa_categorias.get(item["descricao"], "Compras Gerais")
-                                if cat_inferida not in CATEGORIAS_VALIDAS:
-                                    cat_inferida = "Compras Gerais"
-                                atualizar_categoria_transacao(item["id"], cat_inferida)
+                            for item_id, categoria in preparar_atualizacoes_reclassificacao(
+                                linhas_para_atualizar,
+                                mapa_categorias,
+                            ):
+                                atualizar_categoria_transacao(item_id, categoria)
                             
                         st.sidebar.success("Histórico totalmente saneado!")
                         st.rerun()
