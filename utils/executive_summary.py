@@ -4,6 +4,7 @@ from utils.client_policy import gerar_politica_planejamento_cliente
 from utils.financial_profile import calcular_diagnostico_360, normalizar_perfil_financeiro
 from utils.financial_report import gerar_relatorio_consultivo_360
 from utils.retirement_planning import calcular_planejamento_aposentadoria
+from utils.suitability import gerar_checklist_suitability
 
 
 def gerar_resumo_executivo_markdown(perfil, resumo_transacoes=None):
@@ -13,6 +14,7 @@ def gerar_resumo_executivo_markdown(perfil, resumo_transacoes=None):
     relatorio = gerar_relatorio_consultivo_360(perfil, resumo_transacoes)
     politica = gerar_politica_planejamento_cliente(perfil, resumo_transacoes)
     aposentadoria = calcular_planejamento_aposentadoria(perfil)
+    suitability = gerar_checklist_suitability(perfil, resumo_transacoes)
 
     secoes = [
         "# Resumo Executivo - Planejamento Financeiro 360",
@@ -41,7 +43,12 @@ def gerar_resumo_executivo_markdown(perfil, resumo_transacoes=None):
         "## 6. Sucessao e protecao",
         *_linhas_lista(relatorio["sucessao"]),
         "",
-        "## 7. Proximos 90 dias",
+        "## 7. Suitability e onboarding",
+        f"- Status: {suitability['status']}",
+        *_linhas_lista(suitability["pendencias"][:4]),
+        *_linhas_lista(suitability["alertas"][:4]),
+        "",
+        "## 8. Proximos 90 dias",
         *_linhas_plano_90(relatorio["plano_30_60_90"]),
         "",
         "## Observacao",

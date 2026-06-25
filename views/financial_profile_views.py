@@ -11,6 +11,7 @@ from utils.client_policy import gerar_politica_planejamento_cliente
 from utils.executive_summary import gerar_resumo_executivo_markdown
 from utils.financial_report import gerar_relatorio_consultivo_360
 from utils.retirement_planning import calcular_planejamento_aposentadoria
+from utils.suitability import gerar_checklist_suitability
 
 
 PERFIL_SESSION_FIELD = "perfil_financeiro_360"
@@ -203,6 +204,17 @@ def render_perfil_financeiro_360(
         _render_lista("Diretrizes de alocacao", politica_cliente["diretrizes_de_alocacao"])
         _render_lista("Restricoes e alertas", politica_cliente["restricoes_e_alertas"])
         st.caption(politica_cliente["cadencia_de_revisao"])
+
+        checklist_suitability = gerar_checklist_suitability(
+            perfil_salvo,
+            resumo_transacoes,
+        )
+        st.markdown("### Suitability e Onboarding")
+        st.markdown(f"**Status:** {checklist_suitability['status'].title()}")
+        _render_lista("Pendencias", checklist_suitability["pendencias"])
+        _render_lista("Alertas", checklist_suitability["alertas"])
+        _render_lista("Proximas perguntas", checklist_suitability["proximas_perguntas"])
+        _render_lista("Documentos sugeridos", checklist_suitability["documentos_sugeridos"])
 
         resumo_executivo_exportavel = gerar_resumo_executivo_markdown(
             perfil_salvo,
