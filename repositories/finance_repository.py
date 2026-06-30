@@ -151,5 +151,50 @@ def listar_membros_familia_financeira(familia_id: str) -> list[dict]:
     return resposta.data or []
 
 
+def obter_ou_criar_assinatura_usuario() -> dict | None:
+    resposta = supabase.rpc("obter_ou_criar_assinatura_usuario", {}).execute()
+    return resposta.data
+
+
+def buscar_assinatura_usuario(usuario_id: str) -> dict | None:
+    resposta = (
+        supabase.table("assinaturas")
+        .select("*")
+        .eq("owner_id", usuario_id)
+        .limit(1)
+        .execute()
+    )
+    linhas = resposta.data or []
+    return linhas[0] if linhas else None
+
+
+def sincronizar_assinatura_stripe(assinatura: dict) -> dict | None:
+    resposta = supabase.rpc(
+        "sincronizar_assinatura_stripe",
+        {
+            "p_owner_id": assinatura["owner_id"],
+            "p_plano": assinatura["plano"],
+            "p_status": assinatura["status"],
+            "p_stripe_customer_id": assinatura.get("stripe_customer_id"),
+            "p_stripe_subscription_id": assinatura.get("stripe_subscription_id"),
+            "p_stripe_price_id": assinatura.get("stripe_price_id"),
+            "p_limite_membros": assinatura["limite_membros"],
+            "p_current_period_end": assinatura.get("current_period_end"),
+        },
+    ).execute()
+    return resposta.data
+
+
+def registrar_evento_pagamento_stripe(evento: dict) -> None:
+    supabase.rpc(
+        "registrar_evento_pagamento_stripe",
+        {
+            "p_event_id": evento["id"],
+            "p_tipo": evento["type"],
+            "p_payload": evento,
+        },
+    ).execute()
+
+
 def salvar_feedback_oraculo(feedback: dict) -> None:
     supabase.table("feedbacks_oraculo").insert(feedback).execute()
