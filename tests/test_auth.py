@@ -29,6 +29,9 @@ AUTH_VIEWS_SOURCE = (
 SIDEBAR_VIEWS_SOURCE = (
     Path(__file__).parents[1] / "views" / "sidebar_views.py"
 ).read_text(encoding="utf-8")
+IMPORT_VIEWS_SOURCE = (
+    Path(__file__).parents[1] / "views" / "import_views.py"
+).read_text(encoding="utf-8")
 AUTH_SOURCE = (Path(__file__).parents[1] / "auth.py").read_text(encoding="utf-8")
 SESSION_STATE_SOURCE = (Path(__file__).parents[1] / "session_state.py").read_text(encoding="utf-8")
 FINANCE_CATEGORIES_SOURCE = (Path(__file__).parents[1] / "finance_categories.py").read_text(encoding="utf-8")
@@ -284,7 +287,10 @@ class AuthTests(unittest.TestCase):
         self.assertIn("else CATEGORIAS_DESPESA", trecho)
         self.assertIn("key=f\"categoria_manual_{tipo_transacao.lower()}\"", trecho)
         self.assertIn("from finance_categories import CATEGORIAS_DESPESA, CATEGORIAS_RECEITA", SIDEBAR_VIEWS_SOURCE)
-        self.assertIn("from finance_constants import (", APP_SOURCE)
+        self.assertIn(
+            "from finance_constants import ORIGEM_MANUAL, TIPO_RECEITA, TIPOS_TRANSACAO",
+            SIDEBAR_VIEWS_SOURCE,
+        )
         self.assertIn("TIPOS_TRANSACAO", trecho_antes_form)
         self.assertIn("TIPO_DESPESA = \"Despesa\"", FINANCE_CONSTANTS_SOURCE)
         self.assertIn("TIPO_RECEITA = \"Receita\"", FINANCE_CONSTANTS_SOURCE)
@@ -297,7 +303,7 @@ class AuthTests(unittest.TestCase):
 
     def test_app_nao_falha_quando_smtp_nao_esta_configurado(self):
         bot_fiscal_source = (Path(__file__).parents[1] / "utils" / "bot_fiscal.py").read_text(encoding="utf-8")
-        self.assertIn("from utils.bot_fiscal import disparar_bot_fiscal_email", APP_SOURCE)
+        self.assertIn("from utils.bot_fiscal import disparar_bot_fiscal_email", IMPORT_VIEWS_SOURCE)
         self.assertIn("disparar_alerta(", IMPORT_WORKFLOW_SOURCE)
         self.assertIn("secrets,", IMPORT_WORKFLOW_SOURCE)
         self.assertIn("from app_config import SMTP_SECRET_KEYS", bot_fiscal_source)

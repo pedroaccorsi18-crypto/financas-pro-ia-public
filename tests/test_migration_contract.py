@@ -10,6 +10,9 @@ MIGRACAO = (
     / "202606100001_endurecer_rpc_substituir_lote.sql"
 )
 APP_SOURCE = (Path(__file__).parents[1] / "app.py").read_text(encoding="utf-8").lower()
+IMPORT_VIEWS_SOURCE = (
+    Path(__file__).parents[1] / "views" / "import_views.py"
+).read_text(encoding="utf-8").lower()
 REPOSITORY_SOURCE = (
     Path(__file__).parents[1] / "repositories" / "finance_repository.py"
 ).read_text(encoding="utf-8").lower()
@@ -154,7 +157,7 @@ class MigrationContractTests(unittest.TestCase):
         self.assertNotIn("p_usuario_email text", self.sql)
 
     def test_app_grava_todo_lote_importado_pela_rpc(self):
-        self.assertIn("processar_importacao_homologada(", APP_SOURCE)
+        self.assertIn("processar_importacao_homologada(", IMPORT_VIEWS_SOURCE)
         self.assertIn("substituir_lote(", IMPORT_WORKFLOW_SOURCE)
         self.assertIn('supabase.rpc(', REPOSITORY_SOURCE)
         self.assertIn('"substituir_lote_importado"', REPOSITORY_SOURCE)
