@@ -4,6 +4,88 @@ from auth import cadastrar_usuario, enviar_email_recuperacao_senha, fazer_login
 from session_state import iniciar_sessao_autenticada
 
 
+PLANOS_PUBLICOS = (
+    {
+        "nome": "Gratuito",
+        "preco": "R$ 0",
+        "descricao": "Para organizar as primeiras movimentações e entender o fluxo mensal.",
+        "itens": (
+            "Lançamentos manuais",
+            "Dashboard mensal",
+            "Metas por categoria",
+        ),
+    },
+    {
+        "nome": "Pro",
+        "preco": "R$ 19,90/mês",
+        "descricao": "Para quem quer acompanhamento recorrente e mais clareza nas decisões.",
+        "itens": (
+            "Importação assistida",
+            "Auditoria por categoria",
+            "Histórico e evolução mensal",
+        ),
+    },
+    {
+        "nome": "Família",
+        "preco": "R$ 29,90/mês",
+        "descricao": "Para organizar a vida financeira da casa em uma visão mais completa.",
+        "itens": (
+            "Tudo do Pro",
+            "Múltiplos objetivos",
+            "Base preparada para recursos premium",
+        ),
+    },
+)
+
+
+def _render_plano(plano):
+    st.markdown(f"### {plano['nome']}")
+    st.subheader(plano["preco"])
+    st.caption(plano["descricao"])
+    for item in plano["itens"]:
+        st.markdown(f"- {item}")
+
+
+def render_tela_apresentacao():
+    st.title("Finanças Pro IA")
+    st.subheader("Organize suas finanças pessoais com clareza, segurança e apoio de IA.")
+    st.caption(
+        "Importe, revise e acompanhe suas movimentações em um painel simples, "
+        "feito para transformar gastos soltos em decisões melhores."
+    )
+
+    col_primaria, col_secundaria = st.columns(2)
+    with col_primaria:
+        if st.button("Começar agora", type="primary", use_container_width=True):
+            st.session_state.tela_atual = "cadastro"
+            st.rerun()
+    with col_secundaria:
+        if st.button("Já tenho conta", use_container_width=True):
+            st.session_state.tela_atual = "login"
+            st.rerun()
+
+    st.markdown("### O que a plataforma resolve")
+    beneficios = (
+        "Centraliza receitas e despesas em uma visão mensal.",
+        "Ajuda a revisar lançamentos antes de gravar dados importados.",
+        "Mostra categorias, metas e evolução financeira sem planilhas confusas.",
+        "Mantém os módulos avançados preparados para uma futura versão premium.",
+    )
+    for beneficio in beneficios:
+        st.markdown(f"- {beneficio}")
+
+    st.markdown("### Planos sugeridos para o MVP")
+    colunas_planos = st.columns(len(PLANOS_PUBLICOS))
+    for coluna, plano in zip(colunas_planos, PLANOS_PUBLICOS):
+        with coluna:
+            _render_plano(plano)
+
+    st.caption(
+        "Os valores podem ser ajustados conforme uso real, feedback dos primeiros clientes "
+        "e custos de infraestrutura."
+    )
+
+
 def render_tela_login():
     st.title("\U0001f4b0 Finan\u00e7as Pro IA")
     st.subheader("Fa\u00e7a seu login para acessar o painel")
@@ -35,6 +117,9 @@ def render_tela_login():
         st.rerun()
     if st.button("Esqueci minha senha"):
         st.session_state.tela_atual = "recuperar_senha"
+        st.rerun()
+    if st.button("Voltar para a apresentação"):
+        st.session_state.tela_atual = "apresentacao"
         st.rerun()
 
 
@@ -99,6 +184,9 @@ def render_tela_cadastro():
     if st.button("J\u00e1 tem uma conta? Voltar para o Login"):
         st.session_state.tela_atual = "login"
         st.rerun()
+    if st.button("Voltar para a apresentação"):
+        st.session_state.tela_atual = "apresentacao"
+        st.rerun()
 
 
 def render_fluxo_autenticacao():
@@ -109,5 +197,7 @@ def render_fluxo_autenticacao():
         render_tela_recuperar_senha()
     elif st.session_state.tela_atual == "cadastro":
         render_tela_cadastro()
-    else:
+    elif st.session_state.tela_atual == "login":
         render_tela_login()
+    else:
+        render_tela_apresentacao()

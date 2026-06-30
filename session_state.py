@@ -8,7 +8,7 @@ def inicializar_estado_sessao():
     if "autenticado" not in st.session_state:
         st.session_state.autenticado = False
     if "tela_atual" not in st.session_state:
-        st.session_state.tela_atual = "login"
+        st.session_state.tela_atual = "apresentacao"
     if "resposta_oraculo_texto" not in st.session_state:
         st.session_state.resposta_oraculo_texto = None
     if "historico_oraculo_enviado" not in st.session_state:
@@ -49,7 +49,7 @@ def encerrar_sessao_usuario():
     logout_confirmado = encerrar_autenticacao_supabase()
     limpar_sessao_usuario()
     st.session_state.autenticado = False
-    st.session_state.tela_atual = "login"
+    st.session_state.tela_atual = "apresentacao"
     if not logout_confirmado:
         st.session_state.aviso_sessao = (
             "A sessao local foi encerrada, mas o Supabase nao confirmou a revogacao. "

@@ -24,6 +24,14 @@ class FormFake:
         return False
 
 
+class ColumnFake:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, traceback):
+        return False
+
+
 class StreamlitFake(ModuleType):
     def __init__(self):
         super().__init__("streamlit")
@@ -35,6 +43,8 @@ class StreamlitFake(ModuleType):
         }
         self.titles = []
         self.subheaders = []
+        self.captions = []
+        self.markdowns = []
         self.forms = []
         self.buttons = []
         self.errors = []
@@ -56,6 +66,15 @@ class StreamlitFake(ModuleType):
 
     def subheader(self, texto):
         self.subheaders.append(texto)
+
+    def caption(self, texto):
+        self.captions.append(texto)
+
+    def markdown(self, texto):
+        self.markdowns.append(texto)
+
+    def columns(self, quantidade):
+        return [ColumnFake() for _ in range(quantidade)]
 
     def form(self, nome, **kwargs):
         self.forms.append(nome)
@@ -138,19 +157,19 @@ class StreamlitSmokeTests(unittest.TestCase):
         spec.loader.exec_module(modulo)
         return modulo
 
-    def test_app_abre_tela_de_login_sem_servicos_externos(self):
+    def test_app_abre_tela_publica_sem_servicos_externos(self):
         streamlit_fake = StreamlitFake()
 
         self.importar_app_com_streamlit_fake(streamlit_fake)
 
         self.assertFalse(streamlit_fake.session_state.autenticado)
-        self.assertEqual(streamlit_fake.session_state.tela_atual, "login")
-        self.assertIn("formulario_login", streamlit_fake.forms)
+        self.assertEqual(streamlit_fake.session_state.tela_atual, "apresentacao")
         self.assertTrue(
             any("Finan" in titulo for titulo in streamlit_fake.titles),
             streamlit_fake.titles,
         )
-        self.assertIn("Esqueci minha senha", streamlit_fake.buttons)
+        self.assertIn("Começar agora", streamlit_fake.buttons)
+        self.assertIn("Já tenho conta", streamlit_fake.buttons)
         self.assertFalse(streamlit_fake.errors)
 
 

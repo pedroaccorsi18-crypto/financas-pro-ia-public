@@ -27,16 +27,25 @@ class FormFake:
         return False
 
 
+class ColumnFake:
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, traceback):
+        return False
+
+
 class StreamlitFake(ModuleType):
-    def __init__(self, *, textos=None, submit=False, botoes=None):
+    def __init__(self, *, textos=None, submit=False, botoes=None, tela_atual="apresentacao"):
         super().__init__("streamlit")
-        self.session_state = SessionStateFake(autenticado=False, tela_atual="login")
+        self.session_state = SessionStateFake(autenticado=False, tela_atual=tela_atual)
         self.textos = list(textos or [])
         self.submit = submit
         self.botoes = set(botoes or [])
         self.titles = []
         self.subheaders = []
         self.captions = []
+        self.markdowns = []
         self.forms = []
         self.buttons = []
         self.errors = []
@@ -52,6 +61,12 @@ class StreamlitFake(ModuleType):
 
     def caption(self, texto):
         self.captions.append(texto)
+
+    def markdown(self, texto):
+        self.markdowns.append(texto)
+
+    def columns(self, quantidade):
+        return [ColumnFake() for _ in range(quantidade)]
 
     def form(self, nome, **kwargs):
         self.forms.append(nome)
@@ -102,18 +117,39 @@ class AuthViewsTests(unittest.TestCase):
         self.addCleanup(patcher.stop)
         return fake
 
-    def test_fluxo_padrao_renderiza_login(self):
+    def test_fluxo_padrao_renderiza_apresentacao_publica(self):
         fake = self.usar_streamlit(StreamlitFake())
 
         auth_views.render_fluxo_autenticacao()
 
-        self.assertIn("formulario_login", fake.forms)
         self.assertTrue(any("Finan" in titulo for titulo in fake.titles))
+        self.assertIn("Começar agora", fake.buttons)
+        self.assertIn("Já tenho conta", fake.buttons)
+        self.assertTrue(any("Planos sugeridos" in texto for texto in fake.markdowns))
+
+    def test_apresentacao_leva_para_cadastro(self):
+        fake = self.usar_streamlit(StreamlitFake(botoes=["Começar agora"]))
+
+        with self.assertRaises(RerunAcionado):
+            auth_views.render_fluxo_autenticacao()
+
+        self.assertEqual(fake.session_state.tela_atual, "cadastro")
+
+    def test_login_continua_disponivel_quando_usuario_escolhe_entrar(self):
+        fake = self.usar_streamlit(StreamlitFake(tela_atual="login"))
+
+        auth_views.render_fluxo_autenticacao()
+
+        self.assertIn("formulario_login", fake.forms)
         self.assertIn("Esqueci minha senha", fake.buttons)
 
     def test_login_autenticado_inicia_sessao_e_recarrega_app(self):
         fake = self.usar_streamlit(
-            StreamlitFake(textos=[" Pessoa@Exemplo.com ", "senha-segura"], submit=True)
+            StreamlitFake(
+                textos=[" Pessoa@Exemplo.com ", "senha-segura"],
+                submit=True,
+                tela_atual="login",
+            )
         )
         usuario = {"email": "pessoa@exemplo.com", "id": "user-1"}
         sessoes_iniciadas = []
@@ -135,9 +171,12 @@ class AuthViewsTests(unittest.TestCase):
 
     def test_recuperacao_de_senha_mantem_mensagem_sem_enumerar_usuario(self):
         fake = self.usar_streamlit(
-            StreamlitFake(textos=[" Pessoa@Exemplo.com "], submit=True)
+            StreamlitFake(
+                textos=[" Pessoa@Exemplo.com "],
+                submit=True,
+                tela_atual="recuperar_senha",
+            )
         )
-        fake.session_state.tela_atual = "recuperar_senha"
 
         with patch.object(auth_views, "enviar_email_recuperacao_senha", return_value=True) as enviar:
             auth_views.render_fluxo_autenticacao()
@@ -151,9 +190,9 @@ class AuthViewsTests(unittest.TestCase):
             StreamlitFake(
                 textos=[" pessoa@exemplo.com ", "curta", "curta"],
                 submit=True,
+                tela_atual="cadastro",
             )
         )
-        fake.session_state.tela_atual = "cadastro"
 
         with patch.object(auth_views, "cadastrar_usuario") as cadastrar:
             auth_views.render_fluxo_autenticacao()

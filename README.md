@@ -10,6 +10,18 @@ O produto público é focado em **finanças pessoais**: importar dados, revisar 
 
 As frentes de **Financial Planning / Wealth Management** continuam no código como módulos avançados, mas ficam ocultas por padrão. Elas podem ser liberadas depois por feature flags, quando houver base de clientes, validação comercial ou uma oferta premium.
 
+## Entrada pública e preços
+
+Antes do login, o app apresenta uma página pública com proposta de valor, benefícios e planos sugeridos. A intenção é explicar o produto antes de pedir cadastro, reduzindo atrito e deixando claro o foco inicial em organização financeira pessoal.
+
+Planos sugeridos para validação do MVP:
+
+- Gratuito: R$ 0, com lançamentos manuais, dashboard mensal e metas por categoria.
+- Pro: R$ 19,90/mês, com importação assistida, auditoria por categoria e acompanhamento mensal.
+- Família: R$ 29,90/mês, com visão mais completa da organização financeira doméstica e base preparada para recursos premium.
+
+Os preços devem ser tratados como hipótese inicial de mercado, não como tabela definitiva. A evolução natural é validar disposição de pagamento, custos de infraestrutura e retenção antes de contratar APIs pagas ou liberar módulos avançados.
+
 ## Financial Planning 360
 
 Módulo avançado, oculto por padrão na versão pública. Quando habilitado, organiza um Perfil Financeiro 360 com diagnóstico consultivo, planejamento de aposentadoria, suitability, stress test, roadmap de metas, roteiro de reunião, matriz de estratégia patrimonial e resumo executivo exportável.
@@ -70,6 +82,7 @@ Times de Analytics e Growth lidam todos os dias com dados fragmentados, inconsis
 ## Funcionalidades
 
 - Cadastro, login, revalidação de sessão e logout com Supabase Auth.
+- Página pública antes do login com benefícios, chamada para cadastro e preços sugeridos.
 - Recuperação de senha via e-mail pelo Supabase Auth, sem revelar se a conta existe.
 - Isolamento multiusuário com `user_id`, foreign keys para `auth.users` e policies RLS.
 - Lançamentos manuais de receitas e despesas.
