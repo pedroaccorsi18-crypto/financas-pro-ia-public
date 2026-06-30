@@ -125,7 +125,7 @@ class AuthViewsTests(unittest.TestCase):
         self.assertTrue(any("Finanças Pro IA" in texto for texto in fake.markdowns))
         self.assertIn("Começar agora", fake.buttons)
         self.assertIn("Já tenho conta", fake.buttons)
-        self.assertTrue(any("Planos sugeridos" in texto for texto in fake.markdowns))
+        self.assertTrue(any("Escolha como quer começar" in texto for texto in fake.markdowns))
 
     def test_apresentacao_leva_para_cadastro(self):
         fake = self.usar_streamlit(StreamlitFake(botoes=["Começar agora"]))

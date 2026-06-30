@@ -37,7 +37,7 @@ PLANOS_PUBLICOS = (
         "itens": (
             "Tudo do Pro",
             "Múltiplos objetivos",
-            "Base preparada para recursos premium",
+            "Visão familiar mais completa",
         ),
     },
 )
@@ -411,26 +411,25 @@ def render_tela_apresentacao():
                 <div class="fp-brand-mark">F</div>
                 <span>Finanças Pro IA</span>
             </div>
-            <div class="fp-nav-note">MVP de finanças pessoais com base premium preparada</div>
+            <div class="fp-nav-note">Organização financeira simples para o dia a dia</div>
         </nav>
         <section class="fp-hero">
             <div>
-                <h1>Controle financeiro com aparência de produto sério.</h1>
+                <h1>Assuma o controle do seu dinheiro com clareza.</h1>
                 <p>
-                    Saia do improviso: organize receitas, despesas, metas e importações
-                    em uma experiência clara, segura e pronta para evoluir para recursos
-                    premium quando a base de clientes justificar.
+                    Entenda para onde seu dinheiro vai, acompanhe seus gastos por categoria
+                    e tome decisões melhores sem depender de planilhas complicadas.
                 </p>
                 <div class="fp-trust">
-                    <span>Dados por usuário</span>
-                    <span>Revisão antes de gravar</span>
-                    <span>IA como apoio, não piloto automático</span>
+                    <span>Organização mensal</span>
+                    <span>Metas por categoria</span>
+                    <span>Mais clareza antes de gastar</span>
                 </div>
             </div>
             <div class="fp-product-shot">
                 <div class="fp-shot-top">
-                    <strong>Painel mensal</strong>
-                    <span class="fp-shot-status">Pronto para acompanhar</span>
+                    <strong>Seu mês financeiro</strong>
+                    <span class="fp-shot-status">Em equilíbrio</span>
                 </div>
                 <div class="fp-shot-metric">
                     <small>Saldo projetado</small>
@@ -478,28 +477,28 @@ def render_tela_apresentacao():
         dedent(
             """
         <section class="fp-section">
-            <h2>O que a plataforma resolve</h2>
+            <h2>Menos dúvida, mais direção</h2>
             <p class="fp-section-intro">
-                O primeiro produto precisa ser simples, confiável e útil no dia a dia.
-                Por isso, a experiência pública prioriza organização financeira pessoal,
-                clareza mensal e controle sobre os dados.
+                O Finanças Pro IA foi feito para quem quer enxergar a vida financeira
+                com mais calma: entradas, saídas, categorias, metas e evolução em um
+                só lugar.
             </p>
             <div class="fp-benefits">
                 <div class="fp-benefit">
-                    <strong>Centralização</strong>
-                    <span>Receitas e despesas organizadas em uma visão mensal.</span>
+                    <strong>Veja o mês com clareza</strong>
+                    <span>Acompanhe receitas, despesas e saldo em uma visão fácil de entender.</span>
                 </div>
                 <div class="fp-benefit">
-                    <strong>Importação assistida</strong>
-                    <span>Revisão humana antes de gravar informações extraídas.</span>
+                    <strong>Organize sem retrabalho</strong>
+                    <span>Revise movimentações importadas antes de confirmar seus dados.</span>
                 </div>
                 <div class="fp-benefit">
-                    <strong>Metas por categoria</strong>
-                    <span>Acompanhamento de limites e evolução de consumo.</span>
+                    <strong>Defina limites melhores</strong>
+                    <span>Crie metas por categoria e acompanhe sua evolução ao longo do mês.</span>
                 </div>
                 <div class="fp-benefit">
-                    <strong>Evolução gradual</strong>
-                    <span>Recursos premium ficam guardados para a fase certa.</span>
+                    <strong>Tome decisões com contexto</strong>
+                    <span>Entenda padrões de consumo antes de cortar gastos no escuro.</span>
                 </div>
             </div>
         </section>
@@ -512,10 +511,10 @@ def render_tela_apresentacao():
         dedent(
             """
         <section class="fp-section">
-            <h2>Planos sugeridos para o MVP</h2>
+            <h2>Escolha como quer começar</h2>
             <p class="fp-section-intro">
-                Preços simples para validar demanda antes de contratar APIs pagas
-                ou liberar módulos avançados.
+                Comece organizando o básico gratuitamente e avance quando quiser mais
+                acompanhamento, importação e histórico financeiro.
             </p>
         </section>
         """
@@ -531,8 +530,7 @@ def render_tela_apresentacao():
         dedent(
             """
         <p class="fp-footnote">
-            Os valores podem ser ajustados conforme uso real, feedback dos primeiros clientes
-            e custos de infraestrutura.
+            Você pode começar pelo plano gratuito e evoluir quando fizer sentido para sua rotina.
         </p>
         """
         ).strip(),
