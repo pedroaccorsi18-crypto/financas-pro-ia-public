@@ -24,7 +24,7 @@ class SuitabilityTests(unittest.TestCase):
             {"despesas": 12000, "balanco": 4000},
         )
 
-        self.assertEqual(checklist["status"], "em validacao")
+        self.assertEqual(checklist["status"], "em validação")
         self.assertTrue(any("Perfil arrojado" in item for item in checklist["alertas"]))
         self.assertTrue(any("liquidez" in item for item in checklist["alertas"]))
 

@@ -1,4 +1,4 @@
-"""Resumo executivo exportavel para conversa de planejamento financeiro."""
+"""Resumo executivo exportável para conversa de planejamento financeiro."""
 
 from utils.advisory_meeting import gerar_roteiro_reuniao_consultiva
 from utils.client_policy import gerar_politica_planejamento_cliente
@@ -34,7 +34,7 @@ def gerar_resumo_executivo_markdown(perfil, resumo_transacoes=None):
         f"- Objetivo principal: {perfil['objetivo_principal']}",
         f"- Perfil de risco: {perfil['perfil_risco']}",
         f"- Horizonte de planejamento: {perfil['horizonte']}",
-        f"- Patrimonio liquido estimado: {_formatar_brl(diagnostico['patrimonio_liquido'])}",
+        f"- Patrimônio líquido estimado: {_formatar_brl(diagnostico['patrimonio_liquido'])}",
         f"- Reserva estimada: {diagnostico['meses_reserva']:.1f} meses de despesas",
         "",
         "## 2. Tese consultiva",
@@ -44,13 +44,13 @@ def gerar_resumo_executivo_markdown(perfil, resumo_transacoes=None):
         "## 3. Prioridades",
         *_linhas_lista(diagnostico["prioridades"]),
         "",
-        "## 4. Politica de planejamento",
+        "## 4. Política de planejamento",
         *_linhas_lista(politica["diretrizes_de_alocacao"]),
         "",
         "## 5. Aposentadoria",
         *_linhas_aposentadoria(aposentadoria),
         "",
-        "## 6. Sucessao e protecao",
+        "## 6. Sucessão e proteção",
         *_linhas_lista(relatorio["sucessao"]),
         "",
         "## 7. Suitability e onboarding",
@@ -65,12 +65,12 @@ def gerar_resumo_executivo_markdown(perfil, resumo_transacoes=None):
         f"- Severidade geral: {stress['severidade_geral']}",
         *_linhas_stress(stress["cenarios"]),
         "",
-        "## 10. Preparacao da reuniao",
+        "## 10. Preparação da reunião",
         f"- Abertura: {reuniao['abertura']}",
         *_linhas_lista(reuniao["perguntas_chave"][:3]),
         f"- Fechamento: {reuniao['fechamento']}",
         "",
-        "## 11. Estrategia patrimonial",
+        "## 11. Estratégia patrimonial",
         f"- Foco principal: {estrategia['foco_principal']}",
         f"- Postura geral: {estrategia['postura_geral']}",
         *_linhas_estrategia(estrategia["frentes"][:5]),
@@ -80,13 +80,13 @@ def gerar_resumo_executivo_markdown(perfil, resumo_transacoes=None):
         *_linhas_metodologia_aposentadoria(metodologia["aposentadoria"]),
         *_linhas_lista(metodologia["limites"][:2]),
         "",
-        "## 13. Proximos 90 dias",
+        "## 13. Próximos 90 dias",
         *_linhas_plano_90(relatorio["plano_30_60_90"]),
         "",
-        "## Observacao",
+        "## Observação",
         (
             "Material consultivo para planejamento financeiro. "
-            "Nao constitui recomendacao individualizada de investimento, juridica ou tributaria."
+            "Não constitui recomendação individualizada de investimento, jurídica ou tributária."
         ),
     ]
     return "\n".join(secoes).strip() + "\n"
@@ -145,10 +145,10 @@ def _linhas_aposentadoria(aposentadoria):
 
     moderado = aposentadoria["cenarios"]["Moderado"]
     return [
-        f"- Anos ate aposentadoria: {aposentadoria['anos_ate_aposentadoria']}",
+        f"- Anos até aposentadoria: {aposentadoria['anos_ate_aposentadoria']}",
         f"- Renda mensal desejada: {_formatar_brl(aposentadoria['renda_mensal_desejada'])}",
-        f"- Patrimonio necessario estimado: {_formatar_brl(moderado['patrimonio_necessario'])}",
-        f"- Gap estimado no cenario moderado: {_formatar_brl(moderado['gap'])}",
+        f"- Patrimônio necessário estimado: {_formatar_brl(moderado['patrimonio_necessario'])}",
+        f"- Gap estimado no cenário moderado: {_formatar_brl(moderado['gap'])}",
         f"- Aporte mensal estimado: {_formatar_brl(moderado['aporte_mensal_necessario'])}",
     ]
 

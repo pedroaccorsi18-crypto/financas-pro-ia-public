@@ -23,7 +23,7 @@ def disparar_bot_fiscal_email(
 ) -> bool:
     configuracao = {chave: secrets.get(chave) for chave in SMTP_SECRET_KEYS}
     if not all(configuracao.values()):
-        logger.info("Alerta fiscal nao enviado: configuracao SMTP incompleta")
+        logger.info("Alerta fiscal não enviado: configuração SMTP incompleta")
         return False
     agendar_alerta_fiscal(
         configuracao,
@@ -57,7 +57,7 @@ def enviar_alerta_fiscal(
         registrar_evento(
             logger,
             logging.INFO,
-            "Alerta fiscal nao enviado: sem divergencia relevante",
+            "Alerta fiscal não enviado: sem divergência relevante",
             contexto={
                 "usuario_fp": fingerprint(usuario),
                 "instituicao": instituicao,
@@ -69,19 +69,19 @@ def enviar_alerta_fiscal(
 
     remetente = configuracao["SMTP_EMAIL_REMETENTE"]
     destinatario = configuracao["EMAIL_DESTINATARIO_ALERTAS"]
-    assunto = f"[ALERTA FINANCAS PRO IA] Divergencia em {mes} ({instituicao})"
+    assunto = f"[ALERTA FINANÇAS PRO IA] Divergência em {mes} ({instituicao})"
     corpo = f"""
-O Bot Fiscal detectou um desalinhamento contabil.
+O Bot Fiscal detectou um desalinhamento contábil.
 
-Usuario: {usuario}
-Instituicao: {instituicao}
+Usuário: {usuario}
+Instituição: {instituicao}
 Tipo de documento: {tipo_doc}
-Mes de referencia: {mes}
+Mês de referência: {mes}
 Soma de gastos: {formatar_brl(total_gastos)}
-Soma de creditos: {formatar_brl(total_creditos)}
-Balanco liquido interno: {formatar_brl(balanco_calculado)}
+Soma de créditos: {formatar_brl(total_creditos)}
+Balanço líquido interno: {formatar_brl(balanco_calculado)}
 Valor declarado no documento: {formatar_brl(valor_declarado)}
-Divergencia: {formatar_brl(divergencia)}
+Divergência: {formatar_brl(divergencia)}
 """
     mensagem = MIMEText(corpo)
     mensagem["Subject"] = assunto

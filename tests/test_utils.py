@@ -34,7 +34,7 @@ class PrivacyTests(unittest.TestCase):
         )
 
     def test_preserva_texto_sem_valores_financeiros(self):
-        texto = "Relatorio aprovado sem valores numericos."
+        texto = "Relatório aprovado sem valores numéricos."
         self.assertEqual(anonimizar_dados(texto), texto)
 
 

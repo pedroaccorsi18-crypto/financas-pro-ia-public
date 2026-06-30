@@ -1,4 +1,4 @@
-"""Diretrizes consultivas para politica de planejamento do cliente."""
+"""Diretrizes consultivas para política de planejamento do cliente."""
 
 from utils.financial_profile import calcular_diagnostico_360, normalizar_perfil_financeiro
 
@@ -29,35 +29,35 @@ def _objetivos_priorizados(perfil, diagnostico):
     if diagnostico["meses_reserva"] < 3:
         objetivos.append("Estabilizar liquidez antes de ampliar risco de mercado.")
     if perfil["dividas"] > 0:
-        objetivos.append("Reduzir dividas por custo, prazo e impacto no fluxo mensal.")
+        objetivos.append("Reduzir dívidas por custo, prazo e impacto no fluxo mensal.")
     if perfil["idade_aposentadoria"] and perfil["renda_aposentadoria_desejada"]:
         objetivos.append("Fechar plano de aposentadoria com meta de renda e aporte mensal.")
     if perfil["patrimonio_sucessorio"] > 0 or perfil["dependentes"] > 0:
-        objetivos.append("Organizar protecao familiar e planejamento sucessorio.")
+        objetivos.append("Organizar proteção familiar e planejamento sucessório.")
     if not objetivos:
-        objetivos.append("Aprofundar carteira, impostos, protecao e expansao patrimonial.")
+        objetivos.append("Aprofundar carteira, impostos, proteção e expansão patrimonial.")
     return objetivos
 
 
 def _diretrizes_de_alocacao(perfil, diagnostico):
     diretrizes = [
-        "Separar recursos por objetivo, prazo, liquidez e tolerancia a oscilacao.",
-        "Evitar concentracao excessiva em um unico ativo, emissor, setor ou moeda.",
+        "Separar recursos por objetivo, prazo, liquidez e tolerância à oscilação.",
+        "Evitar concentração excessiva em um único ativo, emissor, setor ou moeda.",
     ]
 
     if diagnostico["meses_reserva"] < 6:
-        diretrizes.append("Priorizar caixa e liquidez ate a reserva atingir nivel adequado.")
+        diretrizes.append("Priorizar caixa e liquidez até a reserva atingir nível adequado.")
     elif perfil["perfil_risco"] == "Conservador":
-        diretrizes.append("Dar maior peso a preservacao de capital e previsibilidade.")
+        diretrizes.append("Dar maior peso à preservação de capital e previsibilidade.")
     elif perfil["perfil_risco"] == "Arrojado":
         diretrizes.append("Aceitar maior volatilidade apenas para objetivos de longo prazo.")
     else:
         diretrizes.append("Equilibrar crescimento, renda, liquidez e controle de risco.")
 
-    if perfil["horizonte"] in ("Ate 2 anos", "3 a 5 anos"):
-        diretrizes.append("Manter objetivos de curto e medio prazo em instrumentos de menor volatilidade.")
+    if perfil["horizonte"] in ("Até 2 anos", "3 a 5 anos"):
+        diretrizes.append("Manter objetivos de curto e médio prazo em instrumentos de menor volatilidade.")
     else:
-        diretrizes.append("Usar o horizonte longo para planejar diversificacao e rebalanceamentos.")
+        diretrizes.append("Usar o horizonte longo para planejar diversificação e rebalanceamentos.")
 
     return diretrizes
 
@@ -65,21 +65,21 @@ def _diretrizes_de_alocacao(perfil, diagnostico):
 def _restricoes_e_alertas(perfil, diagnostico):
     alertas = []
     if perfil["renda_mensal"] <= 0:
-        alertas.append("Renda mensal ainda nao informada; capacidade de aporte nao esta calibrada.")
+        alertas.append("Renda mensal ainda não informada; capacidade de aporte não está calibrada.")
     if diagnostico["taxa_poupanca"] < 0.10:
-        alertas.append("Taxa de poupanca baixa limita a execucao dos objetivos.")
+        alertas.append("Taxa de poupança baixa limita a execução dos objetivos.")
     if perfil["dependentes"] > 0 and not perfil["possui_seguro"]:
-        alertas.append("Ha dependentes sem protecao familiar declarada.")
+        alertas.append("Há dependentes sem proteção familiar declarada.")
     if perfil["patrimonio_sucessorio"] > 0:
-        alertas.append("Validar documentos e estrutura sucessoria com especialista juridico.")
+        alertas.append("Validar documentos e estrutura sucessória com especialista jurídico.")
     if not alertas:
-        alertas.append("Sem alertas criticos a partir dos dados informados.")
+        alertas.append("Sem alertas críticos a partir dos dados informados.")
     return alertas
 
 
 def _cadencia_de_revisao(diagnostico):
     if diagnostico["classificacao"] == "prioritario":
-        return "Revisao mensal ate estabilizar reserva, dividas e capacidade de aporte."
-    if diagnostico["classificacao"] == "em evolucao":
-        return "Revisao trimestral para acompanhar metas, riscos e mudancas de vida."
-    return "Revisao semestral, com ajustes diante de eventos familiares, fiscais ou de mercado."
+        return "Revisão mensal até estabilizar reserva, dívidas e capacidade de aporte."
+    if diagnostico["classificacao"] == "em evolução":
+        return "Revisão trimestral para acompanhar metas, riscos e mudanças de vida."
+    return "Revisão semestral, com ajustes diante de eventos familiares, fiscais ou de mercado."

@@ -37,8 +37,8 @@ def render_perfil_financeiro_360(
 
     with st.expander("Perfil Financeiro 360\u00ba", expanded=False):
         st.caption(
-            "Base consultiva para planejamento financeiro, aposentadoria, expansao "
-            "patrimonial e sucessao. Os dados ficam nesta sessao por enquanto."
+            "Base consultiva para planejamento financeiro, aposentadoria, expansão "
+            "patrimonial e sucessão. Os dados ficam nesta sessão por enquanto."
         )
 
         with st.form("form_perfil_financeiro_360"):
@@ -74,20 +74,20 @@ def render_perfil_financeiro_360(
                     format="%.2f",
                 )
                 reserva_emergencia = st.number_input(
-                    "Reserva de emergencia (R$)",
+                    "Reserva de emergência (R$)",
                     min_value=0.0,
                     value=perfil_atual["reserva_emergencia"],
                     format="%.2f",
                 )
                 dividas = st.number_input(
-                    "Dividas totais (R$)",
+                    "Dívidas totais (R$)",
                     min_value=0.0,
                     value=perfil_atual["dividas"],
                     format="%.2f",
                 )
             with col_3:
                 patrimonio_investido = st.number_input(
-                    "Patrimonio investido (R$)",
+                    "Patrimônio investido (R$)",
                     min_value=0.0,
                     value=perfil_atual["patrimonio_investido"],
                     format="%.2f",
@@ -124,13 +124,13 @@ def render_perfil_financeiro_360(
                 )
             with col_6:
                 patrimonio_sucessorio = st.number_input(
-                    "Patrimonio em planejamento sucessorio (R$)",
+                    "Patrimônio em planejamento sucessório (R$)",
                     min_value=0.0,
                     value=perfil_atual["patrimonio_sucessorio"],
                     format="%.2f",
                 )
                 possui_seguro = st.checkbox(
-                    "Possui seguro/protecao familiar",
+                    "Possui seguro/proteção familiar",
                     value=perfil_atual["possui_seguro"],
                 )
 
@@ -201,11 +201,11 @@ def render_perfil_financeiro_360(
 
         aba_diagnostico, aba_planejamento, aba_risco, aba_reuniao, aba_exportacao = st.tabs(
             [
-                "Diagnostico",
+                "Diagnóstico",
                 "Planejamento",
-                "Risco e estrategia",
-                "Reuniao",
-                "Exportacao",
+                "Risco e estratégia",
+                "Reunião",
+                "Exportação",
             ]
         )
 
@@ -213,34 +213,34 @@ def render_perfil_financeiro_360(
             col_a, col_b, col_c, col_d = st.columns(4)
             col_a.metric("Maturidade 360\u00ba", f"{diagnostico['score']}/100")
             col_b.metric("Reserva", f"{diagnostico['meses_reserva']:.1f} meses")
-            col_c.metric("Taxa de poupanca", f"{diagnostico['taxa_poupanca']*100:.1f}%")
+            col_c.metric("Taxa de poupança", f"{diagnostico['taxa_poupanca']*100:.1f}%")
             col_d.metric(
-                "Patrimonio liquido",
+                "Patrimônio líquido",
                 formatar_brl(diagnostico["patrimonio_liquido"]),
             )
 
-            st.markdown(f"**Classificacao:** {diagnostico['classificacao'].title()}")
+            st.markdown(f"**Classificação:** {diagnostico['classificacao'].title()}")
             st.markdown("**Prioridades consultivas:**")
             for prioridade in diagnostico["prioridades"]:
                 st.markdown(f"- {prioridade}")
 
-            st.markdown("### Relatorio Consultivo 360")
+            st.markdown("### Relatório Consultivo 360")
             st.markdown(f"**Resumo executivo:** {relatorio['resumo_executivo']}")
-            _render_lista("Diagnostico patrimonial", relatorio["diagnostico_patrimonial"])
+            _render_lista("Diagnóstico patrimonial", relatorio["diagnostico_patrimonial"])
             _render_lista("Planejamento financeiro", relatorio["planejamento_financeiro"])
             _render_lista("Aposentadoria", relatorio["aposentadoria"])
-            _render_lista("Expansao patrimonial", relatorio["expansao_patrimonial"])
-            _render_lista("Sucessao", relatorio["sucessao"])
+            _render_lista("Expansão patrimonial", relatorio["expansao_patrimonial"])
+            _render_lista("Sucessão", relatorio["sucessao"])
             st.markdown("**Plano 30/60/90:**")
             for periodo, acoes in relatorio["plano_30_60_90"].items():
                 st.markdown(f"- **{periodo.replace('_', ' ')}:** {'; '.join(acoes)}")
 
         with aba_planejamento:
-            st.markdown("### Politica de Planejamento do Cliente")
+            st.markdown("### Política de Planejamento do Cliente")
             st.markdown(f"**Perfil consultivo:** {politica_cliente['perfil_consultivo']}")
             _render_lista("Objetivos priorizados", politica_cliente["objetivos_priorizados"])
-            _render_lista("Diretrizes de alocacao", politica_cliente["diretrizes_de_alocacao"])
-            _render_lista("Restricoes e alertas", politica_cliente["restricoes_e_alertas"])
+            _render_lista("Diretrizes de alocação", politica_cliente["diretrizes_de_alocacao"])
+            _render_lista("Restrições e alertas", politica_cliente["restricoes_e_alertas"])
             st.caption(politica_cliente["cadencia_de_revisao"])
 
             st.markdown("### Roadmap de Metas")
@@ -249,7 +249,7 @@ def render_perfil_financeiro_360(
                 f"{formatar_brl(roadmap_metas['capacidade_aporte'])}"
             )
             _render_metas("Curto prazo", roadmap_metas["curto_prazo"], formatar_brl)
-            _render_metas("Medio prazo", roadmap_metas["medio_prazo"], formatar_brl)
+            _render_metas("Médio prazo", roadmap_metas["medio_prazo"], formatar_brl)
             _render_metas("Longo prazo", roadmap_metas["longo_prazo"], formatar_brl)
 
             _render_planejamento_aposentadoria(plano_aposentadoria, formatar_brl)
@@ -257,32 +257,32 @@ def render_perfil_financeiro_360(
         with aba_risco:
             st.markdown("### Suitability e Onboarding")
             st.markdown(f"**Status:** {checklist_suitability['status'].title()}")
-            _render_lista("Pendencias", checklist_suitability["pendencias"])
+            _render_lista("Pendências", checklist_suitability["pendencias"])
             _render_lista("Alertas", checklist_suitability["alertas"])
-            _render_lista("Proximas perguntas", checklist_suitability["proximas_perguntas"])
+            _render_lista("Próximas perguntas", checklist_suitability["proximas_perguntas"])
             _render_lista("Documentos sugeridos", checklist_suitability["documentos_sugeridos"])
 
             st.markdown("### Stress Test Financeiro")
             st.markdown(f"**Severidade geral:** {stress_test['severidade_geral'].title()}")
             _render_cenarios_stress(stress_test["cenarios"], formatar_brl)
-            _render_lista("Acoes prioritarias", stress_test["acoes_prioritarias"])
+            _render_lista("Ações prioritárias", stress_test["acoes_prioritarias"])
 
-            st.markdown("### Matriz de Estrategia Patrimonial")
+            st.markdown("### Matriz de Estratégia Patrimonial")
             st.markdown(f"**Foco principal:** {matriz_estrategia['foco_principal']}")
             st.caption(matriz_estrategia["postura_geral"])
             _render_frentes_estrategia(matriz_estrategia["frentes"])
 
         with aba_reuniao:
-            st.markdown("### Roteiro de Reuniao Consultiva")
+            st.markdown("### Roteiro de Reunião Consultiva")
             st.markdown(f"**Abertura:** {roteiro_reuniao['abertura']}")
             _render_lista("Perguntas-chave", roteiro_reuniao["perguntas_chave"])
-            _render_lista("Pontos de atencao", roteiro_reuniao["pontos_de_atencao"])
-            _render_lista("Decisoes da reuniao", roteiro_reuniao["decisoes_da_reuniao"])
+            _render_lista("Pontos de atenção", roteiro_reuniao["pontos_de_atencao"])
+            _render_lista("Decisões da reunião", roteiro_reuniao["decisoes_da_reuniao"])
             st.caption(roteiro_reuniao["fechamento"])
 
         with aba_exportacao:
-            st.markdown("### Resumo Executivo Exportavel")
-            st.caption("Documento em Markdown para preparar reuniao, entrevista ou registro consultivo.")
+            st.markdown("### Resumo Executivo Exportável")
+            st.caption("Documento em Markdown para preparar reunião, entrevista ou registro consultivo.")
             st.download_button(
                 "Baixar resumo executivo",
                 data=resumo_executivo_exportavel,
@@ -322,7 +322,7 @@ def _render_metas(titulo, metas, formatar_brl):
 
 
 def _render_cenarios_stress(cenarios, formatar_brl):
-    st.markdown("**Cenarios:**")
+    st.markdown("**Cenários:**")
     for cenario in cenarios:
         st.markdown(
             f"- **{cenario['nome']} ({cenario['severidade']}):** "
@@ -340,12 +340,12 @@ def _render_planejamento_aposentadoria(plano_aposentadoria, formatar_brl):
         return
 
     st.markdown(
-        f"Anos ate aposentadoria: **{plano_aposentadoria['anos_ate_aposentadoria']}**"
+        f"Anos até aposentadoria: **{plano_aposentadoria['anos_ate_aposentadoria']}**"
     )
     for nome, cenario in plano_aposentadoria["cenarios"].items():
-        st.markdown(f"**Cenario {nome}:**")
+        st.markdown(f"**Cenário {nome}:**")
         st.markdown(
-            "- Patrimonio necessario: "
+            "- Patrimônio necessário: "
             f"{formatar_brl(cenario['patrimonio_necessario'])}"
         )
         st.markdown(

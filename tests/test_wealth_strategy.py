@@ -31,7 +31,7 @@ class WealthStrategyTests(unittest.TestCase):
             {"despesas": 15000, "balanco": 8000},
         )
 
-        protecao = next(frente for frente in matriz["frentes"] if frente["nome"] == "Protecao")
+        protecao = next(frente for frente in matriz["frentes"] if frente["nome"] == "Proteção")
         self.assertEqual(protecao["postura"], "defensiva")
         self.assertEqual(protecao["prioridade_texto"], "prioridade alta")
 
@@ -51,7 +51,7 @@ class WealthStrategyTests(unittest.TestCase):
             {"despesas": 18000, "balanco": 12000},
         )
 
-        self.assertIn("Estrategica", matriz["postura_geral"])
+        self.assertIn("Estratégica", matriz["postura_geral"])
         self.assertTrue(any(frente["nome"] == "Crescimento patrimonial" for frente in matriz["frentes"]))
 
 

@@ -90,8 +90,8 @@ st.set_page_config(page_title="Finanças Pro IA", page_icon="💰", layout="wide
 try:
     validar_chave_publica_supabase(st.secrets["SUPABASE_KEY"])
 except Exception:
-    logger.critical("Chave Supabase insegura ou invalida configurada", exc_info=True)
-    st.error("A configuracao de acesso ao Supabase e insegura ou invalida.")
+    logger.critical("Chave Supabase insegura ou inválida configurada", exc_info=True)
+    st.error("A configuração de acesso ao Supabase é insegura ou inválida.")
     st.stop()
 
 # ==========================================
@@ -102,7 +102,7 @@ def obter_cliente_gemini():
     """Cria o cliente Gemini somente quando um recurso de IA e acionado."""
     chave = str(st.secrets.get("GEMINI_API_KEY", "")).strip()
     if not chave:
-        raise RuntimeError("GEMINI_API_KEY nao configurada")
+        raise RuntimeError("GEMINI_API_KEY não configurada")
     return criar_cliente_gemini(chave)
 
 
@@ -122,7 +122,7 @@ if st.session_state.autenticado:
         st.session_state.autenticado = False
         st.session_state.tela_atual = "login"
         st.session_state.aviso_sessao = (
-            "Sua sessao expirou ou foi revogada. Entre novamente para continuar."
+            "Sua sessão expirou ou foi revogada. Entre novamente para continuar."
         )
         st.rerun()
     else:

@@ -14,7 +14,7 @@ class FinancialReportTests(unittest.TestCase):
                 "dividas": 90000,
                 "patrimonio_investido": 120000,
                 "perfil_risco": "Moderado",
-                "objetivo_principal": "Expandir patrimonio",
+                "objetivo_principal": "Expandir patrimônio",
                 "horizonte": "6 a 10 anos",
                 "idade_aposentadoria": 62,
                 "renda_aposentadoria_desejada": 15000,
@@ -35,7 +35,7 @@ class FinancialReportTests(unittest.TestCase):
         self.assertTrue(
             any("dependentes" in item for item in relatorio["diagnostico_patrimonial"])
         )
-        self.assertTrue(any("juridico" in item for item in relatorio["sucessao"]))
+        self.assertTrue(any("jurídico" in item for item in relatorio["sucessao"]))
 
     def test_relatorio_pede_dados_de_aposentadoria_quando_faltam(self):
         relatorio = gerar_relatorio_consultivo_360(

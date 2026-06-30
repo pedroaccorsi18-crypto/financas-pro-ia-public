@@ -18,8 +18,8 @@ class GoalRoadmapTests(unittest.TestCase):
 
         nomes_curto = [meta["nome"] for meta in roadmap["curto_prazo"]]
         self.assertEqual(roadmap["capacidade_aporte"], 500)
-        self.assertIn("Reserva de emergencia", nomes_curto)
-        self.assertIn("Reducao de dividas", nomes_curto)
+        self.assertIn("Reserva de emergência", nomes_curto)
+        self.assertIn("Redução de dívidas", nomes_curto)
 
     def test_roadmap_cria_meta_de_aposentadoria_com_gap_completo(self):
         roadmap = gerar_roadmap_metas(
@@ -51,7 +51,7 @@ class GoalRoadmapTests(unittest.TestCase):
         )
 
         nomes_medio = [meta["nome"] for meta in roadmap["medio_prazo"]]
-        self.assertIn("Protecao e sucessao", nomes_medio)
+        self.assertIn("Proteção e sucessão", nomes_medio)
         self.assertIn("Dados de aposentadoria", nomes_medio)
 
 

@@ -1,4 +1,4 @@
-# Relatorio de Publicacao Segura
+# Relatório de Publicação Segura
 
 Pasta preparada:
 
@@ -10,7 +10,7 @@ financas-pro-ia-github-public
 
 A pasta limpa esta preparada e ja foi usada como base do repositorio publico no GitHub.
 
-Ela nao contem:
+Ela não contém:
 
 - `.env` real;
 - `.streamlit/secrets.toml` real;
@@ -80,7 +80,7 @@ Achados:
 
 ## Testes
 
-Comando executado nesta revisao:
+Comando executado nesta revisão:
 
 ```powershell
 python -m unittest discover -s tests -v
@@ -101,7 +101,7 @@ suite local de testes em pushes e pull requests.
 
 ## Recomendacao antes de publicar
 
-1. Confirmar que o GitHub Actions esta verde apos cada push relevante.
+1. Confirmar que o GitHub Actions está verde após cada push relevante.
 2. Rodar `.\scripts\check.ps1` antes de preparar novas publicacoes.
 3. Manter secrets reais somente no ambiente de deploy ou localmente, nunca no Git.
 4. Rotacionar credenciais reais antigas caso alguma tenha existido no workspace original.

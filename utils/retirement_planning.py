@@ -1,4 +1,4 @@
-"""Simulacoes simples para planejamento de aposentadoria."""
+"""Simulações simples para planejamento de aposentadoria."""
 
 from utils.financial_profile import normalizar_perfil_financeiro
 
@@ -60,8 +60,8 @@ def calcular_planejamento_aposentadoria(perfil):
         "patrimonio_base": patrimonio_atual,
         "cenarios": cenarios,
         "observacoes": [
-            "Valores em termos reais, antes de impostos, custos e mudancas familiares.",
-            "Use como estimativa inicial para conversa consultiva, nao como recomendacao fechada.",
+            "Valores em termos reais, antes de impostos, custos e mudanças familiares.",
+            "Use como estimativa inicial para conversa consultiva, não como recomendação fechada.",
         ],
     }
 

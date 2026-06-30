@@ -1,4 +1,4 @@
-"""Matriz de estrategia patrimonial para planejamento financeiro 360."""
+"""Matriz de estratégia patrimonial para planejamento financeiro 360."""
 
 from utils.financial_profile import calcular_diagnostico_360, normalizar_perfil_financeiro
 from utils.retirement_planning import calcular_planejamento_aposentadoria
@@ -35,22 +35,22 @@ def _frente_liquidez(diagnostico, stress):
             "Liquidez",
             "defensiva",
             "prioridade alta",
-            "Reforcar reserva e preservar caixa antes de ampliar risco.",
+            "Reforçar reserva e preservar caixa antes de ampliar risco.",
             10,
         )
     if diagnostico["meses_reserva"] < 6:
         return _frente(
             "Liquidez",
             "equilibrada",
-            "prioridade media",
-            "Completar reserva ate nivel confortavel para o padrao de despesas.",
+            "prioridade média",
+            "Completar reserva até nível confortável para o padrão de despesas.",
             25,
         )
     return _frente(
         "Liquidez",
         "monitoramento",
         "prioridade baixa",
-        "Manter reserva segregada e revisar apenas diante de mudanca de vida.",
+        "Manter reserva segregada e revisar apenas diante de mudança de vida.",
         60,
     )
 
@@ -59,7 +59,7 @@ def _frente_protecao(perfil, suitability):
     if perfil["dependentes"] > 0 and not perfil["possui_seguro"]:
         prioridade = 15
         postura = "defensiva"
-        acao = "Avaliar protecao familiar, beneficiarios e continuidade de renda."
+        acao = "Avaliar proteção familiar, beneficiários e continuidade de renda."
     elif suitability["alertas"]:
         prioridade = 35
         postura = "equilibrada"
@@ -67,31 +67,31 @@ def _frente_protecao(perfil, suitability):
     else:
         prioridade = 70
         postura = "monitoramento"
-        acao = "Revisar protecao periodicamente e atualizar beneficiarios."
-    return _frente("Protecao", postura, _texto_prioridade(prioridade), acao, prioridade)
+        acao = "Revisar proteção periodicamente e atualizar beneficiários."
+    return _frente("Proteção", postura, _texto_prioridade(prioridade), acao, prioridade)
 
 
 def _frente_crescimento(perfil, diagnostico):
     if diagnostico["taxa_poupanca"] < 0.10:
         return _frente(
             "Crescimento patrimonial",
-            "preparacao",
-            "prioridade media",
-            "Elevar capacidade de aporte antes de buscar expansao patrimonial.",
+            "preparação",
+            "prioridade média",
+            "Elevar capacidade de aporte antes de buscar expansão patrimonial.",
             40,
         )
     if perfil["perfil_risco"] == "Arrojado" and perfil["horizonte"] == "Acima de 10 anos":
         return _frente(
             "Crescimento patrimonial",
             "expansiva",
-            "prioridade media",
-            "Planejar diversificacao de longo prazo respeitando liquidez e concentracao.",
+            "prioridade média",
+            "Planejar diversificação de longo prazo respeitando liquidez e concentração.",
             45,
         )
     return _frente(
         "Crescimento patrimonial",
         "equilibrada",
-        "prioridade media",
+        "prioridade média",
         "Alinhar carteira a objetivos, prazo, risco e rebalanceamento.",
         50,
     )
@@ -101,8 +101,8 @@ def _frente_aposentadoria(aposentadoria):
     if not aposentadoria["completo"]:
         return _frente(
             "Aposentadoria",
-            "diagnostico",
-            "prioridade media",
+            "diagnóstico",
+            "prioridade média",
             "Definir idade e renda desejada para medir gap de aposentadoria.",
             30,
         )
@@ -110,9 +110,9 @@ def _frente_aposentadoria(aposentadoria):
     gap = aposentadoria["cenarios"]["Moderado"]["gap"]
     prioridade = 20 if gap > 0 else 55
     acao = (
-        "Acompanhar gap e aporte mensal necessario para renda futura."
+        "Acompanhar gap e aporte mensal necessário para renda futura."
         if gap > 0
-        else "Manter revisao periodica das premissas de renda, retorno e inflacao."
+        else "Manter revisão periódica das premissas de renda, retorno e inflação."
     )
     return _frente("Aposentadoria", "planejamento", _texto_prioridade(prioridade), acao, prioridade)
 
@@ -120,17 +120,17 @@ def _frente_aposentadoria(aposentadoria):
 def _frente_sucessao(perfil):
     if perfil["patrimonio_sucessorio"] > 0 or perfil["dependentes"] > 0:
         return _frente(
-            "Sucessao",
-            "estruturacao",
-            "prioridade media",
-            "Mapear documentos, dependentes, beneficiarios e apoio juridico especializado.",
+            "Sucessão",
+            "estruturação",
+            "prioridade média",
+            "Mapear documentos, dependentes, beneficiários e apoio jurídico especializado.",
             35,
         )
     return _frente(
-        "Sucessao",
+        "Sucessão",
         "monitoramento",
         "prioridade baixa",
-        "Registrar inventario patrimonial basico e revisar eventos familiares.",
+        "Registrar inventário patrimonial básico e revisar eventos familiares.",
         80,
     )
 
@@ -140,15 +140,15 @@ def _postura_geral(frentes, diagnostico):
     if primeira["postura"] == "defensiva" or diagnostico["classificacao"] == "prioritario":
         return "Defensiva: estabilizar base financeira antes de expandir risco."
     if diagnostico["classificacao"] == "maduro":
-        return "Estrategica: aprofundar eficiencia, crescimento e sucessao."
-    return "Equilibrada: consolidar base e avancar por metas priorizadas."
+        return "Estratégica: aprofundar eficiência, crescimento e sucessão."
+    return "Equilibrada: consolidar base e avançar por metas priorizadas."
 
 
 def _texto_prioridade(prioridade):
     if prioridade <= 20:
         return "prioridade alta"
     if prioridade <= 55:
-        return "prioridade media"
+        return "prioridade média"
     return "prioridade baixa"
 
 

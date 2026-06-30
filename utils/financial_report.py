@@ -1,4 +1,4 @@
-"""Relatorio consultivo 360 derivado do perfil financeiro."""
+"""Relatório consultivo 360 derivado do perfil financeiro."""
 
 from utils.financial_profile import calcular_diagnostico_360, normalizar_perfil_financeiro
 
@@ -29,12 +29,12 @@ def _montar_resumo_executivo(perfil, diagnostico):
 
 def _montar_diagnostico_patrimonial(perfil, diagnostico):
     linhas = [
-        f"Patrimonio liquido estimado: {diagnostico['patrimonio_liquido']:.2f}.",
+        f"Patrimônio líquido estimado: {diagnostico['patrimonio_liquido']:.2f}.",
         f"Reserva estimada: {diagnostico['meses_reserva']:.1f} meses de despesas.",
-        f"Taxa de poupanca mensal estimada: {diagnostico['taxa_poupanca']*100:.1f}%.",
+        f"Taxa de poupança mensal estimada: {diagnostico['taxa_poupanca']*100:.1f}%.",
     ]
     if perfil["dependentes"] > 0 and not perfil["possui_seguro"]:
-        linhas.append("Ha dependentes sem protecao familiar declarada.")
+        linhas.append("Há dependentes sem proteção familiar declarada.")
     return linhas
 
 
@@ -43,7 +43,7 @@ def _montar_planejamento_financeiro(perfil, diagnostico):
     if perfil["renda_mensal"] <= 0:
         linhas.append("Registrar renda mensal para calibrar capacidade de aporte.")
     if perfil["dividas"] > 0:
-        linhas.append("Separar dividas por custo, prazo e garantia antes de investir mais.")
+        linhas.append("Separar dívidas por custo, prazo e garantia antes de investir mais.")
     return _remover_duplicados(linhas)
 
 
@@ -51,13 +51,13 @@ def _montar_aposentadoria(perfil):
     if perfil["idade_aposentadoria"] and perfil["renda_aposentadoria_desejada"]:
         anos = max(0, perfil["idade_aposentadoria"] - perfil["idade"])
         return [
-            f"Horizonte ate aposentadoria: {anos} anos.",
-            "Projetar patrimonio necessario usando renda desejada, inflacao e retorno real.",
-            "Comparar aporte atual com aporte necessario para fechar o gap.",
+            f"Horizonte até aposentadoria: {anos} anos.",
+            "Projetar patrimônio necessário usando renda desejada, inflação e retorno real.",
+            "Comparar aporte atual com aporte necessário para fechar o gap.",
         ]
     return [
         "Definir idade alvo e renda desejada para aposentadoria.",
-        "Levantar patrimonio previdenciario, investimentos e beneficios esperados.",
+        "Levantar patrimônio previdenciário, investimentos e benefícios esperados.",
     ]
 
 
@@ -67,37 +67,37 @@ def _montar_expansao_patrimonial(perfil, diagnostico):
         f"Perfil de risco declarado: {perfil['perfil_risco']}.",
     ]
     if diagnostico["taxa_poupanca"] < 0.10:
-        linhas.append("A expansao patrimonial depende primeiro de elevar a taxa de aporte.")
+        linhas.append("A expansão patrimonial depende primeiro de elevar a taxa de aporte.")
     else:
-        linhas.append("Mapear carteira atual por classe, liquidez, moeda e concentracao.")
+        linhas.append("Mapear carteira atual por classe, liquidez, moeda e concentração.")
     return linhas
 
 
 def _montar_sucessao(perfil):
     linhas = [
-        "Organizar inventario patrimonial e documentos essenciais.",
-        "Mapear beneficiarios, dependentes e poderes de decisao.",
+        "Organizar inventário patrimonial e documentos essenciais.",
+        "Mapear beneficiários, dependentes e poderes de decisão.",
     ]
     if perfil["patrimonio_sucessorio"] > 0:
-        linhas.append("Avaliar estrutura sucessoria com apoio juridico especializado.")
+        linhas.append("Avaliar estrutura sucessória com apoio jurídico especializado.")
     if perfil["dependentes"] > 0:
-        linhas.append("Revisar protecao familiar e continuidade de renda para dependentes.")
+        linhas.append("Revisar proteção familiar e continuidade de renda para dependentes.")
     return linhas
 
 
 def _montar_plano_30_60_90(perfil, diagnostico):
     return {
         "30_dias": [
-            "Validar dados de renda, despesas, patrimonio, dividas e dependentes.",
+            "Validar dados de renda, despesas, patrimônio, dívidas e dependentes.",
             diagnostico["prioridades"][0],
         ],
         "60_dias": [
-            "Definir metas mensais de aporte, reserva e reducao de risco.",
+            "Definir metas mensais de aporte, reserva e redução de risco.",
             "Levantar carteira atual e separar objetivos por prazo.",
         ],
         "90_dias": [
-            "Consolidar politica de investimentos alinhada ao perfil 360.",
-            "Preparar revisao de aposentadoria, protecao e sucessao.",
+            "Consolidar política de investimentos alinhada ao perfil 360.",
+            "Preparar revisão de aposentadoria, proteção e sucessão.",
         ],
     }
 

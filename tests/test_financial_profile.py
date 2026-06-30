@@ -40,8 +40,8 @@ class FinancialProfileTests(unittest.TestCase):
         self.assertLess(diagnostico["score"], 50)
         self.assertAlmostEqual(diagnostico["meses_reserva"], 0.625)
         self.assertAlmostEqual(diagnostico["taxa_poupanca"], 0.05)
-        self.assertIn("reserva de emergencia", diagnostico["prioridades"][0])
-        self.assertTrue(any("dividas" in item for item in diagnostico["prioridades"]))
+        self.assertIn("reserva de emergência", diagnostico["prioridades"][0])
+        self.assertTrue(any("dívidas" in item for item in diagnostico["prioridades"]))
 
     def test_diagnostico_reconhece_perfil_maduro(self):
         diagnostico = calcular_diagnostico_360(

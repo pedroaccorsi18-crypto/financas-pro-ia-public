@@ -1,4 +1,4 @@
-"""Formatacao das linhas do historico geral."""
+"""Formatação das linhas do histórico geral."""
 
 from finance_constants import ORIGEM_MANUAL, TIPO_DESPESA, TIPO_RECEITA
 from utils.formatting import formatar_brl

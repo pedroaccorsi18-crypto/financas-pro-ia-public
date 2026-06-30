@@ -27,18 +27,18 @@ def _abertura(perfil, diagnostico, suitability):
     return (
         f"Validar objetivo principal em {perfil['objetivo_principal'].lower()}, "
         f"maturidade {diagnostico['classificacao']} e status de onboarding "
-        f"{suitability['status']} antes de propor proximos passos."
+        f"{suitability['status']} antes de propor próximos passos."
     )
 
 
 def _perguntas_chave(perfil, suitability, stress):
     perguntas = list(suitability["proximas_perguntas"][:3])
     if perfil["idade_aposentadoria"] and perfil["renda_aposentadoria_desejada"]:
-        perguntas.append("A renda desejada na aposentadoria considera inflacao, saude e dependentes?")
+        perguntas.append("A renda desejada na aposentadoria considera inflação, saúde e dependentes?")
     else:
-        perguntas.append("Qual idade e renda mensal fariam a aposentadoria ser confortavel?")
+        perguntas.append("Qual idade e renda mensal fariam a aposentadoria ser confortável?")
     if stress["severidade_geral"] != "baixo":
-        perguntas.append("Qual choque financeiro seria mais dificil de absorver hoje?")
+        perguntas.append("Qual choque financeiro seria mais difícil de absorver hoje?")
     return _remover_duplicados(perguntas)
 
 
@@ -49,7 +49,7 @@ def _pontos_de_atencao(diagnostico, suitability, stress):
     if stress["severidade_geral"] != "baixo":
         pontos.append(f"Stress test com severidade {stress['severidade_geral']}.")
     if not pontos:
-        pontos.append("Cliente sem alertas criticos; aprofundar eficiencia e rebalanceamento.")
+        pontos.append("Cliente sem alertas críticos; aprofundar eficiência e rebalanceamento.")
     return _remover_duplicados(pontos)
 
 
@@ -58,17 +58,17 @@ def _decisoes_da_reuniao(roadmap, suitability):
     for meta in roadmap["metas"][:3]:
         decisoes.append(f"Confirmar prioridade da meta: {meta['nome']}.")
     for pendencia in suitability["pendencias"][:2]:
-        decisoes.append(f"Definir responsavel por: {pendencia}")
+        decisoes.append(f"Definir responsável por: {pendencia}")
     if not decisoes:
-        decisoes.append("Confirmar cadencia de revisao e indicadores de acompanhamento.")
+        decisoes.append("Confirmar cadência de revisão e indicadores de acompanhamento.")
     return _remover_duplicados(decisoes)
 
 
 def _fechamento(diagnostico, stress):
     if stress["severidade_geral"] == "alto":
-        return "Fechar com plano de estabilizacao antes de novas alocacoes de risco."
+        return "Fechar com plano de estabilização antes de novas alocações de risco."
     if diagnostico["classificacao"] == "maduro":
-        return "Fechar com revisao de carteira, sucessao e eficiencia tributaria."
+        return "Fechar com revisão de carteira, sucessão e eficiência tributária."
     return "Fechar com plano de 30 dias para validar dados, metas e capacidade de aporte."
 
 

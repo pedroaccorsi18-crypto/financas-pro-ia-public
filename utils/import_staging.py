@@ -1,4 +1,4 @@
-"""Preparacao de transacoes homologadas antes da persistencia."""
+"""Preparação de transações homologadas antes da persistência."""
 
 from finance_categories import CATEGORIAS_VALIDAS
 from finance_constants import ORIGEM_AUTOMATICA, TIPO_DESPESA, TIPOS_TRANSACAO

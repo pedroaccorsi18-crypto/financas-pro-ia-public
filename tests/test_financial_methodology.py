@@ -22,7 +22,7 @@ class FinancialMethodologyTests(unittest.TestCase):
         nomes_stress = {item["nome"] for item in metodologia["stress_test"]}
         self.assertIn("Perda de renda", nomes_stress)
         self.assertIn("Queda de carteira", nomes_stress)
-        self.assertTrue(any("Nao considera impostos" in item for item in metodologia["limites"]))
+        self.assertTrue(any("Não considera impostos" in item for item in metodologia["limites"]))
 
 
 if __name__ == "__main__":

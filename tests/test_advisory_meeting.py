@@ -17,7 +17,7 @@ class AdvisoryMeetingTests(unittest.TestCase):
         self.assertIn("status de onboarding", roteiro["abertura"])
         self.assertTrue(any("choque financeiro" in item for item in roteiro["perguntas_chave"]))
         self.assertTrue(any("Stress test" in item for item in roteiro["pontos_de_atencao"]))
-        self.assertIn("estabilizacao", roteiro["fechamento"])
+        self.assertIn("estabilização", roteiro["fechamento"])
 
     def test_roteiro_maduro_fecha_com_eficiencia(self):
         roteiro = gerar_roteiro_reuniao_consultiva(
@@ -35,7 +35,7 @@ class AdvisoryMeetingTests(unittest.TestCase):
             {"despesas": 18000, "balanco": 10000},
         )
 
-        self.assertIn("eficiencia tributaria", roteiro["fechamento"])
+        self.assertIn("eficiência tributária", roteiro["fechamento"])
         self.assertTrue(any("aposentadoria" in item for item in roteiro["perguntas_chave"]))
 
     def test_roteiro_transforma_metas_em_decisoes(self):

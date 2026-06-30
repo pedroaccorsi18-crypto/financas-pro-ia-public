@@ -1,17 +1,17 @@
-"""Perfil financeiro 360 para diagnostico consultivo inicial."""
+"""Perfil financeiro 360 para diagnóstico consultivo inicial."""
 
 
 OBJETIVOS_360 = [
     "Organizar vida financeira",
-    "Construir reserva de emergencia",
+    "Construir reserva de emergência",
     "Planejar aposentadoria",
-    "Expandir patrimonio",
-    "Preparar sucessao familiar",
+    "Expandir patrimônio",
+    "Preparar sucessão familiar",
 ]
 
 PERFIS_RISCO = ["Conservador", "Moderado", "Arrojado"]
 
-HORIZONTES_PLANEJAMENTO = ["Ate 2 anos", "3 a 5 anos", "6 a 10 anos", "Acima de 10 anos"]
+HORIZONTES_PLANEJAMENTO = ["Até 2 anos", "3 a 5 anos", "6 a 10 anos", "Acima de 10 anos"]
 
 
 def _numero_nao_negativo(valor):
@@ -98,23 +98,23 @@ def calcular_diagnostico_360(perfil, resumo_transacoes=None):
     if score >= 75:
         classificacao = "maduro"
     elif score >= 50:
-        classificacao = "em evolucao"
+        classificacao = "em evolução"
     else:
         classificacao = "prioritario"
 
     prioridades = []
     if despesas > 0 and meses_reserva < 3:
-        prioridades.append("Reforcar reserva de emergencia antes de assumir novos riscos.")
+        prioridades.append("Reforçar reserva de emergência antes de assumir novos riscos.")
     if renda > 0 and dividas > renda * 3:
-        prioridades.append("Estruturar plano de reducao de dividas de alto impacto.")
+        prioridades.append("Estruturar plano de redução de dívidas de alto impacto.")
     if taxa_poupanca < 0.10:
         prioridades.append("Aumentar capacidade de aporte mensal para viabilizar objetivos.")
     if perfil["idade_aposentadoria"] and perfil["renda_aposentadoria_desejada"]:
-        prioridades.append("Simular patrimonio necessario para aposentadoria desejada.")
+        prioridades.append("Simular patrimônio necessário para aposentadoria desejada.")
     if perfil["patrimonio_sucessorio"] > 0:
-        prioridades.append("Mapear documentos, beneficiarios e riscos sucessorios.")
+        prioridades.append("Mapear documentos, beneficiários e riscos sucessórios.")
     if not prioridades:
-        prioridades.append("Aprofundar alocacao, protecao e eficiencia tributaria.")
+        prioridades.append("Aprofundar alocação, proteção e eficiência tributária.")
 
     return {
         "score": score,

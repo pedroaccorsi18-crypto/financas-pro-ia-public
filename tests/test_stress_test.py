@@ -16,7 +16,7 @@ class StressTestTests(unittest.TestCase):
 
         self.assertEqual(stress["severidade_geral"], "alto")
         self.assertTrue(any(cenario["severidade"] == "alto" for cenario in stress["cenarios"]))
-        self.assertTrue(any("Reforcar reserva" in acao for acao in stress["acoes_prioritarias"]))
+        self.assertTrue(any("Reforçar reserva" in acao for acao in stress["acoes_prioritarias"]))
 
     def test_stress_test_alerta_conservador_com_queda_de_carteira(self):
         stress = gerar_stress_test_financeiro(
@@ -50,7 +50,7 @@ class StressTestTests(unittest.TestCase):
 
         self.assertEqual(stress["severidade_geral"], "baixo")
         self.assertTrue(
-            any("Manter revisao periodica" in acao for acao in stress["acoes_prioritarias"])
+            any("Manter revisão periódica" in acao for acao in stress["acoes_prioritarias"])
         )
 
 

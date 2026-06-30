@@ -20,7 +20,7 @@ def gerar_roadmap_metas(perfil, resumo_transacoes=None):
         "capacidade_aporte": max(0.0, float(resumo_transacoes.get("balanco") or 0)),
         "metas": metas_ordenadas,
         "curto_prazo": [meta for meta in metas_ordenadas if meta["prazo"] == "curto"],
-        "medio_prazo": [meta for meta in metas_ordenadas if meta["prazo"] == "medio"],
+        "medio_prazo": [meta for meta in metas_ordenadas if meta["prazo"] == "médio"],
         "longo_prazo": [meta for meta in metas_ordenadas if meta["prazo"] == "longo"],
     }
 
@@ -34,7 +34,7 @@ def _metas_base(perfil, resumo_transacoes, diagnostico):
     if despesas > 0 and gap_reserva > 0:
         metas.append(
             _meta(
-                "Reserva de emergencia",
+                "Reserva de emergência",
                 "curto",
                 "Elevar reserva para 6 meses de despesas recorrentes.",
                 gap_reserva,
@@ -47,9 +47,9 @@ def _metas_base(perfil, resumo_transacoes, diagnostico):
         prioridade = 15 if perfil["renda_mensal"] and perfil["dividas"] > perfil["renda_mensal"] * 3 else 25
         metas.append(
             _meta(
-                "Reducao de dividas",
+                "Redução de dívidas",
                 "curto",
-                "Priorizar dividas por custo efetivo, prazo e garantia.",
+                "Priorizar dívidas por custo efetivo, prazo e garantia.",
                 perfil["dividas"],
                 "Reduz fragilidade do fluxo mensal.",
                 prioridade,
@@ -60,8 +60,8 @@ def _metas_base(perfil, resumo_transacoes, diagnostico):
         metas.append(
             _meta(
                 "Capacidade de aporte",
-                "medio",
-                "Elevar taxa de poupanca para pelo menos 10% da renda.",
+                "médio",
+                "Elevar taxa de poupança para pelo menos 10% da renda.",
                 max(0.0, perfil["renda_mensal"] * 0.10),
                 "Sem aporte recorrente, objetivos ficam dependentes de eventos pontuais.",
                 30,
@@ -72,7 +72,7 @@ def _metas_base(perfil, resumo_transacoes, diagnostico):
         metas.append(
             _meta(
                 "Arquitetura de carteira",
-                "medio",
+                "médio",
                 "Separar carteira por objetivo, liquidez, moeda, classe e horizonte.",
                 0.0,
                 "Base para alinhar risco declarado com objetivos reais.",
@@ -88,10 +88,10 @@ def _metas_aposentadoria(aposentadoria):
         return [
             _meta(
                 "Dados de aposentadoria",
-                "medio",
+                "médio",
                 "Definir idade alvo e renda mensal desejada para aposentadoria.",
                 0.0,
-                "Sem premissas, nao ha como medir gap de aposentadoria.",
+                "Sem premissas, não há como medir gap de aposentadoria.",
                 35,
             )
         ]
@@ -101,9 +101,9 @@ def _metas_aposentadoria(aposentadoria):
         _meta(
             "Aposentadoria",
             "longo",
-            "Acompanhar gap e aporte mensal necessario no cenario moderado.",
+            "Acompanhar gap e aporte mensal necessário no cenário moderado.",
             moderado["gap"],
-            "Conecta renda futura desejada com patrimonio necessario.",
+            "Conecta renda futura desejada com patrimônio necessário.",
             55,
         )
     ]
@@ -115,11 +115,11 @@ def _metas_sucessao(perfil):
 
     return [
         _meta(
-            "Protecao e sucessao",
-            "medio",
-            "Mapear documentos, beneficiarios, dependentes e poderes de decisao.",
+            "Proteção e sucessão",
+            "médio",
+            "Mapear documentos, beneficiários, dependentes e poderes de decisão.",
             perfil["patrimonio_sucessorio"],
-            "Reduz risco familiar, juridico e operacional.",
+            "Reduz risco familiar, jurídico e operacional.",
             40,
         )
     ]

@@ -24,15 +24,15 @@ class ExecutiveSummaryTests(unittest.TestCase):
 
         self.assertIn("# Resumo Executivo - Planejamento Financeiro 360", resumo)
         self.assertIn("## 1. Perfil do cliente", resumo)
-        self.assertIn("## 4. Politica de planejamento", resumo)
+        self.assertIn("## 4. Política de planejamento", resumo)
         self.assertIn("## 7. Suitability e onboarding", resumo)
         self.assertIn("## 8. Roadmap de metas", resumo)
         self.assertIn("## 9. Stress test", resumo)
-        self.assertIn("## 10. Preparacao da reuniao", resumo)
-        self.assertIn("## 11. Estrategia patrimonial", resumo)
+        self.assertIn("## 10. Preparação da reunião", resumo)
+        self.assertIn("## 11. Estratégia patrimonial", resumo)
         self.assertIn("## 12. Metodologia e premissas", resumo)
-        self.assertIn("## 13. Proximos 90 dias", resumo)
-        self.assertIn("Nao constitui recomendacao individualizada", resumo)
+        self.assertIn("## 13. Próximos 90 dias", resumo)
+        self.assertIn("Não constitui recomendação individualizada", resumo)
 
     def test_resumo_inclui_gap_de_aposentadoria_quando_dados_completos(self):
         resumo = gerar_resumo_executivo_markdown(
@@ -47,8 +47,8 @@ class ExecutiveSummaryTests(unittest.TestCase):
             {"despesas": 10000, "balanco": 3000},
         )
 
-        self.assertIn("Anos ate aposentadoria: 25", resumo)
-        self.assertIn("Gap estimado no cenario moderado", resumo)
+        self.assertIn("Anos até aposentadoria: 25", resumo)
+        self.assertIn("Gap estimado no cenário moderado", resumo)
         self.assertIn("Aporte mensal estimado", resumo)
 
     def test_resumo_lista_pendencias_de_aposentadoria_quando_faltam_dados(self):

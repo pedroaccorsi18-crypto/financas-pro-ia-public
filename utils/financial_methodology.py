@@ -1,4 +1,4 @@
-"""Premissas e metodologia dos calculos consultivos."""
+"""Premissas e metodologia dos cálculos consultivos."""
 
 from utils.retirement_planning import CENARIOS_APOSENTADORIA
 
@@ -6,7 +6,7 @@ from utils.retirement_planning import CENARIOS_APOSENTADORIA
 PREMISSAS_STRESS_TEST = [
     {
         "nome": "Perda de renda",
-        "premissa": "Reducao temporaria de 30% da renda mensal declarada.",
+        "premissa": "Redução temporária de 30% da renda mensal declarada.",
     },
     {
         "nome": "Aumento de despesas",
@@ -14,10 +14,10 @@ PREMISSAS_STRESS_TEST = [
     },
     {
         "nome": "Queda de carteira",
-        "premissa": "Queda hipotetica de 15% no patrimonio investido.",
+        "premissa": "Queda hipotética de 15% no patrimônio investido.",
     },
     {
-        "nome": "Emergencia familiar",
+        "nome": "Emergência familiar",
         "premissa": "Consumo de 1 a 2 meses de despesas, conforme dependentes.",
     },
 ]
@@ -26,16 +26,16 @@ PREMISSAS_STRESS_TEST = [
 def gerar_metodologia_financeira():
     return {
         "escopo": [
-            "Diagnostico consultivo para planejamento financeiro pessoal e familiar.",
+            "Diagnóstico consultivo para planejamento financeiro pessoal e familiar.",
             "Valores tratados em termos reais quando envolvem aposentadoria.",
-            "Resultados servem para conversa inicial, validacao de dados e priorizacao.",
+            "Resultados servem para conversa inicial, validação de dados e priorização.",
         ],
         "aposentadoria": _premissas_aposentadoria(),
         "stress_test": PREMISSAS_STRESS_TEST,
         "limites": [
-            "Nao considera impostos, taxas, inflacao futura especifica ou custos de produtos.",
-            "Nao substitui suitability formal, analise juridica, tributaria ou recomendacao individualizada.",
-            "Depende da qualidade dos dados declarados pelo cliente e das transacoes consolidadas.",
+            "Não considera impostos, taxas, inflação futura específica ou custos de produtos.",
+            "Não substitui suitability formal, análise jurídica, tributária ou recomendação individualizada.",
+            "Depende da qualidade dos dados declarados pelo cliente e das transações consolidadas.",
         ],
     }
 

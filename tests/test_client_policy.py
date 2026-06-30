@@ -22,7 +22,7 @@ class ClientPolicyTests(unittest.TestCase):
         self.assertTrue(
             any("Priorizar caixa" in item for item in politica["diretrizes_de_alocacao"])
         )
-        self.assertIn("Revisao mensal", politica["cadencia_de_revisao"])
+        self.assertIn("Revisão mensal", politica["cadencia_de_revisao"])
 
     def test_politica_inclui_aposentadoria_e_sucessao_quando_perfil_tem_dados(self):
         politica = gerar_politica_planejamento_cliente(
@@ -44,7 +44,7 @@ class ClientPolicyTests(unittest.TestCase):
             any("aposentadoria" in item for item in politica["objetivos_priorizados"])
         )
         self.assertTrue(
-            any("sucessorio" in item for item in politica["objetivos_priorizados"])
+            any("sucessório" in item for item in politica["objetivos_priorizados"])
         )
         self.assertTrue(
             any("dependentes" in item for item in politica["restricoes_e_alertas"])
@@ -64,9 +64,9 @@ class ClientPolicyTests(unittest.TestCase):
             {"despesas": 10000, "balanco": 5000},
         )
 
-        self.assertIn("Revisao semestral", politica["cadencia_de_revisao"])
+        self.assertIn("Revisão semestral", politica["cadencia_de_revisao"])
         self.assertTrue(
-            any("diversificacao" in item for item in politica["diretrizes_de_alocacao"])
+            any("diversificação" in item for item in politica["diretrizes_de_alocacao"])
         )
 
 

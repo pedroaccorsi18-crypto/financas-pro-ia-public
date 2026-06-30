@@ -6,19 +6,19 @@ Este repositório foi preparado como portfólio técnico para demonstrar compet�
 
 ## Financial Planning 360
 
-O projeto evoluiu de um dashboard financeiro pessoal para uma base de produto de **Financial Planning / Wealth Management**. Alem de importar, revisar e analisar dados financeiros, o app agora organiza um Perfil Financeiro 360 com diagnostico consultivo, planejamento de aposentadoria, suitability, stress test, roadmap de metas, roteiro de reuniao, matriz de estrategia patrimonial e resumo executivo exportavel.
+O projeto evoluiu de um dashboard financeiro pessoal para uma base de produto de **Financial Planning / Wealth Management**. Além de importar, revisar e analisar dados financeiros, o app agora organiza um Perfil Financeiro 360 com diagnóstico consultivo, planejamento de aposentadoria, suitability, stress test, roadmap de metas, roteiro de reunião, matriz de estratégia patrimonial e resumo executivo exportável.
 
 Principais blocos consultivos:
 
-- Perfil Financeiro 360 com renda, patrimonio, dividas, dependentes, risco, horizonte, aposentadoria, sucessao e protecao familiar.
-- Relatorio Consultivo 360 com diagnostico patrimonial, planejamento financeiro, aposentadoria, expansao patrimonial, sucessao e plano 30/60/90.
-- Politica de Planejamento do Cliente com objetivos priorizados, diretrizes, restricoes, alertas e cadencia de revisao.
-- Simulacao de aposentadoria por cenarios conservador, moderado e arrojado, com patrimonio necessario, gap e aporte mensal estimado.
+- Perfil Financeiro 360 com renda, patrimônio, dívidas, dependentes, risco, horizonte, aposentadoria, sucessão e proteção familiar.
+- Relatório Consultivo 360 com diagnóstico patrimonial, planejamento financeiro, aposentadoria, expansão patrimonial, sucessão e plano 30/60/90.
+- Política de Planejamento do Cliente com objetivos priorizados, diretrizes, restrições, alertas e cadência de revisão.
+- Simulação de aposentadoria por cenários conservador, moderado e arrojado, com patrimônio necessário, gap e aporte mensal estimado.
 - Checklist de suitability e onboarding com pendencias, alertas, proximas perguntas e documentos sugeridos.
-- Roadmap de metas financeiras por curto, medio e longo prazo.
+- Roadmap de metas financeiras por curto, médio e longo prazo.
 - Stress test financeiro para choques de renda, despesas, carteira e emergencia familiar.
 - Roteiro de reuniao consultiva para abertura, perguntas-chave, decisoes e fechamento.
-- Matriz de estrategia patrimonial com frentes de liquidez, protecao, crescimento, aposentadoria e sucessao.
+- Matriz de estratégia patrimonial com frentes de liquidez, proteção, crescimento, aposentadoria e sucessão.
 - Resumo executivo exportavel em Markdown com metodologia, premissas e limites do modelo.
 
 ## Rodar localmente

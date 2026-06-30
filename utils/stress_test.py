@@ -1,4 +1,4 @@
-"""Stress tests consultivos para avaliar resiliencia financeira."""
+"""Stress tests consultivos para avaliar resiliência financeira."""
 
 from utils.financial_profile import calcular_diagnostico_360, normalizar_perfil_financeiro
 
@@ -34,7 +34,7 @@ def _cenario_perda_renda(perfil, resumo_transacoes):
         "Perda de 30% da renda",
         impacto=max(0.0, perda_renda),
         severidade=_classificar_fluxo(novo_balanco, renda),
-        leitura=f"Fluxo mensal projetado apos choque: {novo_balanco:.2f}.",
+        leitura=f"Fluxo mensal projetado após choque: {novo_balanco:.2f}.",
         acao="Revisar despesas fixas, renda alternativa e prazo da reserva.",
     )
 
@@ -50,7 +50,7 @@ def _cenario_aumento_despesas(perfil, resumo_transacoes):
         impacto=aumento,
         severidade=_classificar_reserva(meses_pos_choque),
         leitura=f"Reserva cairia para {meses_pos_choque:.1f} meses de despesas.",
-        acao="Recalibrar reserva alvo e separar despesas essenciais das discricionarias.",
+        acao="Recalibrar reserva alvo e separar despesas essenciais das discricionárias.",
     )
 
 
@@ -61,15 +61,15 @@ def _cenario_queda_carteira(perfil):
     severidade = "baixo"
     if perfil["perfil_risco"] == "Conservador" and queda > 0:
         severidade = "alto"
-    elif perfil["horizonte"] in ("Ate 2 anos", "3 a 5 anos") and queda > 0:
-        severidade = "medio"
+    elif perfil["horizonte"] in ("Até 2 anos", "3 a 5 anos") and queda > 0:
+        severidade = "médio"
 
     return _cenario(
         "Queda de 15% da carteira",
         impacto=queda,
         severidade=severidade,
-        leitura=f"Patrimonio investido projetado apos choque: {patrimonio_pos_choque:.2f}.",
-        acao="Checar concentracao, liquidez e compatibilidade entre risco e horizonte.",
+        leitura=f"Patrimônio investido projetado após choque: {patrimonio_pos_choque:.2f}.",
+        acao="Checar concentração, liquidez e compatibilidade entre risco e horizonte.",
     )
 
 
@@ -82,14 +82,14 @@ def _cenario_emergencia_familiar(perfil, resumo_transacoes):
     if reserva_restante < 0:
         severidade = "alto"
     elif dependentes > 0 and not perfil["possui_seguro"]:
-        severidade = "medio"
+        severidade = "médio"
 
     return _cenario(
-        "Emergencia familiar",
+        "Emergência familiar",
         impacto=max(0.0, impacto),
         severidade=severidade,
-        leitura=f"Reserva projetada apos emergencia: {reserva_restante:.2f}.",
-        acao="Revisar protecao familiar, seguros, beneficiarios e caixa imediato.",
+        leitura=f"Reserva projetada após emergência: {reserva_restante:.2f}.",
+        acao="Revisar proteção familiar, seguros, beneficiários e caixa imediato.",
     )
 
 
@@ -107,7 +107,7 @@ def _classificar_fluxo(novo_balanco, renda):
     if novo_balanco < 0:
         return "alto"
     if renda > 0 and novo_balanco < renda * 0.05:
-        return "medio"
+        return "médio"
     return "baixo"
 
 
@@ -115,12 +115,12 @@ def _classificar_reserva(meses_reserva):
     if meses_reserva < 3:
         return "alto"
     if meses_reserva < 6:
-        return "medio"
+        return "médio"
     return "baixo"
 
 
 def _severidade_geral(cenarios):
-    pesos = {"baixo": 1, "medio": 2, "alto": 3}
+    pesos = {"baixo": 1, "médio": 2, "alto": 3}
     maior = max(pesos[cenario["severidade"]] for cenario in cenarios)
     for nome, peso in pesos.items():
         if peso == maior:
@@ -131,12 +131,12 @@ def _severidade_geral(cenarios):
 def _acoes_prioritarias(cenarios, diagnostico):
     acoes = []
     if diagnostico["meses_reserva"] < 6:
-        acoes.append("Reforcar reserva antes de ampliar risco ou imobilizar capital.")
+        acoes.append("Reforçar reserva antes de ampliar risco ou imobilizar capital.")
     for cenario in cenarios:
         if cenario["severidade"] == "alto":
             acoes.append(cenario["acao"])
     if not acoes:
-        acoes.append("Manter revisao periodica dos choques e rebalancear premissas.")
+        acoes.append("Manter revisão periódica dos choques e rebalancear premissas.")
     return _remover_duplicados(acoes)
 
 

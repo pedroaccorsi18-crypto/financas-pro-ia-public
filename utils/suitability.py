@@ -24,7 +24,7 @@ def _status(pendencias, alertas):
     if len(pendencias) >= 4 or len(alertas) >= 3:
         return "incompleto"
     if pendencias or alertas:
-        return "em validacao"
+        return "em validação"
     return "pronto para planejamento"
 
 
@@ -37,11 +37,11 @@ def _pendencias(perfil, resumo_transacoes, diagnostico):
     if resumo_transacoes.get("despesas", 0) <= 0:
         pendencias.append("Validar despesas mensais recorrentes.")
     if perfil["patrimonio_investido"] <= 0:
-        pendencias.append("Levantar carteira atual e patrimonio investido.")
+        pendencias.append("Levantar carteira atual e patrimônio investido.")
     if perfil["idade_aposentadoria"] <= 0 or perfil["renda_aposentadoria_desejada"] <= 0:
         pendencias.append("Definir meta de aposentadoria: idade e renda desejada.")
     if perfil["dependentes"] > 0 and not perfil["possui_seguro"]:
-        pendencias.append("Mapear protecao familiar para dependentes.")
+        pendencias.append("Mapear proteção familiar para dependentes.")
     if diagnostico["taxa_poupanca"] < 0:
         pendencias.append("Reconciliar fluxo mensal antes de definir novos aportes.")
     return pendencias
@@ -50,23 +50,23 @@ def _pendencias(perfil, resumo_transacoes, diagnostico):
 def _alertas(perfil, diagnostico):
     alertas = []
     if diagnostico["meses_reserva"] < 3:
-        alertas.append("Reserva de emergencia abaixo de 3 meses.")
+        alertas.append("Reserva de emergência abaixo de 3 meses.")
     if perfil["renda_mensal"] > 0 and perfil["dividas"] > perfil["renda_mensal"] * 3:
-        alertas.append("Dividas acima de 3 meses de renda.")
+        alertas.append("Dívidas acima de 3 meses de renda.")
     if perfil["perfil_risco"] == "Arrojado" and diagnostico["meses_reserva"] < 6:
         alertas.append("Perfil arrojado exige checagem de liquidez antes de elevar risco.")
     if perfil["patrimonio_sucessorio"] > 0:
-        alertas.append("Planejamento sucessorio depende de validacao juridica especializada.")
+        alertas.append("Planejamento sucessório depende de validação jurídica especializada.")
     return alertas
 
 
 def _proximas_perguntas(perfil, diagnostico):
     perguntas = [
         "Quais objetivos tem prazo, valor alvo e prioridade familiar?",
-        "Existe concentracao relevante em empresa, imovel, moeda ou unico ativo?",
+        "Existe concentração relevante em empresa, imóvel, moeda ou único ativo?",
     ]
     if perfil["dividas"] > 0:
-        perguntas.append("Qual custo efetivo, prazo e garantia das dividas atuais?")
+        perguntas.append("Qual custo efetivo, prazo e garantia das dívidas atuais?")
     if diagnostico["taxa_poupanca"] < 0.10:
         perguntas.append("Quais despesas podem ser revistas para elevar capacidade de aporte?")
     if perfil["dependentes"] > 0:
@@ -77,13 +77,13 @@ def _proximas_perguntas(perfil, diagnostico):
 def _documentos_sugeridos(perfil):
     documentos = [
         "Extratos consolidados de investimentos.",
-        "Resumo de receitas e despesas dos ultimos 3 a 6 meses.",
-        "Declaracao de imposto de renda mais recente.",
+        "Resumo de receitas e despesas dos últimos 3 a 6 meses.",
+        "Declaração de imposto de renda mais recente.",
     ]
     if perfil["dividas"] > 0:
-        documentos.append("Contratos ou demonstrativos das dividas.")
+        documentos.append("Contratos ou demonstrativos das dívidas.")
     if perfil["dependentes"] > 0 or perfil["possui_seguro"]:
-        documentos.append("Apolices de seguro e beneficiarios cadastrados.")
+        documentos.append("Apólices de seguro e beneficiários cadastrados.")
     if perfil["patrimonio_sucessorio"] > 0:
-        documentos.append("Documentos patrimoniais e sucessorios existentes.")
+        documentos.append("Documentos patrimoniais e sucessórios existentes.")
     return documentos
