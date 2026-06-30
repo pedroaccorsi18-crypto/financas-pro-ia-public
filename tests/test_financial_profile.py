@@ -4,6 +4,7 @@ from utils.financial_profile import (
     calcular_diagnostico_360,
     normalizar_perfil_financeiro,
 )
+from views.financial_profile_views import ABAS_PLANEJAMENTO_360
 
 
 class FinancialProfileTests(unittest.TestCase):
@@ -62,6 +63,19 @@ class FinancialProfileTests(unittest.TestCase):
         self.assertAlmostEqual(diagnostico["taxa_poupanca"], 0.25)
         self.assertTrue(
             any("aposentadoria" in item for item in diagnostico["prioridades"])
+        )
+
+    def test_planejamento_360_organiza_subareas_consultivas(self):
+        self.assertEqual(
+            ABAS_PLANEJAMENTO_360,
+            [
+                "Diagnóstico",
+                "Planejamento Financeiro",
+                "Aposentadoria",
+                "Expansão Patrimonial",
+                "Sucessão",
+                "Próxima Reunião",
+            ],
         )
 
 
