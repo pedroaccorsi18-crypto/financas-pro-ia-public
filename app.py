@@ -2,6 +2,7 @@ import logging
 
 import streamlit as st
 
+from app_config import montar_opcoes_navegacao
 from auth import (
     validar_chave_publica_supabase,
     validar_sessao_atual,
@@ -73,16 +74,7 @@ def render_app_autenticado():
 
     st.sidebar.title("Navegação")
     st.sidebar.write(f"Usuário ativo: **{email_usuario}**")
-    opcoes = [
-        "Visão Geral",
-        "Importação",
-        "Transações",
-        "Planejamento 360",
-        "Radar de Mercado",
-        "Oráculo IA",
-    ]
-    if is_admin:
-        opcoes.append("Admin")
+    opcoes = montar_opcoes_navegacao(st.secrets, is_admin=is_admin)
     secao = st.sidebar.radio("Área", opcoes, key="secao_principal")
 
     st.sidebar.markdown("---")

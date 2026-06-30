@@ -4,11 +4,17 @@ Aplicação de analytics financeiro pessoal construída com **Python, Streamlit,
 
 Este repositório foi preparado como portfólio técnico para demonstrar competências aplicáveis a **Marketing Analytics, Growth Analytics, Product Analytics, Marketing Ops e posições técnicas júnior**: modelagem de dados, pipeline de ingestão, validação de qualidade, dashboards, automação, segurança e uso prático de IA generativa.
 
+## Posicionamento do produto
+
+O produto público é focado em **finanças pessoais**: importar dados, revisar lançamentos, acompanhar receitas, despesas, metas e evolução mensal. Essa é a versão pensada para entrada no mercado, com navegação simples e pouca fricção para usuários comuns.
+
+As frentes de **Financial Planning / Wealth Management** continuam no código como módulos avançados, mas ficam ocultas por padrão. Elas podem ser liberadas depois por feature flags, quando houver base de clientes, validação comercial ou uma oferta premium.
+
 ## Financial Planning 360
 
-O projeto evoluiu de um dashboard financeiro pessoal para uma base de produto de **Financial Planning / Wealth Management**. Além de importar, revisar e analisar dados financeiros, o app agora organiza um Perfil Financeiro 360 com diagnóstico consultivo, planejamento de aposentadoria, suitability, stress test, roadmap de metas, roteiro de reunião, matriz de estratégia patrimonial e resumo executivo exportável.
+Módulo avançado, oculto por padrão na versão pública. Quando habilitado, organiza um Perfil Financeiro 360 com diagnóstico consultivo, planejamento de aposentadoria, suitability, stress test, roadmap de metas, roteiro de reunião, matriz de estratégia patrimonial e resumo executivo exportável.
 
-Principais blocos consultivos:
+Blocos consultivos disponíveis para liberação futura:
 
 - Perfil Financeiro 360 com renda, patrimônio, dívidas, dependentes, risco, horizonte, aposentadoria, sucessão e proteção familiar.
 - Relatório Consultivo 360 com diagnóstico patrimonial, planejamento financeiro, aposentadoria, expansão patrimonial, sucessão e plano 30/60/90.
@@ -74,8 +80,7 @@ Times de Analytics e Growth lidam todos os dias com dados fragmentados, inconsis
 - Dashboard mensal com resumo financeiro, gráficos e análise por categoria.
 - Gestão de metas por categoria e mês.
 - Central de auditoria para rastrear linhas por categoria, origem e instituição.
-- Assistente de análise com IA usando dados agregados por mês e categoria.
-- Radar de Mercado em modo demonstrativo, sem API paga, para validar a experiência antes de contratar dados em tempo real.
+- Módulos avançados ocultos por feature flag: Oráculo IA, Planejamento 360 e Radar de Mercado demonstrativo.
 - Feedback de respostas da IA com anonimização parcial antes da persistência.
 - Bot Fiscal opcional via SMTP para alertas de divergência.
 - Testes unitários, testes de contrato SQL e suíte opt-in de integração RLS.
@@ -245,6 +250,9 @@ Obrigatórias:
 Opcionais:
 
 - `ADMIN_EMAILS`
+- `ENABLE_PLANEJAMENTO_360`
+- `ENABLE_MARKET_RADAR`
+- `ENABLE_ORACULO_IA`
 - `SMTP_SERVER`
 - `SMTP_PORT`
 - `SMTP_EMAIL_REMETENTE`
