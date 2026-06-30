@@ -111,5 +111,45 @@ def salvar_perfil_financeiro_360(perfil: dict) -> None:
     ).execute()
 
 
+def criar_familia_financeira(nome: str) -> dict | None:
+    resposta = supabase.rpc(
+        "criar_familia_financeira",
+        {"p_nome": nome},
+    ).execute()
+    return resposta.data
+
+
+def convidar_membro_familia_financeira(familia_id: str, email: str) -> dict | None:
+    resposta = supabase.rpc(
+        "convidar_membro_familia_financeira",
+        {
+            "p_familia_id": familia_id,
+            "p_email": email,
+        },
+    ).execute()
+    return resposta.data
+
+
+def listar_familias_financeiras() -> list[dict]:
+    resposta = (
+        supabase.table("familias_financeiras")
+        .select("*")
+        .order("created_at", desc=False)
+        .execute()
+    )
+    return resposta.data or []
+
+
+def listar_membros_familia_financeira(familia_id: str) -> list[dict]:
+    resposta = (
+        supabase.table("membros_familia_financeira")
+        .select("*")
+        .eq("familia_id", familia_id)
+        .order("created_at", desc=False)
+        .execute()
+    )
+    return resposta.data or []
+
+
 def salvar_feedback_oraculo(feedback: dict) -> None:
     supabase.table("feedbacks_oraculo").insert(feedback).execute()
