@@ -1,3 +1,5 @@
+from textwrap import dedent
+
 import streamlit as st
 
 from auth import cadastrar_usuario, enviar_email_recuperacao_senha, fazer_login
@@ -43,33 +45,82 @@ PLANOS_PUBLICOS = (
 
 def _render_landing_styles():
     st.markdown(
-        """
+        dedent(
+            """
         <style>
             [data-testid="stSidebar"] {
                 display: none;
             }
 
+            [data-testid="stAppViewContainer"] {
+                background:
+                    radial-gradient(circle at 12% 8%, rgba(37, 99, 235, 0.13), transparent 28rem),
+                    radial-gradient(circle at 88% 20%, rgba(20, 184, 166, 0.12), transparent 24rem),
+                    #f8fafc;
+            }
+
+            [data-testid="stHeader"] {
+                background: rgba(248, 250, 252, 0);
+            }
+
             .block-container {
-                max-width: 1180px;
-                padding-top: 2.2rem;
+                max-width: 1200px;
+                padding-top: 1.4rem;
                 padding-bottom: 4rem;
             }
 
+            .fp-nav {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 18px;
+                color: #0f172a;
+            }
+
+            .fp-brand {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-weight: 800;
+                letter-spacing: 0;
+            }
+
+            .fp-brand-mark {
+                width: 34px;
+                height: 34px;
+                border-radius: 8px;
+                display: grid;
+                place-items: center;
+                color: #ffffff;
+                background: linear-gradient(135deg, #2563eb, #14b8a6);
+                box-shadow: 0 12px 28px rgba(37, 99, 235, 0.25);
+            }
+
+            .fp-nav-note {
+                color: #64748b;
+                font-size: 0.92rem;
+            }
+
             .fp-hero {
+                display: grid;
+                grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+                gap: 34px;
+                align-items: center;
                 border: 1px solid rgba(148, 163, 184, 0.22);
                 border-radius: 8px;
-                padding: 42px;
+                padding: 44px;
                 background:
-                    linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(34, 197, 94, 0.08)),
+                    linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(20, 184, 166, 0.10)),
                     #0b1120;
                 color: #f8fafc;
                 box-shadow: 0 18px 50px rgba(2, 6, 23, 0.24);
+                overflow: hidden;
             }
 
             .fp-hero h1 {
                 margin: 0;
-                max-width: 760px;
-                font-size: 3.1rem;
+                max-width: 720px;
+                font-size: 3.45rem;
                 line-height: 1.02;
                 letter-spacing: 0;
                 color: #f8fafc;
@@ -81,6 +132,98 @@ def _render_landing_styles():
                 font-size: 1.08rem;
                 line-height: 1.7;
                 color: #cbd5e1;
+            }
+
+            .fp-hero-actions {
+                display: flex;
+                gap: 10px;
+                margin-top: 28px;
+                flex-wrap: wrap;
+            }
+
+            .fp-trust {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-top: 22px;
+                color: #cbd5e1;
+                font-size: 0.92rem;
+            }
+
+            .fp-trust span {
+                border: 1px solid rgba(226, 232, 240, 0.14);
+                border-radius: 999px;
+                padding: 7px 11px;
+                background: rgba(15, 23, 42, 0.65);
+            }
+
+            .fp-product-shot {
+                border: 1px solid rgba(226, 232, 240, 0.14);
+                border-radius: 8px;
+                padding: 18px;
+                background: rgba(15, 23, 42, 0.72);
+                box-shadow: 0 24px 70px rgba(2, 6, 23, 0.36);
+            }
+
+            .fp-shot-top {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                margin-bottom: 16px;
+                color: #cbd5e1;
+                font-size: 0.88rem;
+            }
+
+            .fp-shot-status {
+                color: #86efac;
+            }
+
+            .fp-shot-metric {
+                border: 1px solid rgba(226, 232, 240, 0.12);
+                border-radius: 8px;
+                padding: 14px;
+                margin-bottom: 12px;
+                background: rgba(2, 6, 23, 0.34);
+            }
+
+            .fp-shot-metric small {
+                display: block;
+                color: #94a3b8;
+                margin-bottom: 7px;
+            }
+
+            .fp-shot-metric strong {
+                color: #ffffff;
+                font-size: 1.45rem;
+            }
+
+            .fp-bars {
+                display: grid;
+                gap: 10px;
+                margin-top: 16px;
+            }
+
+            .fp-bar {
+                display: grid;
+                grid-template-columns: 90px 1fr 52px;
+                align-items: center;
+                gap: 10px;
+                color: #cbd5e1;
+                font-size: 0.84rem;
+            }
+
+            .fp-bar-track {
+                height: 8px;
+                overflow: hidden;
+                border-radius: 999px;
+                background: rgba(148, 163, 184, 0.22);
+            }
+
+            .fp-bar-fill {
+                height: 100%;
+                border-radius: 999px;
+                background: linear-gradient(90deg, #60a5fa, #2dd4bf);
             }
 
             .fp-proof-row {
@@ -117,6 +260,7 @@ def _render_landing_styles():
                 margin: 0 0 12px;
                 font-size: 1.75rem;
                 letter-spacing: 0;
+                color: #0f172a;
             }
 
             .fp-section-intro {
@@ -137,8 +281,9 @@ def _render_landing_styles():
                 border: 1px solid #e2e8f0;
                 border-radius: 8px;
                 background: #ffffff;
-                padding: 20px;
+                padding: 22px;
                 min-height: 100%;
+                box-shadow: 0 14px 34px rgba(15, 23, 42, 0.05);
             }
 
             .fp-benefit strong {
@@ -162,7 +307,21 @@ def _render_landing_styles():
 
             .fp-plan.featured {
                 border-color: #2563eb;
-                box-shadow: 0 18px 40px rgba(37, 99, 235, 0.14);
+                box-shadow: 0 20px 46px rgba(37, 99, 235, 0.18);
+                background: linear-gradient(180deg, #ffffff, #eff6ff);
+                position: relative;
+            }
+
+            .fp-plan.featured::before {
+                content: "Mais indicado";
+                display: inline-block;
+                margin-bottom: 14px;
+                border-radius: 999px;
+                padding: 5px 10px;
+                color: #1d4ed8;
+                background: #dbeafe;
+                font-size: 0.78rem;
+                font-weight: 800;
             }
 
             .fp-plan h3 {
@@ -198,6 +357,7 @@ def _render_landing_styles():
 
             @media (max-width: 900px) {
                 .fp-hero {
+                    grid-template-columns: 1fr;
                     padding: 30px;
                 }
 
@@ -210,9 +370,16 @@ def _render_landing_styles():
                 .fp-pricing {
                     grid-template-columns: 1fr;
                 }
+
+                .fp-nav {
+                    align-items: flex-start;
+                    flex-direction: column;
+                    gap: 8px;
+                }
             }
         </style>
-        """,
+        """
+        ).strip(),
         unsafe_allow_html=True,
     )
 
@@ -220,44 +387,80 @@ def _render_landing_styles():
 def _render_plano(plano):
     classe = "fp-plan featured" if plano["nome"] == "Pro" else "fp-plan"
     itens = "".join(f"<li>{item}</li>" for item in plano["itens"])
-    return f"""
-        <div class="{classe}">
-            <h3>{plano['nome']}</h3>
-            <div class="price">{plano['preco']}</div>
-            <div class="period">{plano['periodo']}</div>
-            <p>{plano['descricao']}</p>
-            <ul>{itens}</ul>
-        </div>
-        """
+    st.markdown(
+        (
+            f'<div class="{classe}">'
+            f"<h3>{plano['nome']}</h3>"
+            f'<div class="price">{plano["preco"]}</div>'
+            f'<div class="period">{plano["periodo"]}</div>'
+            f"<p>{plano['descricao']}</p>"
+            f"<ul>{itens}</ul>"
+            "</div>"
+        ),
+        unsafe_allow_html=True,
+    )
 
 
 def render_tela_apresentacao():
     _render_landing_styles()
     st.markdown(
-        """
+        dedent(
+            """
+        <nav class="fp-nav">
+            <div class="fp-brand">
+                <div class="fp-brand-mark">F</div>
+                <span>Finanças Pro IA</span>
+            </div>
+            <div class="fp-nav-note">MVP de finanças pessoais com base premium preparada</div>
+        </nav>
         <section class="fp-hero">
-            <h1>Finanças pessoais mais claras, sem planilhas confusas.</h1>
-            <p>
-                O Finanças Pro IA ajuda você a importar, revisar e acompanhar suas
-                movimentações em uma visão mensal simples, segura e pronta para evoluir
-                com recursos inteligentes quando fizer sentido.
-            </p>
-            <div class="fp-proof-row">
-                <div class="fp-proof">
-                    <strong>Visão mensal</strong>
-                    <span>Receitas, despesas e saldo em um painel direto.</span>
+            <div>
+                <h1>Controle financeiro com aparência de produto sério.</h1>
+                <p>
+                    Saia do improviso: organize receitas, despesas, metas e importações
+                    em uma experiência clara, segura e pronta para evoluir para recursos
+                    premium quando a base de clientes justificar.
+                </p>
+                <div class="fp-trust">
+                    <span>Dados por usuário</span>
+                    <span>Revisão antes de gravar</span>
+                    <span>IA como apoio, não piloto automático</span>
                 </div>
-                <div class="fp-proof">
-                    <strong>Revisão antes de gravar</strong>
-                    <span>Mais controle antes de salvar dados importados.</span>
+            </div>
+            <div class="fp-product-shot">
+                <div class="fp-shot-top">
+                    <strong>Painel mensal</strong>
+                    <span class="fp-shot-status">Pronto para acompanhar</span>
                 </div>
-                <div class="fp-proof">
-                    <strong>Base premium pronta</strong>
-                    <span>Módulos avançados podem ser liberados depois.</span>
+                <div class="fp-shot-metric">
+                    <small>Saldo projetado</small>
+                    <strong>R$ 2.840</strong>
+                </div>
+                <div class="fp-shot-metric">
+                    <small>Economia do mês</small>
+                    <strong>18%</strong>
+                </div>
+                <div class="fp-bars">
+                    <div class="fp-bar">
+                        <span>Moradia</span>
+                        <div class="fp-bar-track"><div class="fp-bar-fill" style="width: 72%;"></div></div>
+                        <span>72%</span>
+                    </div>
+                    <div class="fp-bar">
+                        <span>Mercado</span>
+                        <div class="fp-bar-track"><div class="fp-bar-fill" style="width: 54%;"></div></div>
+                        <span>54%</span>
+                    </div>
+                    <div class="fp-bar">
+                        <span>Lazer</span>
+                        <div class="fp-bar-track"><div class="fp-bar-fill" style="width: 38%;"></div></div>
+                        <span>38%</span>
+                    </div>
                 </div>
             </div>
         </section>
-        """,
+        """
+        ).strip(),
         unsafe_allow_html=True,
     )
 
@@ -272,7 +475,8 @@ def render_tela_apresentacao():
             st.rerun()
 
     st.markdown(
-        """
+        dedent(
+            """
         <section class="fp-section">
             <h2>O que a plataforma resolve</h2>
             <p class="fp-section-intro">
@@ -299,12 +503,14 @@ def render_tela_apresentacao():
                 </div>
             </div>
         </section>
-        """,
+        """
+        ).strip(),
         unsafe_allow_html=True,
     )
 
     st.markdown(
-        """
+        dedent(
+            """
         <section class="fp-section">
             <h2>Planos sugeridos para o MVP</h2>
             <p class="fp-section-intro">
@@ -312,19 +518,24 @@ def render_tela_apresentacao():
                 ou liberar módulos avançados.
             </p>
         </section>
-        """,
+        """
+        ).strip(),
         unsafe_allow_html=True,
     )
-    planos_html = "".join(_render_plano(plano) for plano in PLANOS_PUBLICOS)
-    st.markdown(f'<div class="fp-pricing">{planos_html}</div>', unsafe_allow_html=True)
+    colunas_planos = st.columns(len(PLANOS_PUBLICOS))
+    for coluna, plano in zip(colunas_planos, PLANOS_PUBLICOS):
+        with coluna:
+            _render_plano(plano)
 
     st.markdown(
-        """
+        dedent(
+            """
         <p class="fp-footnote">
             Os valores podem ser ajustados conforme uso real, feedback dos primeiros clientes
             e custos de infraestrutura.
         </p>
-        """,
+        """
+        ).strip(),
         unsafe_allow_html=True,
     )
 
