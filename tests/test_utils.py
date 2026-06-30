@@ -55,6 +55,17 @@ class ErrorHandlingTests(unittest.TestCase):
         self.assertIn("reimportação", mensagem)
         self.assertIn("migração SQL", mensagem)
 
+    def test_orienta_migracao_quando_perfil_360_nao_existe(self):
+        erro = RuntimeError(
+            "Could not find the table public.perfis_financeiros_360 in the schema cache"
+        )
+
+        with patch("utils.error_handling.logger"):
+            mensagem = mostrar_erro_seguro(erro)
+
+        self.assertIn("Perfil Financeiro 360", mensagem)
+        self.assertIn("202606250001_criar_perfis_financeiros_360.sql", mensagem)
+
     def test_orienta_permissao_quando_supabase_bloqueia(self):
         with patch("utils.error_handling.logger"):
             mensagem = mostrar_erro_seguro(RuntimeError("permission denied"))

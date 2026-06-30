@@ -528,7 +528,7 @@ def render_planejamento_360(lista_total_banco, usuario_id, email_usuario):
     try:
         perfil_financeiro_360 = buscar_perfil_financeiro_360(usuario_id)
     except Exception as e_perfil:
-        st.info(mostrar_erro_seguro(e_perfil, email_usuario))
+        st.warning(mostrar_erro_seguro(e_perfil, email_usuario))
         perfil_financeiro_360 = None
 
     render_perfil_financeiro_360(
