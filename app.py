@@ -8,6 +8,7 @@ from google.genai import types
 
 from auth import (
     auditar_saude_plataforma,
+    supabase,
     validar_chave_publica_supabase,
     validar_sessao_atual,
 )
@@ -75,6 +76,7 @@ from utils.oracle_analysis import (
     resposta_oraculo_tem_secoes,
 )
 from utils.privacy import anonimizar_dados
+from utils.platform_health import gerar_health_check_supabase, resumir_health_check
 from utils.trends import TENDENCIA_SEM_HISTORICO, calcular_textos_tendencia
 from views.auth_views import render_fluxo_autenticacao
 from views.financial_profile_views import render_perfil_financeiro_360
@@ -615,7 +617,7 @@ def _salvar_feedback_oraculo(usuario_id, email_usuario, status_resposta):
         st.error(mostrar_erro_seguro(erro, email_usuario))
 
 
-def render_admin(lista_total_banco, email_usuario):
+def render_admin(lista_total_banco, usuario_id, email_usuario):
     st.title("Admin")
     st.subheader("Painel do Desenvolvedor")
     if st.button("Corrigir Histórico Retroativo"):
@@ -653,6 +655,18 @@ def render_admin(lista_total_banco, email_usuario):
     st.markdown(f"**Banco Supabase:** {status_infra['supabase']}")
     st.markdown(f"**Criptografia/SSL:** {status_infra['seguranca']}")
 
+    st.markdown("### Health Check de Banco e Migrações")
+    with st.spinner("Verificando estrutura operacional do Supabase..."):
+        resultados_health = gerar_health_check_supabase(supabase, usuario_id)
+    resumo_health = resumir_health_check(resultados_health)
+    if resumo_health == "OK":
+        st.success("Banco e objetos essenciais prontos.")
+    elif resumo_health == "Ação necessária":
+        st.warning("Há migrações ou objetos obrigatórios pendentes.")
+    else:
+        st.info("Há itens que exigem atenção operacional.")
+    st.dataframe(resultados_health, use_container_width=True, hide_index=True)
+
 
 def render_app_autenticado():
     email_usuario = st.session_state.usuario_email
@@ -689,7 +703,7 @@ def render_app_autenticado():
     elif secao == "Oráculo IA":
         render_oraculo(lista_total_banco, usuario_id, email_usuario)
     elif secao == "Admin" and is_admin:
-        render_admin(lista_total_banco, email_usuario)
+        render_admin(lista_total_banco, usuario_id, email_usuario)
 
 
 inicializar_estado_sessao()
