@@ -1,3 +1,5 @@
+from html import escape
+
 import streamlit as st
 
 from utils.advisory_meeting import gerar_roteiro_reuniao_consultiva
@@ -67,6 +69,7 @@ def render_perfil_financeiro_360(
         perfil_salvo,
         resumo_transacoes,
     )
+    _render_painel_executivo_360(dados_consultivos, formatar_brl)
 
     (
         aba_diagnostico,
@@ -263,6 +266,76 @@ def _preparar_dados_consultivos(perfil_salvo, resumo_transacoes):
     }
 
 
+def _render_painel_executivo_360(dados_consultivos, formatar_brl):
+    diagnostico = dados_consultivos["diagnostico"]
+    checklist_suitability = dados_consultivos["checklist_suitability"]
+    plano_aposentadoria = dados_consultivos["plano_aposentadoria"]
+    matriz_estrategia = dados_consultivos["matriz_estrategia"]
+    roteiro_reuniao = dados_consultivos["roteiro_reuniao"]
+
+    prioridade_principal = diagnostico["prioridades"][0]
+    status_onboarding = checklist_suitability["status"].title()
+    status_aposentadoria = "Completo" if plano_aposentadoria["completo"] else "Pendente"
+
+    st.markdown("### Painel executivo do cliente")
+    st.caption(
+        "Leitura rápida para orientar a conversa consultiva antes de entrar nas abas detalhadas."
+    )
+
+    score_col, reserva_col, aporte_col, patrimonio_col = st.columns(4)
+    score_col.metric("Score 360", f"{diagnostico['score']}/100")
+    reserva_col.metric("Reserva", f"{diagnostico['meses_reserva']:.1f} meses")
+    aporte_col.metric("Taxa de poupança", _formatar_percentual(diagnostico["taxa_poupanca"]))
+    patrimonio_col.metric("Patrimônio líquido", formatar_brl(diagnostico["patrimonio_liquido"]))
+
+    status_class = _classe_visual_360(diagnostico["classificacao"])
+    st.markdown(
+        f"""
+        <div style="margin: 18px 0 12px; padding: 18px 20px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.10); background: linear-gradient(135deg, rgba(31,41,55,0.92), rgba(15,23,42,0.96));">
+            <div style="display:flex; justify-content:space-between; gap:18px; align-items:flex-start; flex-wrap:wrap;">
+                <div style="min-width:260px; flex:1;">
+                    <div style="font-size:12px; color:#a3b899; font-weight:700; text-transform:uppercase; letter-spacing:.08em;">Próximo foco consultivo</div>
+                    <div style="font-size:20px; color:#ffffff; font-weight:800; margin-top:6px;">{escape(prioridade_principal)}</div>
+                    <div style="font-size:13px; color:#a1a1aa; margin-top:8px;">Use esta prioridade para abrir a próxima conversa e orientar o plano de ação.</div>
+                </div>
+                <div style="min-width:190px; padding:12px 14px; border-radius:8px; background:{status_class['bg']}; border:1px solid {status_class['border']};">
+                    <div style="font-size:12px; color:#d4d4d8; font-weight:700;">Classificação</div>
+                    <div style="font-size:22px; color:{status_class['color']}; font-weight:900; margin-top:2px;">{escape(diagnostico['classificacao'].title())}</div>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    trilha_a, trilha_b, trilha_c, trilha_d = st.columns(4)
+    _render_sinal_acao(
+        trilha_a,
+        "Onboarding",
+        status_onboarding,
+        "Documentos, pendências e perguntas-chave.",
+    )
+    _render_sinal_acao(
+        trilha_b,
+        "Aposentadoria",
+        status_aposentadoria,
+        "Simulação de gap e aporte mensal.",
+    )
+    _render_sinal_acao(
+        trilha_c,
+        "Estratégia",
+        matriz_estrategia["foco_principal"],
+        "Frentes patrimoniais priorizadas.",
+    )
+    _render_sinal_acao(
+        trilha_d,
+        "Próxima reunião",
+        roteiro_reuniao["fechamento"],
+        "Roteiro e resumo executivo exportável.",
+    )
+    st.markdown("---")
+
+
 def _render_aba_diagnostico(dados_consultivos, formatar_brl):
     diagnostico = dados_consultivos["diagnostico"]
     relatorio = dados_consultivos["relatorio"]
@@ -389,6 +462,44 @@ def _indice_ou_zero(opcoes, valor):
         return opcoes.index(valor)
     except ValueError:
         return 0
+
+
+def _formatar_percentual(valor):
+    return f"{valor * 100:.1f}%"
+
+
+def _classe_visual_360(classificacao):
+    if classificacao == "maduro":
+        return {
+            "bg": "rgba(22, 101, 52, 0.22)",
+            "border": "rgba(74, 222, 128, 0.35)",
+            "color": "#86efac",
+        }
+    if classificacao == "em evolução":
+        return {
+            "bg": "rgba(113, 63, 18, 0.24)",
+            "border": "rgba(251, 191, 36, 0.32)",
+            "color": "#facc15",
+        }
+    return {
+        "bg": "rgba(127, 29, 29, 0.24)",
+        "border": "rgba(248, 113, 113, 0.34)",
+        "color": "#fca5a5",
+    }
+
+
+def _render_sinal_acao(coluna, titulo, valor, legenda):
+    with coluna:
+        st.markdown(
+            f"""
+            <div style="min-height:128px; padding:15px 16px; border-radius:9px; border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.035);">
+                <div style="font-size:12px; color:#a3b899; font-weight:800; text-transform:uppercase; letter-spacing:.06em;">{escape(titulo)}</div>
+                <div style="font-size:16px; color:#ffffff; font-weight:800; margin-top:8px; line-height:1.25;">{escape(valor)}</div>
+                <div style="font-size:12px; color:#a1a1aa; margin-top:8px; line-height:1.35;">{escape(legenda)}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
 def _render_lista(titulo, itens):

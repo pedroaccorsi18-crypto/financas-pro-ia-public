@@ -4,7 +4,7 @@ from utils.financial_profile import (
     calcular_diagnostico_360,
     normalizar_perfil_financeiro,
 )
-from views.financial_profile_views import ABAS_PLANEJAMENTO_360
+from views.financial_profile_views import ABAS_PLANEJAMENTO_360, _formatar_percentual
 
 
 class FinancialProfileTests(unittest.TestCase):
@@ -77,6 +77,9 @@ class FinancialProfileTests(unittest.TestCase):
                 "Próxima Reunião",
             ],
         )
+
+    def test_painel_executivo_exibe_percentual_consultivo(self):
+        self.assertEqual(_formatar_percentual(0.1234), "12.3%")
 
 
 if __name__ == "__main__":
