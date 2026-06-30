@@ -62,7 +62,7 @@ class StreamlitFake(ModuleType):
     def caption(self, texto):
         self.captions.append(texto)
 
-    def markdown(self, texto):
+    def markdown(self, texto, **kwargs):
         self.markdowns.append(texto)
 
     def columns(self, quantidade):
@@ -122,7 +122,7 @@ class AuthViewsTests(unittest.TestCase):
 
         auth_views.render_fluxo_autenticacao()
 
-        self.assertTrue(any("Finan" in titulo for titulo in fake.titles))
+        self.assertTrue(any("Finanças Pro IA" in texto for texto in fake.markdowns))
         self.assertIn("Começar agora", fake.buttons)
         self.assertIn("Já tenho conta", fake.buttons)
         self.assertTrue(any("Planos sugeridos" in texto for texto in fake.markdowns))

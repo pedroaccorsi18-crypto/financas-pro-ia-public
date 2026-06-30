@@ -70,7 +70,7 @@ class StreamlitFake(ModuleType):
     def caption(self, texto):
         self.captions.append(texto)
 
-    def markdown(self, texto):
+    def markdown(self, texto, **kwargs):
         self.markdowns.append(texto)
 
     def columns(self, quantidade):
@@ -165,8 +165,8 @@ class StreamlitSmokeTests(unittest.TestCase):
         self.assertFalse(streamlit_fake.session_state.autenticado)
         self.assertEqual(streamlit_fake.session_state.tela_atual, "apresentacao")
         self.assertTrue(
-            any("Finan" in titulo for titulo in streamlit_fake.titles),
-            streamlit_fake.titles,
+            any("Finanças Pro IA" in texto for texto in streamlit_fake.markdowns),
+            streamlit_fake.markdowns,
         )
         self.assertIn("Começar agora", streamlit_fake.buttons)
         self.assertIn("Já tenho conta", streamlit_fake.buttons)

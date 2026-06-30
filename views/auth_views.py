@@ -8,6 +8,7 @@ PLANOS_PUBLICOS = (
     {
         "nome": "Gratuito",
         "preco": "R$ 0",
+        "periodo": "para começar",
         "descricao": "Para organizar as primeiras movimentações e entender o fluxo mensal.",
         "itens": (
             "Lançamentos manuais",
@@ -18,6 +19,7 @@ PLANOS_PUBLICOS = (
     {
         "nome": "Pro",
         "preco": "R$ 19,90/mês",
+        "periodo": "melhor ponto de entrada",
         "descricao": "Para quem quer acompanhamento recorrente e mais clareza nas decisões.",
         "itens": (
             "Importação assistida",
@@ -28,6 +30,7 @@ PLANOS_PUBLICOS = (
     {
         "nome": "Família",
         "preco": "R$ 29,90/mês",
+        "periodo": "organização da casa",
         "descricao": "Para organizar a vida financeira da casa em uma visão mais completa.",
         "itens": (
             "Tudo do Pro",
@@ -38,20 +41,224 @@ PLANOS_PUBLICOS = (
 )
 
 
+def _render_landing_styles():
+    st.markdown(
+        """
+        <style>
+            [data-testid="stSidebar"] {
+                display: none;
+            }
+
+            .block-container {
+                max-width: 1180px;
+                padding-top: 2.2rem;
+                padding-bottom: 4rem;
+            }
+
+            .fp-hero {
+                border: 1px solid rgba(148, 163, 184, 0.22);
+                border-radius: 8px;
+                padding: 42px;
+                background:
+                    linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(34, 197, 94, 0.08)),
+                    #0b1120;
+                color: #f8fafc;
+                box-shadow: 0 18px 50px rgba(2, 6, 23, 0.24);
+            }
+
+            .fp-hero h1 {
+                margin: 0;
+                max-width: 760px;
+                font-size: 3.1rem;
+                line-height: 1.02;
+                letter-spacing: 0;
+                color: #f8fafc;
+            }
+
+            .fp-hero p {
+                max-width: 690px;
+                margin: 20px 0 0;
+                font-size: 1.08rem;
+                line-height: 1.7;
+                color: #cbd5e1;
+            }
+
+            .fp-proof-row {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 12px;
+                margin-top: 30px;
+            }
+
+            .fp-proof {
+                border: 1px solid rgba(226, 232, 240, 0.18);
+                border-radius: 8px;
+                padding: 16px;
+                background: rgba(15, 23, 42, 0.72);
+            }
+
+            .fp-proof strong {
+                display: block;
+                color: #ffffff;
+                font-size: 1rem;
+                margin-bottom: 4px;
+            }
+
+            .fp-proof span {
+                color: #94a3b8;
+                font-size: 0.92rem;
+            }
+
+            .fp-section {
+                margin-top: 38px;
+            }
+
+            .fp-section h2 {
+                margin: 0 0 12px;
+                font-size: 1.75rem;
+                letter-spacing: 0;
+            }
+
+            .fp-section-intro {
+                max-width: 720px;
+                color: #64748b;
+                line-height: 1.65;
+                margin-bottom: 22px;
+            }
+
+            .fp-benefits {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 14px;
+            }
+
+            .fp-benefit,
+            .fp-plan {
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                background: #ffffff;
+                padding: 20px;
+                min-height: 100%;
+            }
+
+            .fp-benefit strong {
+                display: block;
+                margin-bottom: 8px;
+                color: #0f172a;
+            }
+
+            .fp-benefit span,
+            .fp-plan p,
+            .fp-plan li {
+                color: #64748b;
+                line-height: 1.55;
+            }
+
+            .fp-pricing {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 16px;
+            }
+
+            .fp-plan.featured {
+                border-color: #2563eb;
+                box-shadow: 0 18px 40px rgba(37, 99, 235, 0.14);
+            }
+
+            .fp-plan h3 {
+                margin: 0;
+                font-size: 1.16rem;
+            }
+
+            .fp-plan .price {
+                margin: 12px 0 2px;
+                color: #0f172a;
+                font-size: 2rem;
+                line-height: 1.1;
+                font-weight: 800;
+            }
+
+            .fp-plan .period {
+                margin-bottom: 14px;
+                color: #2563eb;
+                font-size: 0.88rem;
+                font-weight: 700;
+            }
+
+            .fp-plan ul {
+                padding-left: 18px;
+                margin-bottom: 0;
+            }
+
+            .fp-footnote {
+                color: #64748b;
+                margin-top: 16px;
+                font-size: 0.92rem;
+            }
+
+            @media (max-width: 900px) {
+                .fp-hero {
+                    padding: 30px;
+                }
+
+                .fp-hero h1 {
+                    font-size: 2.25rem;
+                }
+
+                .fp-proof-row,
+                .fp-benefits,
+                .fp-pricing {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def _render_plano(plano):
-    st.markdown(f"### {plano['nome']}")
-    st.subheader(plano["preco"])
-    st.caption(plano["descricao"])
-    for item in plano["itens"]:
-        st.markdown(f"- {item}")
+    classe = "fp-plan featured" if plano["nome"] == "Pro" else "fp-plan"
+    itens = "".join(f"<li>{item}</li>" for item in plano["itens"])
+    return f"""
+        <div class="{classe}">
+            <h3>{plano['nome']}</h3>
+            <div class="price">{plano['preco']}</div>
+            <div class="period">{plano['periodo']}</div>
+            <p>{plano['descricao']}</p>
+            <ul>{itens}</ul>
+        </div>
+        """
 
 
 def render_tela_apresentacao():
-    st.title("Finanças Pro IA")
-    st.subheader("Organize suas finanças pessoais com clareza, segurança e apoio de IA.")
-    st.caption(
-        "Importe, revise e acompanhe suas movimentações em um painel simples, "
-        "feito para transformar gastos soltos em decisões melhores."
+    _render_landing_styles()
+    st.markdown(
+        """
+        <section class="fp-hero">
+            <h1>Finanças pessoais mais claras, sem planilhas confusas.</h1>
+            <p>
+                O Finanças Pro IA ajuda você a importar, revisar e acompanhar suas
+                movimentações em uma visão mensal simples, segura e pronta para evoluir
+                com recursos inteligentes quando fizer sentido.
+            </p>
+            <div class="fp-proof-row">
+                <div class="fp-proof">
+                    <strong>Visão mensal</strong>
+                    <span>Receitas, despesas e saldo em um painel direto.</span>
+                </div>
+                <div class="fp-proof">
+                    <strong>Revisão antes de gravar</strong>
+                    <span>Mais controle antes de salvar dados importados.</span>
+                </div>
+                <div class="fp-proof">
+                    <strong>Base premium pronta</strong>
+                    <span>Módulos avançados podem ser liberados depois.</span>
+                </div>
+            </div>
+        </section>
+        """,
+        unsafe_allow_html=True,
     )
 
     col_primaria, col_secundaria = st.columns(2)
@@ -64,25 +271,61 @@ def render_tela_apresentacao():
             st.session_state.tela_atual = "login"
             st.rerun()
 
-    st.markdown("### O que a plataforma resolve")
-    beneficios = (
-        "Centraliza receitas e despesas em uma visão mensal.",
-        "Ajuda a revisar lançamentos antes de gravar dados importados.",
-        "Mostra categorias, metas e evolução financeira sem planilhas confusas.",
-        "Mantém os módulos avançados preparados para uma futura versão premium.",
+    st.markdown(
+        """
+        <section class="fp-section">
+            <h2>O que a plataforma resolve</h2>
+            <p class="fp-section-intro">
+                O primeiro produto precisa ser simples, confiável e útil no dia a dia.
+                Por isso, a experiência pública prioriza organização financeira pessoal,
+                clareza mensal e controle sobre os dados.
+            </p>
+            <div class="fp-benefits">
+                <div class="fp-benefit">
+                    <strong>Centralização</strong>
+                    <span>Receitas e despesas organizadas em uma visão mensal.</span>
+                </div>
+                <div class="fp-benefit">
+                    <strong>Importação assistida</strong>
+                    <span>Revisão humana antes de gravar informações extraídas.</span>
+                </div>
+                <div class="fp-benefit">
+                    <strong>Metas por categoria</strong>
+                    <span>Acompanhamento de limites e evolução de consumo.</span>
+                </div>
+                <div class="fp-benefit">
+                    <strong>Evolução gradual</strong>
+                    <span>Recursos premium ficam guardados para a fase certa.</span>
+                </div>
+            </div>
+        </section>
+        """,
+        unsafe_allow_html=True,
     )
-    for beneficio in beneficios:
-        st.markdown(f"- {beneficio}")
 
-    st.markdown("### Planos sugeridos para o MVP")
-    colunas_planos = st.columns(len(PLANOS_PUBLICOS))
-    for coluna, plano in zip(colunas_planos, PLANOS_PUBLICOS):
-        with coluna:
-            _render_plano(plano)
+    st.markdown(
+        """
+        <section class="fp-section">
+            <h2>Planos sugeridos para o MVP</h2>
+            <p class="fp-section-intro">
+                Preços simples para validar demanda antes de contratar APIs pagas
+                ou liberar módulos avançados.
+            </p>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
+    planos_html = "".join(_render_plano(plano) for plano in PLANOS_PUBLICOS)
+    st.markdown(f'<div class="fp-pricing">{planos_html}</div>', unsafe_allow_html=True)
 
-    st.caption(
-        "Os valores podem ser ajustados conforme uso real, feedback dos primeiros clientes "
-        "e custos de infraestrutura."
+    st.markdown(
+        """
+        <p class="fp-footnote">
+            Os valores podem ser ajustados conforme uso real, feedback dos primeiros clientes
+            e custos de infraestrutura.
+        </p>
+        """,
+        unsafe_allow_html=True,
     )
 
 
