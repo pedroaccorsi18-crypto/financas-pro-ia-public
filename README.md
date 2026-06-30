@@ -20,6 +20,7 @@ Principais blocos consultivos:
 - Roteiro de reuniao consultiva para abertura, perguntas-chave, decisoes e fechamento.
 - Matriz de estratégia patrimonial com frentes de liquidez, proteção, crescimento, aposentadoria e sucessão.
 - Resumo executivo exportavel em Markdown com metodologia, premissas e limites do modelo.
+- Radar de Mercado demonstrativo para acompanhar ativos em observação, com score educativo, riscos e adequação por perfil, sem recomendação individual de investimento.
 
 ## Rodar localmente
 
@@ -74,6 +75,7 @@ Times de Analytics e Growth lidam todos os dias com dados fragmentados, inconsis
 - Gestão de metas por categoria e mês.
 - Central de auditoria para rastrear linhas por categoria, origem e instituição.
 - Assistente de análise com IA usando dados agregados por mês e categoria.
+- Radar de Mercado em modo demonstrativo, sem API paga, para validar a experiência antes de contratar dados em tempo real.
 - Feedback de respostas da IA com anonimização parcial antes da persistência.
 - Bot Fiscal opcional via SMTP para alertas de divergência.
 - Testes unitários, testes de contrato SQL e suíte opt-in de integração RLS.

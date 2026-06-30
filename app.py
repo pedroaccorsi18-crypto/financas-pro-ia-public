@@ -22,6 +22,7 @@ from views.admin_views import render_admin
 from views.auth_views import render_fluxo_autenticacao
 from views.dashboard_views import render_visao_geral
 from views.import_views import render_importacao
+from views.market_radar_views import render_radar_mercado
 from views.oracle_views import render_oraculo
 from views.planning_views import render_planejamento_360
 from views.transactions_views import render_transacoes
@@ -77,6 +78,7 @@ def render_app_autenticado():
         "Importação",
         "Transações",
         "Planejamento 360",
+        "Radar de Mercado",
         "Oráculo IA",
     ]
     if is_admin:
@@ -96,6 +98,8 @@ def render_app_autenticado():
         render_transacoes(lista_total_banco, usuario_id, email_usuario)
     elif secao == "Planejamento 360":
         render_planejamento_360(lista_total_banco, usuario_id, email_usuario)
+    elif secao == "Radar de Mercado":
+        render_radar_mercado()
     elif secao == "Oráculo IA":
         render_oraculo(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_gemini)
     elif secao == "Admin" and is_admin:
