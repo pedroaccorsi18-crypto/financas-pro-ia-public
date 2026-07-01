@@ -16,6 +16,13 @@
 venv/
 env/
 .python-version
+node_modules/
+.pnpm-store/
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.vercel/
+frontend/next-env.d.ts
 
 # Caches Python e ferramentas
 __pycache__/
