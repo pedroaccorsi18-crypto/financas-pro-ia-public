@@ -6,9 +6,9 @@ const benefits = [
 ];
 
 const summaryCards = [
-  { label: "Saldo atual", value: "R$ 8.560,45", note: "+ R$ 1.230,00 vs Maio" },
   { label: "Receitas", value: "R$ 12.450,00", note: "Junho 2026" },
   { label: "Despesas", value: "R$ 3.889,55", note: "Junho 2026" },
+  { label: "Saldo", value: "R$ 8.560,45", note: "+ R$ 1.230,00 vs Maio" },
   { label: "Reservas", value: "R$ 15.780,30", note: "+ R$ 620,30 vs Maio" }
 ];
 
@@ -22,15 +22,8 @@ const categories = [
 ];
 
 const insights = [
-  { title: "Seus gastos com delivery aumentaram 32%", action: "Ver detalhes" },
-  { title: "Você pode economizar até R$ 320/mês", action: "Revisar" },
-  { title: "Você está no caminho certo para alcançar suas metas", action: "Ver metas" }
-];
-
-const goals = [
-  { name: "Viagem férias", value: "R$ 2.450,00 / R$ 5.000,00", progress: 49, icon: "palm" },
-  { name: "Reserva de emergência", value: "R$ 8.560,00 / R$ 15.000,00", progress: 57, icon: "home" },
-  { name: "Educação", value: "R$ 1.200,00 / R$ 10.000,00", progress: 12, icon: "cap" }
+  { title: "Seu gasto com delivery aumentou 32% este mês.", action: "Ver detalhes" },
+  { title: "Que tal definir um limite de R$ 320/mês nessa categoria?", action: "Revisar" }
 ];
 
 const plans = [
@@ -134,14 +127,6 @@ function Icon({ name }: { name: string }) {
   );
 }
 
-function GoalIcon({ icon }: { icon: string }) {
-  return (
-    <span className={`goalIcon ${icon}`} aria-hidden="true">
-      {icon === "palm" ? "✦" : icon === "home" ? "⌂" : "◆"}
-    </span>
-  );
-}
-
 export default function Home() {
   return (
     <main>
@@ -162,7 +147,10 @@ export default function Home() {
 
       <section className="hero" id="beneficios">
         <div className="heroCopy">
-          <h1>Controle financeiro pessoal com IA</h1>
+          <h1>
+            Controle financeiro
+            <span>pessoal com IA</span>
+          </h1>
           <p>
             Organize suas finanças, entenda seus gastos, defina metas realistas e receba
             orientações inteligentes para tomar melhores decisões todos os dias.
@@ -181,35 +169,26 @@ export default function Home() {
             <a className="primaryButton" href="#planos">
               Começar grátis
             </a>
-            <a className="secondaryButton" href="/login">
-              Já tenho conta
+            <a className="secondaryButton" href="#planos">
+              Ver planos
             </a>
           </div>
           <p className="securityNote">Seus dados protegidos com segurança de nível bancário.</p>
         </div>
 
         <div className="productPreview" aria-label="Prévia do painel financeiro">
-          <aside className="previewSidebar">
-            <LogoMark />
-            {["Resumo", "Transações", "Relatórios", "Metas", "Planejamento", "Insights da IA", "Contas"].map(
-              (item, index) => (
-                <span className={index === 0 ? "active" : ""} key={item}>
-                  {item}
-                </span>
-              )
-            )}
-            <button>Ajuda</button>
-          </aside>
           <div className="previewContent">
             <div className="previewTopbar">
-              <h2>Resumo</h2>
+              <div>
+                <span className="previewLabel">Painel inteligente</span>
+                <h2>Resumo mensal</h2>
+              </div>
               <div className="topbarControls">
                 <span>Junho 2026</span>
-                <span>Olá, Pedro</span>
               </div>
             </div>
-            <div className="summaryGrid">
-              {summaryCards.map((card) => (
+            <div className="monthlyStats">
+              {summaryCards.slice(0, 3).map((card) => (
                 <article key={card.label} className="summaryCard">
                   <span>{card.label}</span>
                   <strong>{card.value}</strong>
@@ -217,7 +196,7 @@ export default function Home() {
                 </article>
               ))}
             </div>
-            <div className="dashboardGrid">
+            <div className="previewMainGrid">
               <section className="categoryPanel">
                 <h3>Gastos por categoria</h3>
                 <div className="categoryBody">
@@ -237,7 +216,7 @@ export default function Home() {
                 </div>
               </section>
               <section className="insightsPanel">
-                <h3>Insights da IA</h3>
+                <h3>Insight da IA</h3>
                 {insights.map((insight) => (
                   <div className="insightRow" key={insight.title}>
                     <span>{insight.title}</span>
@@ -246,24 +225,6 @@ export default function Home() {
                 ))}
               </section>
             </div>
-            <section className="goalsPanel">
-              <h3>Progresso das metas</h3>
-              <div className="goalsGrid">
-                {goals.map((goal) => (
-                  <article key={goal.name}>
-                    <GoalIcon icon={goal.icon} />
-                    <div>
-                      <strong>{goal.name}</strong>
-                      <span>{goal.value}</span>
-                      <div className="progressTrack">
-                        <i style={{ width: `${goal.progress}%` }} />
-                      </div>
-                    </div>
-                    <small>{goal.progress}%</small>
-                  </article>
-                ))}
-              </div>
-            </section>
           </div>
         </div>
       </section>
