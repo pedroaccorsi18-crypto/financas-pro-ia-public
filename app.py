@@ -26,7 +26,7 @@ from utils.llm_service import (
     criar_provider_ia_padrao,
     gerar_conteudo_ia as gerar_com_provider_ia,
 )
-from utils.subscriptions import rotulo_plano
+from utils.subscriptions import assinatura_gratuita_padrao, rotulo_plano
 from views.admin_views import render_admin
 from views.auth_views import render_fluxo_autenticacao
 from views.dashboard_views import render_visao_geral
@@ -71,21 +71,25 @@ def _listar_transacoes_seguras(usuario_id, email_usuario):
         return []
 
 
-def _garantir_assinatura_segura():
+def _garantir_assinatura_segura(usuario_id):
     try:
         assinatura = obter_ou_criar_assinatura_usuario()
         st.session_state.assinatura_atual = assinatura
         return assinatura
-    except Exception:
-        logger.warning("Nao foi possivel obter assinatura do usuario", exc_info=True)
-        st.session_state.assinatura_atual = None
-        return None
+    except Exception as erro:
+        assinatura = assinatura_gratuita_padrao(usuario_id)
+        logger.warning(
+            "Nao foi possivel obter assinatura do usuario; usando plano gratuito local",
+            extra={"tipo_erro": type(erro).__name__},
+        )
+        st.session_state.assinatura_atual = assinatura
+        return assinatura
 
 
 def render_app_autenticado():
     email_usuario = st.session_state.usuario_email
     usuario_id = st.session_state.usuario_id
-    assinatura = _garantir_assinatura_segura()
+    assinatura = _garantir_assinatura_segura(usuario_id)
     lista_total_banco = _listar_transacoes_seguras(usuario_id, email_usuario)
     is_admin = eh_usuario_admin(email_usuario, st.secrets.get("ADMIN_EMAILS", []))
 

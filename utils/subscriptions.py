@@ -31,6 +31,17 @@ def rotulo_plano(plano: str | None) -> str:
     return ROTULOS_PLANOS[normalizar_plano(plano)]
 
 
+def assinatura_gratuita_padrao(owner_id: str | None = None) -> dict:
+    assinatura = {
+        "plano": "gratuito",
+        "status": "ativo",
+        "limite_membros": LIMITE_MEMBROS_POR_PLANO["gratuito"],
+    }
+    if owner_id:
+        assinatura["owner_id"] = owner_id
+    return assinatura
+
+
 def assinatura_ativa(assinatura: dict | None) -> bool:
     if not assinatura:
         return False

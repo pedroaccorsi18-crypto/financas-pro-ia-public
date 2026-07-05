@@ -1,6 +1,7 @@
 import unittest
 
 from utils.subscriptions import (
+    assinatura_gratuita_padrao,
     assinatura_ativa,
     limite_membros_do_plano,
     normalizar_plano,
@@ -27,6 +28,20 @@ class SubscriptionsTests(unittest.TestCase):
         self.assertEqual(rotulo_plano("pro"), "Pro")
         self.assertEqual(rotulo_plano("familia"), "Família")
         self.assertEqual(rotulo_plano("desconhecido"), "Gratuito")
+
+    def test_assinatura_gratuita_padrao_mantem_app_basico_acessivel(self):
+        assinatura = assinatura_gratuita_padrao("user-1")
+
+        self.assertEqual(
+            assinatura,
+            {
+                "owner_id": "user-1",
+                "plano": "gratuito",
+                "status": "ativo",
+                "limite_membros": 1,
+            },
+        )
+        self.assertTrue(assinatura_ativa(assinatura))
 
     def test_status_ativo_ou_trial_liberam_recursos(self):
         self.assertTrue(assinatura_ativa({"status": "ativo"}))
