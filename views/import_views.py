@@ -20,9 +20,36 @@ from utils.llm_providers import SCHEMA_EXTRACAO_PDF_FINANCEIRO
 from utils.llm_service import gerar_pdf_ia
 
 
+def _render_orientacao_importacao():
+    st.markdown(
+        """
+        <div style="border:1px solid #dbe4ee; border-radius:10px; padding:24px 28px; background:linear-gradient(180deg,#ffffff,#f8fbff); margin-bottom:18px;">
+            <div style="color:#087443; font-size:0.82rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase;">Importação assistida</div>
+            <h3 style="margin:8px 0 10px 0; color:#0f172a;">Transforme PDF em lançamentos revisáveis</h3>
+            <p style="max-width:780px; color:#475569; font-size:1rem; line-height:1.6; margin:0;">
+                Envie um extrato, fatura ou comprovante em PDF. A IA organiza os lançamentos,
+                mas nada é salvo antes da sua revisão e confirmação.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    col_pdf, col_revisao, col_limite = st.columns(3)
+    with col_pdf:
+        st.markdown("**1. Envie o PDF**")
+        st.caption("Use arquivos de até 10 MB em formato PDF.")
+    with col_revisao:
+        st.markdown("**2. Revise os dados**")
+        st.caption("Confira mês, instituição, valores, fluxo e categoria antes de salvar.")
+    with col_limite:
+        st.markdown("**3. Confirme com segurança**")
+        st.caption("O processamento externo só acontece depois do seu consentimento.")
+
+
 def render_importacao(lista_total_banco, usuario_id, email_usuario, is_admin, gerar_conteudo_ia):
     st.title("Importação")
     st.markdown("### Importar PDF com apoio da IA")
+    _render_orientacao_importacao()
     arquivo_subido = st.file_uploader(
         "Selecione um extrato bancário, fatura ou comprovante em PDF",
         type=["pdf"],
