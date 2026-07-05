@@ -24,6 +24,7 @@ class StreamlitFake:
         self.markdowns = []
         self.captions = []
         self.buttons = []
+        self.infos = []
 
     def markdown(self, texto, **kwargs):
         self.markdowns.append((texto, kwargs))
@@ -37,6 +38,9 @@ class StreamlitFake:
     def button(self, label, **kwargs):
         self.buttons.append((label, kwargs))
         return label == self.botao_clicado
+
+    def info(self, texto):
+        self.infos.append(texto)
 
     def rerun(self):
         raise RerunAcionado()
@@ -55,9 +59,11 @@ class DashboardViewsTests(unittest.TestCase):
         dashboard_views._render_estado_inicial()
 
         texto_renderizado = "\n".join(texto for texto, _ in fake.markdowns)
-        self.assertIn("Comece montando seu mapa financeiro", texto_renderizado)
+        self.assertIn("Seu painel financeiro ainda está vazio", texto_renderizado)
+        self.assertIn("Plano de ativação", texto_renderizado)
         self.assertIn("Importar PDF", "\n".join(label for label, _ in fake.buttons))
         self.assertIn("Lançar manualmente", "\n".join(label for label, _ in fake.buttons))
+        self.assertIn("primeiro resumo mensal", "\n".join(fake.infos))
 
     def test_botao_importacao_atualiza_secao_principal(self):
         fake = self.usar_streamlit(StreamlitFake(botao_clicado="Importar PDF"))

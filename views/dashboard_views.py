@@ -203,33 +203,49 @@ def _navegar_para_secao(secao):
 def _render_estado_inicial():
     st.markdown(
         """
-        <div style="border:1px solid #dbe4ee; border-radius:10px; padding:28px 30px; background:linear-gradient(180deg,#ffffff,#f8fbff);">
-            <div style="color:#087443; font-size:0.82rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase;">Primeiro diagnóstico</div>
-            <h2 style="margin:8px 0 10px 0; color:#0f172a;">Comece montando seu mapa financeiro</h2>
-            <p style="max-width:760px; color:#475569; font-size:1rem; line-height:1.6; margin:0;">
-                Importe um extrato em PDF ou registre uma movimentação manual para liberar o resumo mensal,
-                as metas por categoria e os primeiros sinais de decisão.
-            </p>
+        <div style="border:1px solid #dbe4ee; border-radius:10px; padding:30px; background:linear-gradient(135deg,#ffffff,#f4f8ff);">
+            <div style="display:flex; justify-content:space-between; gap:18px; align-items:flex-start; flex-wrap:wrap;">
+                <div style="max-width:720px;">
+                    <div style="color:#087443; font-size:0.82rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase;">Configuração inicial</div>
+                    <h2 style="margin:8px 0 10px 0; color:#0f172a;">Seu painel financeiro ainda está vazio</h2>
+                    <p style="color:#475569; font-size:1rem; line-height:1.6; margin:0;">
+                        Adicione as primeiras movimentações para transformar esta tela em um resumo mensal com saldo,
+                        categorias, tendências e metas de gasto.
+                    </p>
+                </div>
+                <div style="min-width:190px; border:1px solid #dbe4ee; border-radius:8px; padding:16px; background:#ffffff;">
+                    <div style="color:#64748b; font-size:0.82rem; font-weight:700;">Progresso</div>
+                    <div style="color:#0f172a; font-size:1.9rem; font-weight:900; line-height:1.2;">0 de 3</div>
+                    <div style="height:8px; border-radius:999px; background:#e2e8f0; overflow:hidden; margin-top:10px;">
+                        <div style="width:0%; height:100%; background:#087443;"></div>
+                    </div>
+                </div>
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-    st.markdown("#### Caminho recomendado")
+    st.markdown("#### Plano de ativação")
     col_importar, col_manual, col_resultado = st.columns(3)
     with col_importar:
-        st.markdown("**1. Importe seus dados**")
-        st.caption("Use um PDF de extrato, fatura ou comprovante para acelerar a organização inicial.")
+        st.markdown("**1. Trazer movimentações**")
+        st.caption("Comece pelo PDF se tiver extrato ou fatura. É o caminho mais rápido para montar o histórico.")
         if st.button("Importar PDF", type="primary", use_container_width=True):
             _navegar_para_secao("Importação")
     with col_manual:
-        st.markdown("**2. Complete manualmente**")
-        st.caption("Lance receitas ou despesas avulsas pela área de Transações quando algo ficar fora do PDF.")
+        st.markdown("**2. Completar lacunas**")
+        st.caption("Use lançamento manual para salário, PIX, dinheiro ou qualquer item que não esteja no arquivo.")
         if st.button("Lançar manualmente", use_container_width=True):
             _navegar_para_secao("Transações")
     with col_resultado:
-        st.markdown("**3. Acompanhe a evolução**")
-        st.caption("Depois dos primeiros lançamentos, esta tela passa a mostrar balanço, tendências e metas.")
+        st.markdown("**3. Revisar o mês**")
+        st.caption("Com dados salvos, o painel mostra balanço, categorias e metas para acompanhar sua evolução.")
+
+    st.info(
+        "Dica: para validar o app com usuários reais, o primeiro objetivo é fazer a pessoa chegar "
+        "ao primeiro resumo mensal em poucos minutos."
+    )
 
 
 def render_visao_geral(lista_total_banco, usuario_id, email_usuario):
