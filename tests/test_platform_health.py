@@ -1,6 +1,7 @@
 import unittest
 
 from utils.platform_health import (
+    gerar_decisao_lancamento,
     gerar_health_check_lancamento,
     gerar_health_check_supabase,
     resumir_health_check,
@@ -166,6 +167,60 @@ class PlatformHealthTests(unittest.TestCase):
 
         self.assertEqual(configuracao["status"], "Ação necessária")
         self.assertEqual(resumir_health_check(resultados), "Ação necessária")
+
+    def test_decisao_lancamento_bloqueia_quando_ha_acao_necessaria(self):
+        resultados = gerar_health_check_lancamento(
+            {},
+            SupabaseHealthFake(),
+            "user-1",
+            {"seguranca": "Nao validado"},
+        )
+
+        decisao = gerar_decisao_lancamento(resultados)
+
+        self.assertFalse(decisao["pronto"])
+        self.assertEqual(decisao["status"], "Bloqueado")
+        self.assertGreater(len(decisao["bloqueios"]), 0)
+        self.assertIn("SUPABASE_URL", decisao["proxima_acao"])
+
+    def test_decisao_lancamento_permite_validacao_com_pendencias(self):
+        supabase = SupabaseHealthFake(
+            rpc_error=RuntimeError("Payload de transacoes nao pode ser vazio")
+        )
+        resultados = gerar_health_check_lancamento(
+            {
+                "SUPABASE_URL": "https://exemplo.supabase.co",
+                "SUPABASE_KEY": "sb_publishable_teste",
+                "GEMINI_API_KEY": "configurada",
+            },
+            supabase,
+            "user-1",
+            {"seguranca": "Sessao Auth e RLS ativos"},
+        )
+
+        decisao = gerar_decisao_lancamento(resultados)
+
+        self.assertTrue(decisao["pronto"])
+        self.assertEqual(decisao["status"], "Validavel com atencao")
+        self.assertEqual(decisao["bloqueios"], [])
+        self.assertGreater(len(decisao["pendencias"]), 0)
+
+    def test_decisao_lancamento_pronto_quando_tudo_esta_ok(self):
+        resultados = [
+            {
+                "item": "Config",
+                "status": "OK",
+                "detalhe": "Validado.",
+                "acao": "Nenhuma acao necessaria.",
+            }
+        ]
+
+        decisao = gerar_decisao_lancamento(resultados)
+
+        self.assertTrue(decisao["pronto"])
+        self.assertEqual(decisao["status"], "Pronto")
+        self.assertEqual(decisao["bloqueios"], [])
+        self.assertEqual(decisao["pendencias"], [])
 
     def test_tabela_visual_do_health_check_escapa_html(self):
         html = _montar_tabela_health_check_html(

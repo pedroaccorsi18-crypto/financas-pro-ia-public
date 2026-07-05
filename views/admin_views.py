@@ -15,7 +15,11 @@ from utils.category_maintenance import (
 )
 from utils.error_handling import mostrar_erro_seguro
 from utils.llm_service import gerar_texto_ia
-from utils.platform_health import gerar_health_check_lancamento, resumir_health_check
+from utils.platform_health import (
+    gerar_decisao_lancamento,
+    gerar_health_check_lancamento,
+    resumir_health_check,
+)
 
 
 def _classe_status_health(status):
@@ -54,6 +58,17 @@ def _montar_tabela_health_check_html(resultados_health):
         f"<tbody>{''.join(linhas)}</tbody>"
         "</table>"
     )
+
+
+def _render_resumo_lancamento(decisao):
+    st.markdown("#### Decisao de lancamento")
+    col_pronto, col_bloqueios, col_pendencias = st.columns(3)
+    col_pronto.metric("Pronto para validar", "Sim" if decisao["pronto"] else "Nao")
+    col_bloqueios.metric("Bloqueios", len(decisao["bloqueios"]))
+    col_pendencias.metric("Pendencias", len(decisao["pendencias"]))
+    st.markdown(f"**Status:** {decisao['status']}")
+    st.markdown(f"**Leitura:** {decisao['mensagem']}")
+    st.markdown(f"**Proxima acao:** {decisao['proxima_acao']}")
 
 
 def render_admin(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_ia):
@@ -110,4 +125,5 @@ def render_admin(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_ia
         st.warning("Há bloqueios antes de liberar o app para usuários.")
     else:
         st.info("Produto básico utilizável, mas ainda há pendências operacionais.")
+    _render_resumo_lancamento(gerar_decisao_lancamento(resultados_health))
     st.markdown(_montar_tabela_health_check_html(resultados_health), unsafe_allow_html=True)

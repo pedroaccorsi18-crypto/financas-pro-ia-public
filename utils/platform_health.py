@@ -58,11 +58,50 @@ def gerar_health_check_lancamento(secrets, supabase, usuario_id, status_infra):
 
 
 def resumir_health_check(resultados):
-    if any(item["status"] == "Ação necessária" for item in resultados):
+    if any(_eh_acao_necessaria(item["status"]) for item in resultados):
         return "Ação necessária"
-    if any(item["status"] == "Atenção" for item in resultados):
+    if any(_eh_atencao(item["status"]) for item in resultados):
         return "Atenção"
     return "OK"
+
+
+def gerar_decisao_lancamento(resultados):
+    bloqueios = [item for item in resultados if _eh_acao_necessaria(item["status"])]
+    pendencias = [item for item in resultados if _eh_atencao(item["status"])]
+    if bloqueios:
+        return {
+            "pronto": False,
+            "status": "Bloqueado",
+            "mensagem": "Ainda existem bloqueios antes de liberar o app para usuarios.",
+            "bloqueios": bloqueios,
+            "pendencias": pendencias,
+            "proxima_acao": bloqueios[0]["acao"],
+        }
+    if pendencias:
+        return {
+            "pronto": True,
+            "status": "Validavel com atencao",
+            "mensagem": "O produto basico pode ser validado, mas ha pendencias operacionais.",
+            "bloqueios": [],
+            "pendencias": pendencias,
+            "proxima_acao": pendencias[0]["acao"],
+        }
+    return {
+        "pronto": True,
+        "status": "Pronto",
+        "mensagem": "Produto basico pronto para validacao com usuarios.",
+        "bloqueios": [],
+        "pendencias": [],
+        "proxima_acao": "Liberar um grupo pequeno de usuarios e acompanhar suporte, erros e conversao.",
+    }
+
+
+def _eh_acao_necessaria(status):
+    return "necess" in str(status).lower()
+
+
+def _eh_atencao(status):
+    return str(status).lower().startswith("aten")
 
 
 def _verificar_tabela(supabase, item):
