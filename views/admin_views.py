@@ -61,14 +61,26 @@ def _montar_tabela_health_check_html(resultados_health):
 
 
 def _render_resumo_lancamento(decisao):
-    st.markdown("#### Decisao de lancamento")
-    col_pronto, col_bloqueios, col_pendencias = st.columns(3)
-    col_pronto.metric("Pronto para validar", "Sim" if decisao["pronto"] else "Nao")
-    col_bloqueios.metric("Bloqueios", len(decisao["bloqueios"]))
-    col_pendencias.metric("Pendencias", len(decisao["pendencias"]))
+    pronto = "Sim" if decisao["pronto"] else "Não"
+    st.markdown("#### Decisão de lançamento")
+    st.markdown(
+        "<style>"
+        ".launch-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin:0.75rem 0 1rem;}"
+        ".launch-card{border:1px solid #d9e2ec;border-radius:8px;padding:0.9rem 1rem;background:#fff;}"
+        ".launch-card span{display:block;color:#64748b;font-size:0.82rem;font-weight:700;margin-bottom:0.35rem;}"
+        ".launch-card strong{display:block;color:#102033;font-size:1.35rem;line-height:1.2;}"
+        "@media(max-width:760px){.launch-summary{grid-template-columns:1fr;}}"
+        "</style>"
+        "<div class='launch-summary'>"
+        f"<div class='launch-card'><span>Pronto para validar</span><strong>{escape(pronto)}</strong></div>"
+        f"<div class='launch-card'><span>Bloqueios</span><strong>{len(decisao['bloqueios'])}</strong></div>"
+        f"<div class='launch-card'><span>Pendências</span><strong>{len(decisao['pendencias'])}</strong></div>"
+        "</div>",
+        unsafe_allow_html=True,
+    )
     st.markdown(f"**Status:** {decisao['status']}")
     st.markdown(f"**Leitura:** {decisao['mensagem']}")
-    st.markdown(f"**Proxima acao:** {decisao['proxima_acao']}")
+    st.markdown(f"**Próxima ação:** {decisao['proxima_acao']}")
 
 
 def render_admin(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_ia):

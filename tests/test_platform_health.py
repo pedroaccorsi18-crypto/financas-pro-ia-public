@@ -201,7 +201,7 @@ class PlatformHealthTests(unittest.TestCase):
         decisao = gerar_decisao_lancamento(resultados)
 
         self.assertTrue(decisao["pronto"])
-        self.assertEqual(decisao["status"], "Validavel com atencao")
+        self.assertEqual(decisao["status"], "Validável com atenção")
         self.assertEqual(decisao["bloqueios"], [])
         self.assertGreater(len(decisao["pendencias"]), 0)
 
@@ -211,7 +211,7 @@ class PlatformHealthTests(unittest.TestCase):
                 "item": "Config",
                 "status": "OK",
                 "detalhe": "Validado.",
-                "acao": "Nenhuma acao necessaria.",
+                "acao": "Nenhuma ação necessária.",
             }
         ]
 

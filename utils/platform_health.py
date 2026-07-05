@@ -72,7 +72,7 @@ def gerar_decisao_lancamento(resultados):
         return {
             "pronto": False,
             "status": "Bloqueado",
-            "mensagem": "Ainda existem bloqueios antes de liberar o app para usuarios.",
+            "mensagem": "Ainda existem bloqueios antes de liberar o app para usuários.",
             "bloqueios": bloqueios,
             "pendencias": pendencias,
             "proxima_acao": bloqueios[0]["acao"],
@@ -80,8 +80,8 @@ def gerar_decisao_lancamento(resultados):
     if pendencias:
         return {
             "pronto": True,
-            "status": "Validavel com atencao",
-            "mensagem": "O produto basico pode ser validado, mas ha pendencias operacionais.",
+            "status": "Validável com atenção",
+            "mensagem": "O produto básico pode ser validado, mas há pendências operacionais.",
             "bloqueios": [],
             "pendencias": pendencias,
             "proxima_acao": pendencias[0]["acao"],
@@ -89,10 +89,10 @@ def gerar_decisao_lancamento(resultados):
     return {
         "pronto": True,
         "status": "Pronto",
-        "mensagem": "Produto basico pronto para validacao com usuarios.",
+        "mensagem": "Produto básico pronto para validação com usuários.",
         "bloqueios": [],
         "pendencias": [],
-        "proxima_acao": "Liberar um grupo pequeno de usuarios e acompanhar suporte, erros e conversao.",
+        "proxima_acao": "Liberar um grupo pequeno de usuários e acompanhar suporte, erros e conversão.",
     }
 
 
