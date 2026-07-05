@@ -1,8 +1,19 @@
 from textwrap import dedent
+from urllib.parse import parse_qs, unquote
 
 import streamlit as st
 
-from auth import cadastrar_usuario, enviar_email_recuperacao_senha, fazer_login
+try:
+    import streamlit.components.v1 as components
+except ImportError:
+    components = None
+
+from auth import (
+    cadastrar_usuario,
+    enviar_email_recuperacao_senha,
+    fazer_login,
+    redefinir_senha_com_tokens,
+)
 from session_state import iniciar_sessao_autenticada
 
 
@@ -401,6 +412,64 @@ def _render_plano(plano):
     )
 
 
+def _valor_parametro(valor):
+    if isinstance(valor, list):
+        return valor[0] if valor else ""
+    return valor or ""
+
+
+def _limpar_tokens_recuperacao():
+    for chave in (
+        "recovery_access_token",
+        "recovery_refresh_token",
+        "recovery_token_type",
+    ):
+        st.session_state.pop(chave, None)
+
+
+def _capturar_link_recuperacao_senha():
+    if components is not None:
+        components.html(
+            """
+            <script>
+            const hash = window.parent.location.hash || "";
+            if (hash.includes("access_token=") && hash.includes("type=recovery")) {
+                const encoded = encodeURIComponent(hash.substring(1));
+                window.parent.history.replaceState(
+                    null,
+                    "",
+                    window.parent.location.pathname + "?auth_recovery=" + encoded
+                );
+                window.parent.location.reload();
+            }
+            </script>
+            """,
+            height=0,
+        )
+
+    query_params = getattr(st, "query_params", {})
+    fragmento = _valor_parametro(query_params.get("auth_recovery", ""))
+    if not fragmento:
+        return
+
+    parametros = parse_qs(unquote(fragmento))
+    if _valor_parametro(parametros.get("type", "")) != "recovery":
+        return
+
+    access_token = _valor_parametro(parametros.get("access_token", ""))
+    refresh_token = _valor_parametro(parametros.get("refresh_token", ""))
+    token_type = _valor_parametro(parametros.get("token_type", "bearer"))
+    if not access_token or not refresh_token:
+        return
+
+    st.session_state.recovery_access_token = access_token
+    st.session_state.recovery_refresh_token = refresh_token
+    st.session_state.recovery_token_type = token_type
+    st.session_state.tela_atual = "redefinir_senha"
+    if hasattr(query_params, "clear"):
+        query_params.clear()
+
+
 def render_tela_apresentacao():
     _render_landing_styles()
     st.markdown(
@@ -603,6 +672,42 @@ def render_tela_recuperar_senha():
         st.rerun()
 
 
+def render_tela_redefinir_senha():
+    st.title("Definir nova senha")
+    st.caption("Crie uma nova senha para concluir a recuperação da sua conta.")
+    access_token = st.session_state.get("recovery_access_token")
+    refresh_token = st.session_state.get("recovery_refresh_token")
+    if not access_token or not refresh_token:
+        st.error("Link de recuperação inválido ou expirado. Solicite um novo e-mail.")
+        if st.button("Solicitar novo link"):
+            _limpar_tokens_recuperacao()
+            st.session_state.tela_atual = "recuperar_senha"
+            st.rerun()
+        return
+
+    with st.form("formulario_redefinir_senha"):
+        nova_senha = st.text_input("Nova senha", type="password")
+        confirmar_senha = st.text_input("Confirme a nova senha", type="password")
+        if st.form_submit_button("Salvar nova senha"):
+            if not nova_senha or not confirmar_senha:
+                st.warning("Preencha os dois campos de senha.")
+            elif nova_senha != confirmar_senha:
+                st.error("As senhas não coincidem.")
+            elif len(nova_senha) < 10:
+                st.error("A senha deve ter pelo menos 10 caracteres.")
+            elif redefinir_senha_com_tokens(access_token, refresh_token, nova_senha):
+                _limpar_tokens_recuperacao()
+                st.session_state.aviso_sessao = (
+                    "Senha alterada com sucesso. Entre novamente com a nova senha."
+                )
+                st.session_state.tela_atual = "login"
+                st.rerun()
+            else:
+                st.error(
+                    "Não foi possível alterar a senha. Solicite um novo link e tente novamente."
+                )
+
+
 def render_tela_cadastro():
     st.title("\U0001f4dd Criar Nova Conta")
     with st.form("formulario_cadastro"):
@@ -643,10 +748,14 @@ def render_tela_cadastro():
 
 
 def render_fluxo_autenticacao():
+    _capturar_link_recuperacao_senha()
+
     if aviso_sessao := st.session_state.pop("aviso_sessao", None):
         st.warning(aviso_sessao)
 
-    if st.session_state.tela_atual == "recuperar_senha":
+    if st.session_state.tela_atual == "redefinir_senha":
+        render_tela_redefinir_senha()
+    elif st.session_state.tela_atual == "recuperar_senha":
         render_tela_recuperar_senha()
     elif st.session_state.tela_atual == "cadastro":
         render_tela_cadastro()

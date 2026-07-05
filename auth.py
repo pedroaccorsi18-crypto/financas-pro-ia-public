@@ -157,7 +157,9 @@ def enviar_email_recuperacao_senha(email: str) -> bool:
     """Solicita ao Supabase Auth o envio do e-mail de recuperacao de senha."""
     email_limpo = email.strip().lower()
     try:
-        supabase.auth.reset_password_for_email(email_limpo)
+        redirect_to = st.secrets.get("SUPABASE_PASSWORD_RESET_REDIRECT_URL", None)
+        options = {"redirect_to": redirect_to} if redirect_to else None
+        supabase.auth.reset_password_for_email(email_limpo, options=options)
         registrar_evento(
             logger,
             logging.INFO,
@@ -174,6 +176,34 @@ def enviar_email_recuperacao_senha(email: str) -> bool:
                 "usuario_fp": fingerprint(email_limpo),
                 "tipo_erro": type(erro).__name__,
             },
+            exc_info=True,
+        )
+        return False
+
+
+def redefinir_senha_com_tokens(
+    access_token: str,
+    refresh_token: str,
+    nova_senha: str,
+) -> bool:
+    """Redefine a senha usando os tokens enviados pelo fluxo de recovery."""
+    try:
+        cliente = obter_conexao_supabase()
+        cliente.auth.set_session(access_token, refresh_token)
+        cliente.auth.update_user({"password": nova_senha})
+        cliente.auth.sign_out()
+        registrar_evento(
+            logger,
+            logging.INFO,
+            "Senha redefinida pelo fluxo de recuperacao Supabase Auth",
+        )
+        return True
+    except Exception as erro:
+        registrar_evento(
+            logger,
+            logging.WARNING,
+            "Falha ao redefinir senha pelo fluxo de recuperacao Supabase Auth",
+            contexto={"tipo_erro": type(erro).__name__},
             exc_info=True,
         )
         return False

@@ -219,15 +219,17 @@ class AuthTests(unittest.TestCase):
         chamadas = []
         auth.supabase = SimpleNamespace(
             auth=SimpleNamespace(
-                reset_password_for_email=lambda email: chamadas.append(email)
+                reset_password_for_email=lambda email, options=None: chamadas.append(
+                    (email, options)
+                )
             )
         )
 
         self.assertTrue(auth.enviar_email_recuperacao_senha(" Pessoa@Exemplo.com "))
-        self.assertEqual(chamadas, ["pessoa@exemplo.com"])
+        self.assertEqual(chamadas, [("pessoa@exemplo.com", None)])
 
     def test_recuperacao_de_senha_retorna_falha_sem_lancar_erro(self):
-        def falhar(_email):
+        def falhar(_email, options=None):
             raise RuntimeError("servico indisponivel")
 
         auth.supabase = SimpleNamespace(
@@ -235,6 +237,35 @@ class AuthTests(unittest.TestCase):
         )
 
         self.assertFalse(auth.enviar_email_recuperacao_senha("pessoa@exemplo.com"))
+
+    def test_redefine_senha_com_tokens_de_recuperacao(self):
+        chamadas = []
+        auth.supabase = SimpleNamespace(
+            auth=SimpleNamespace(
+                set_session=lambda access, refresh: chamadas.append(
+                    ("set_session", access, refresh)
+                ),
+                update_user=lambda payload: chamadas.append(("update_user", payload)),
+                sign_out=lambda: chamadas.append(("sign_out",)),
+            )
+        )
+
+        with patch.object(auth, "obter_conexao_supabase", return_value=auth.supabase):
+            resultado = auth.redefinir_senha_com_tokens(
+                "access-token",
+                "refresh-token",
+                "senha-nova-segura",
+            )
+
+        self.assertTrue(resultado)
+        self.assertEqual(
+            chamadas,
+            [
+                ("set_session", "access-token", "refresh-token"),
+                ("update_user", {"password": "senha-nova-segura"}),
+                ("sign_out",),
+            ],
+        )
 
     def test_logout_revoga_sessao_auth(self):
         chamadas = []

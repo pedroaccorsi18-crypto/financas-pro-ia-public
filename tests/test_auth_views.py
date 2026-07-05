@@ -35,10 +35,24 @@ class ColumnFake:
         return False
 
 
+class QueryParamsFake(dict):
+    def clear(self):
+        super().clear()
+
+
+class ComponentsFake:
+    def __init__(self):
+        self.html_calls = []
+
+    def html(self, conteudo, **kwargs):
+        self.html_calls.append((conteudo, kwargs))
+
+
 class StreamlitFake(ModuleType):
     def __init__(self, *, textos=None, submit=False, botoes=None, tela_atual="apresentacao"):
         super().__init__("streamlit")
         self.session_state = SessionStateFake(autenticado=False, tela_atual=tela_atual)
+        self.query_params = QueryParamsFake()
         self.textos = list(textos or [])
         self.submit = submit
         self.botoes = set(botoes or [])
@@ -115,6 +129,10 @@ class AuthViewsTests(unittest.TestCase):
         patcher = patch.object(auth_views, "st", fake)
         patcher.start()
         self.addCleanup(patcher.stop)
+        components_fake = ComponentsFake()
+        patcher_components = patch.object(auth_views, "components", components_fake)
+        patcher_components.start()
+        self.addCleanup(patcher_components.stop)
         return fake
 
     def test_fluxo_padrao_renderiza_apresentacao_publica(self):
@@ -218,6 +236,45 @@ class AuthViewsTests(unittest.TestCase):
         enviar.assert_called_once_with("pessoa@exemplo.com")
         self.assertTrue(any("Se houver uma conta" in msg for msg in fake.successes))
         self.assertFalse(fake.errors)
+
+    def test_link_de_recuperacao_abre_tela_de_redefinir_senha(self):
+        fake = self.usar_streamlit(StreamlitFake())
+        fake.query_params["auth_recovery"] = (
+            "access_token%3Daccess-token%26refresh_token%3Drefresh-token%26type%3Drecovery"
+        )
+
+        auth_views.render_fluxo_autenticacao()
+
+        self.assertEqual(fake.session_state.tela_atual, "redefinir_senha")
+        self.assertEqual(fake.session_state.recovery_access_token, "access-token")
+        self.assertEqual(fake.session_state.recovery_refresh_token, "refresh-token")
+        self.assertIn("formulario_redefinir_senha", fake.forms)
+        self.assertEqual(fake.query_params, {})
+
+    def test_redefinicao_de_senha_chama_servico_e_volta_para_login(self):
+        fake = self.usar_streamlit(
+            StreamlitFake(
+                textos=["senha-nova-segura", "senha-nova-segura"],
+                submit=True,
+                tela_atual="redefinir_senha",
+            )
+        )
+        fake.session_state.recovery_access_token = "access-token"
+        fake.session_state.recovery_refresh_token = "refresh-token"
+
+        with (
+            patch.object(auth_views, "redefinir_senha_com_tokens", return_value=True) as redefinir,
+            self.assertRaises(RerunAcionado),
+        ):
+            auth_views.render_tela_redefinir_senha()
+
+        redefinir.assert_called_once_with(
+            "access-token",
+            "refresh-token",
+            "senha-nova-segura",
+        )
+        self.assertEqual(fake.session_state.tela_atual, "login")
+        self.assertNotIn("recovery_access_token", fake.session_state)
 
     def test_cadastro_com_senha_curta_mostra_erro_sem_chamar_servico(self):
         fake = self.usar_streamlit(
