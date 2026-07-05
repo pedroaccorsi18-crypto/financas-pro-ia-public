@@ -1,6 +1,7 @@
 import unittest
 
 from utils.platform_health import gerar_health_check_supabase, resumir_health_check
+from views.admin_views import _montar_tabela_health_check_html
 
 
 class QueryFake:
@@ -90,6 +91,23 @@ class PlatformHealthTests(unittest.TestCase):
         self.assertEqual(resumir_health_check(resultados), "Ação necessária")
         self.assertEqual(rpc["status"], "Ação necessária")
         self.assertIn("202606100001_endurecer_rpc_substituir_lote.sql", rpc["acao"])
+
+    def test_tabela_visual_do_health_check_escapa_html(self):
+        html = _montar_tabela_health_check_html(
+            [
+                {
+                    "item": "<script>alert(1)</script>",
+                    "status": "Ação necessária",
+                    "detalhe": "Objeto <ausente>",
+                    "acao": "Aplique <migração>",
+                }
+            ]
+        )
+
+        self.assertIn("status-action", html)
+        self.assertIn("&lt;script&gt;alert(1)&lt;/script&gt;", html)
+        self.assertIn("Objeto &lt;ausente&gt;", html)
+        self.assertNotIn("<script>alert(1)</script>", html)
 
 
 if __name__ == "__main__":

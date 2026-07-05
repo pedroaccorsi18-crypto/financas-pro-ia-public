@@ -1,3 +1,5 @@
+from html import escape
+
 import streamlit as st
 
 from auth import auditar_saude_plataforma, supabase
@@ -14,6 +16,44 @@ from utils.category_maintenance import (
 from utils.error_handling import mostrar_erro_seguro
 from utils.llm_service import gerar_texto_ia
 from utils.platform_health import gerar_health_check_supabase, resumir_health_check
+
+
+def _classe_status_health(status):
+    if status == "OK":
+        return "status-ok"
+    if status == "Ação necessária":
+        return "status-action"
+    return "status-attention"
+
+
+def _montar_tabela_health_check_html(resultados_health):
+    linhas = []
+    for item in resultados_health:
+        status = str(item.get("status", ""))
+        linhas.append(
+            "<tr>"
+            f"<td><strong>{escape(str(item.get('item', '')))}</strong></td>"
+            f"<td><span class='health-status {_classe_status_health(status)}'>{escape(status)}</span></td>"
+            f"<td>{escape(str(item.get('detalhe', '')))}</td>"
+            f"<td>{escape(str(item.get('acao', '')))}</td>"
+            "</tr>"
+        )
+    return (
+        "<style>"
+        ".health-table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid #d9e2ec;border-radius:8px;overflow:hidden;}"
+        ".health-table th{background:#f6f8fb;color:#334155;text-align:left;font-size:0.86rem;font-weight:700;padding:0.75rem;border-bottom:1px solid #d9e2ec;}"
+        ".health-table td{padding:0.78rem;border-bottom:1px solid #e8eef5;vertical-align:top;font-size:0.92rem;}"
+        ".health-table tr:last-child td{border-bottom:0;}"
+        ".health-status{display:inline-block;border-radius:999px;padding:0.18rem 0.55rem;font-size:0.78rem;font-weight:700;white-space:nowrap;}"
+        ".status-ok{background:#e8f7ef;color:#087443;}"
+        ".status-action{background:#fff4d6;color:#8a5a00;}"
+        ".status-attention{background:#eaf2ff;color:#1d4ed8;}"
+        "</style>"
+        "<table class='health-table'>"
+        "<thead><tr><th>Item</th><th>Status</th><th>Detalhe</th><th>Ação</th></tr></thead>"
+        f"<tbody>{''.join(linhas)}</tbody>"
+        "</table>"
+    )
 
 
 def render_admin(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_ia):
@@ -65,4 +105,4 @@ def render_admin(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_ia
         st.warning("Há migrações ou objetos obrigatórios pendentes.")
     else:
         st.info("Há itens que exigem atenção operacional.")
-    st.dataframe(resultados_health, use_container_width=True, hide_index=True)
+    st.markdown(_montar_tabela_health_check_html(resultados_health), unsafe_allow_html=True)
