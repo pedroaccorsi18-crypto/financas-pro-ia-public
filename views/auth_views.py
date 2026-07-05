@@ -557,7 +557,7 @@ def render_tela_login():
                         icon="\U0001f510",
                     )
                     st.rerun()
-                else:
+                elif not st.session_state.get("login_bloqueado_por_tentativas", False):
                     st.error(
                         "N\u00e3o foi poss\u00edvel entrar. Confira e-mail e senha. Se a conta foi "
                         "criada agora, verifique tamb\u00e9m se h\u00e1 uma confirma\u00e7\u00e3o pendente "

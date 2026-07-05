@@ -187,6 +187,22 @@ class AuthViewsTests(unittest.TestCase):
         self.assertIn("confirmação pendente", fake.errors[0])
         self.assertNotIn("confirme o e-mail de confirmação antes de entrar", fake.errors[0])
 
+    def test_login_bloqueado_nao_duplica_mensagem_generica(self):
+        fake = self.usar_streamlit(
+            StreamlitFake(
+                textos=[" Pessoa@Exemplo.com ", "senha-incorreta"],
+                submit=True,
+                tela_atual="login",
+            )
+        )
+        fake.session_state.login_bloqueado_por_tentativas = True
+
+        with patch.object(auth_views, "fazer_login", return_value=False) as login:
+            auth_views.render_tela_login()
+
+        login.assert_called_once_with("pessoa@exemplo.com", "senha-incorreta")
+        self.assertFalse(fake.errors)
+
     def test_recuperacao_de_senha_mantem_mensagem_sem_enumerar_usuario(self):
         fake = self.usar_streamlit(
             StreamlitFake(

@@ -76,6 +76,32 @@ class AuthTests(unittest.TestCase):
         )
         self.assertEqual(self.session_state["tentativas_login"], [])
 
+    def test_limite_de_tentativas_login_e_por_email(self):
+        chamadas = []
+
+        def negar_login(credenciais):
+            chamadas.append(credenciais["email"])
+            raise RuntimeError("credenciais invalidas")
+
+        auth.supabase = SimpleNamespace(
+            auth=SimpleNamespace(sign_in_with_password=negar_login)
+        )
+
+        with (
+            patch.object(auth.st, "session_state", self.session_state),
+            patch.object(auth.time, "time", return_value=1000.0),
+        ):
+            for _ in range(auth.LIMITE_TENTATIVAS_LOGIN):
+                self.assertFalse(auth.fazer_login("pessoa@exemplo.com", "senha-errada"))
+
+            self.assertFalse(auth.fazer_login("pessoa@exemplo.com", "senha-errada"))
+            self.assertTrue(self.session_state["login_bloqueado_por_tentativas"])
+
+            self.assertFalse(auth.fazer_login("outra@exemplo.com", "senha-errada"))
+
+        self.assertEqual(chamadas.count("pessoa@exemplo.com"), auth.LIMITE_TENTATIVAS_LOGIN)
+        self.assertEqual(chamadas.count("outra@exemplo.com"), 1)
+
     def test_cliente_supabase_e_reutilizado_apenas_na_mesma_sessao(self):
         clientes = [object(), object()]
         chamadas = []
