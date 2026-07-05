@@ -195,6 +195,43 @@ def _render_analise_categorias(df_mes, df_despesas, email_usuario):
         st.error(mostrar_erro_seguro(e_plots, email_usuario))
 
 
+def _navegar_para_secao(secao):
+    st.session_state.secao_principal = secao
+    st.rerun()
+
+
+def _render_estado_inicial():
+    st.markdown(
+        """
+        <div style="border:1px solid #dbe4ee; border-radius:10px; padding:28px 30px; background:linear-gradient(180deg,#ffffff,#f8fbff);">
+            <div style="color:#087443; font-size:0.82rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase;">Primeiro diagnóstico</div>
+            <h2 style="margin:8px 0 10px 0; color:#0f172a;">Comece montando seu mapa financeiro</h2>
+            <p style="max-width:760px; color:#475569; font-size:1rem; line-height:1.6; margin:0;">
+                Importe um extrato em PDF ou registre uma movimentação manual para liberar o resumo mensal,
+                as metas por categoria e os primeiros sinais de decisão.
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown("#### Caminho recomendado")
+    col_importar, col_manual, col_resultado = st.columns(3)
+    with col_importar:
+        st.markdown("**1. Importe seus dados**")
+        st.caption("Use um PDF de extrato, fatura ou comprovante para acelerar a organização inicial.")
+        if st.button("Importar PDF", type="primary", use_container_width=True):
+            _navegar_para_secao("Importação")
+    with col_manual:
+        st.markdown("**2. Complete manualmente**")
+        st.caption("Lance receitas ou despesas avulsas pela área de Transações quando algo ficar fora do PDF.")
+        if st.button("Lançar manualmente", use_container_width=True):
+            _navegar_para_secao("Transações")
+    with col_resultado:
+        st.markdown("**3. Acompanhe a evolução**")
+        st.caption("Depois dos primeiros lançamentos, esta tela passa a mostrar balanço, tendências e metas.")
+
+
 def render_visao_geral(lista_total_banco, usuario_id, email_usuario):
     st.title("Visão Geral")
     lista_transacoes, mes_selecionado, meses_disponiveis = selecionar_mes(
@@ -202,7 +239,7 @@ def render_visao_geral(lista_total_banco, usuario_id, email_usuario):
         key="mes_visao_geral",
     )
     if not lista_transacoes:
-        st.info("Nenhum dado disponível. Adicione lançamentos manuais ou suba um PDF.")
+        _render_estado_inicial()
         return
 
     df_mes = pd.DataFrame(lista_transacoes)
