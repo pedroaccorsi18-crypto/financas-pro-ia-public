@@ -275,7 +275,8 @@ class AuthTests(unittest.TestCase):
         self.assertIn("st.session_state.aviso_sessao", AUTH_VIEWS_SOURCE)
         self.assertIn("confirme o e-mail de confirma", AUTH_VIEWS_SOURCE)
         self.assertIn("Verifique sua caixa de entrada ou spam", AUTH_VIEWS_SOURCE)
-        self.assertIn("Se voc", AUTH_VIEWS_SOURCE)
+        self.assertIn("com seu e-mail e senha", AUTH_VIEWS_SOURCE)
+        self.assertIn("Confira e-mail e senha", AUTH_VIEWS_SOURCE)
 
     def test_app_usa_categorias_de_receita_no_lancamento_manual(self):
         trecho = SIDEBAR_VIEWS_SOURCE.split('with st.sidebar.form("form_transacao"', 1)[-1]

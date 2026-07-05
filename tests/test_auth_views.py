@@ -169,6 +169,24 @@ class AuthViewsTests(unittest.TestCase):
         self.assertEqual(sessoes_iniciadas, [("pessoa@exemplo.com", "user-1")])
         self.assertTrue(fake.toasts)
 
+    def test_login_recusado_mostra_mensagem_neutra(self):
+        fake = self.usar_streamlit(
+            StreamlitFake(
+                textos=[" Pessoa@Exemplo.com ", "senha-incorreta"],
+                submit=True,
+                tela_atual="login",
+            )
+        )
+
+        with patch.object(auth_views, "fazer_login", return_value=False) as login:
+            auth_views.render_tela_login()
+
+        login.assert_called_once_with("pessoa@exemplo.com", "senha-incorreta")
+        self.assertTrue(fake.errors)
+        self.assertIn("Confira e-mail e senha", fake.errors[0])
+        self.assertIn("confirmação pendente", fake.errors[0])
+        self.assertNotIn("confirme o e-mail de confirmação antes de entrar", fake.errors[0])
+
     def test_recuperacao_de_senha_mantem_mensagem_sem_enumerar_usuario(self):
         fake = self.usar_streamlit(
             StreamlitFake(

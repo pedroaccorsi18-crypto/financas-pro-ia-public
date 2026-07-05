@@ -559,8 +559,9 @@ def render_tela_login():
                     st.rerun()
                 else:
                     st.error(
-                        "E-mail ou senha incorretos. Se voc\u00ea acabou de criar a conta, "
-                        "confirme o e-mail de confirma\u00e7\u00e3o antes de entrar."
+                        "N\u00e3o foi poss\u00edvel entrar. Confira e-mail e senha. Se a conta foi "
+                        "criada agora, verifique tamb\u00e9m se h\u00e1 uma confirma\u00e7\u00e3o pendente "
+                        "na caixa de entrada ou spam."
                     )
             else:
                 st.warning("Por favor, preencha todos os campos.")
