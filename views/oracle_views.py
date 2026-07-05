@@ -13,7 +13,7 @@ from utils.oracle_analysis import (
 from utils.privacy import anonimizar_dados
 
 
-def render_oraculo(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_gemini):
+def render_oraculo(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_ia):
     st.title("Oráculo IA")
     st.caption(
         "A análise envia somente totais agregados por mês e categoria, sem descrições de transações."
@@ -32,7 +32,7 @@ def render_oraculo(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_
                     historico_formatado = resumir_historico_para_ia(lista_total_banco)
                     st.session_state.historico_oraculo_enviado = historico_formatado
                     prompt_oraculo = montar_prompt_oraculo(historico_formatado)
-                    resposta_oraculo = gerar_conteudo_gemini(
+                    resposta_oraculo = gerar_conteudo_ia(
                         model="gemini-2.5-flash",
                         contents=prompt_oraculo,
                         config=types.GenerateContentConfig(temperature=0.1),
@@ -40,7 +40,7 @@ def render_oraculo(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_
                     texto_final = resposta_oraculo.text
 
                     if not resposta_oraculo_tem_secoes(texto_final):
-                        resposta_oraculo = gerar_conteudo_gemini(
+                        resposta_oraculo = gerar_conteudo_ia(
                             model="gemini-2.5-flash",
                             contents=reforcar_prompt_oraculo(prompt_oraculo),
                             config=types.GenerateContentConfig(temperature=0.0),

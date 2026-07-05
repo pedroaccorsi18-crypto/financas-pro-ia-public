@@ -18,10 +18,8 @@ from session_state import (
 )
 from utils.authorization import eh_usuario_admin
 from utils.error_handling import mostrar_erro_seguro
-from utils.gemini_client import (
-    criar_cliente_gemini,
-    gerar_conteudo_gemini as gerar_com_cliente_gemini,
-)
+from utils.llm_providers import GeminiProvider
+from utils.llm_service import gerar_conteudo_ia as gerar_com_provider_ia
 from utils.subscriptions import rotulo_plano
 from views.admin_views import render_admin
 from views.auth_views import render_fluxo_autenticacao
@@ -46,17 +44,17 @@ except Exception:
 
 
 @st.cache_resource
-def obter_cliente_gemini():
-    """Cria o cliente Gemini somente quando um recurso de IA é acionado."""
+def obter_provider_ia():
+    """Cria o provider Gemini somente quando um recurso de IA é acionado."""
     chave = str(st.secrets.get("GEMINI_API_KEY", "")).strip()
     if not chave:
         raise RuntimeError("GEMINI_API_KEY não configurada")
-    return criar_cliente_gemini(chave)
+    return GeminiProvider(api_key=chave)
 
 
-def gerar_conteudo_gemini(*, tentativas=3, **kwargs):
-    return gerar_com_cliente_gemini(
-        obter_cliente_gemini(),
+def gerar_conteudo_ia(*, tentativas=3, **kwargs):
+    return gerar_com_provider_ia(
+        obter_provider_ia(),
         tentativas=tentativas,
         **kwargs,
     )
@@ -103,7 +101,7 @@ def render_app_autenticado():
     if secao == "Visão Geral":
         render_visao_geral(lista_total_banco, usuario_id, email_usuario)
     elif secao == "Importação":
-        render_importacao(lista_total_banco, usuario_id, email_usuario, is_admin, gerar_conteudo_gemini)
+        render_importacao(lista_total_banco, usuario_id, email_usuario, is_admin, gerar_conteudo_ia)
     elif secao == "Transações":
         render_transacoes(lista_total_banco, usuario_id, email_usuario)
     elif secao == "Planejamento 360":
@@ -111,9 +109,9 @@ def render_app_autenticado():
     elif secao == "Radar de Mercado":
         render_radar_mercado()
     elif secao == "Oráculo IA":
-        render_oraculo(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_gemini)
+        render_oraculo(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_ia)
     elif secao == "Admin" and is_admin:
-        render_admin(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_gemini)
+        render_admin(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_ia)
 
 
 inicializar_estado_sessao()

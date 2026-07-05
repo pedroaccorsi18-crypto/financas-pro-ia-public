@@ -20,7 +20,7 @@ from utils.formatting import formatar_brl
 from utils.import_workflow import processar_importacao_homologada
 
 
-def render_importacao(lista_total_banco, usuario_id, email_usuario, is_admin, gerar_conteudo_gemini):
+def render_importacao(lista_total_banco, usuario_id, email_usuario, is_admin, gerar_conteudo_ia):
     st.title("Importação")
     st.markdown("### Importar PDF com apoio da IA")
     arquivo_subido = st.file_uploader(
@@ -65,7 +65,7 @@ def render_importacao(lista_total_banco, usuario_id, email_usuario, is_admin, ge
                     if len(dados_pdf) > 10 * 1024 * 1024:
                         raise ValueError("O PDF excede o limite de 10 MB.")
 
-                    response = gerar_conteudo_gemini(
+                    response = gerar_conteudo_ia(
                         model="gemini-2.5-flash",
                         contents=[
                             types.Part.from_bytes(data=dados_pdf, mime_type="application/pdf"),

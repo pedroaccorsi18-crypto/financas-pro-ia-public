@@ -16,7 +16,7 @@ from utils.error_handling import mostrar_erro_seguro
 from utils.platform_health import gerar_health_check_supabase, resumir_health_check
 
 
-def render_admin(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_gemini):
+def render_admin(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_ia):
     st.title("Admin")
     st.subheader("Manutenção operacional")
     if st.button("Revisar histórico antigo"):
@@ -31,7 +31,7 @@ def render_admin(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_ge
                     linhas_para_atualizar = selecionar_linhas_para_reclassificar(lista_total_banco)
                     if descricoes := extrair_descricoes_para_reclassificar(linhas_para_atualizar):
                         prompt_lote = montar_prompt_reclassificacao_categorias(descricoes)
-                        response_batch = gerar_conteudo_gemini(
+                        response_batch = gerar_conteudo_ia(
                             model="gemini-2.5-flash",
                             contents=prompt_lote,
                             config=types.GenerateContentConfig(response_mime_type="application/json"),

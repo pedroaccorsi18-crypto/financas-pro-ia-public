@@ -260,9 +260,9 @@ class AuthTests(unittest.TestCase):
     def test_app_inicializa_gemini_somente_quando_necessario(self):
         self.assertNotIn("client = inicializar_cliente_gemini()", APP_SOURCE)
         self.assertNotIn("from google import genai", APP_SOURCE)
-        self.assertIn("def obter_cliente_gemini():", APP_SOURCE)
-        self.assertIn("criar_cliente_gemini(chave)", APP_SOURCE)
-        self.assertIn("obter_cliente_gemini(),", APP_SOURCE)
+        self.assertIn("def obter_provider_ia():", APP_SOURCE)
+        self.assertIn("GeminiProvider(api_key=chave)", APP_SOURCE)
+        self.assertIn("obter_provider_ia(),", APP_SOURCE)
 
     def test_app_tem_fluxo_de_recuperacao_de_senha_sem_enumerar_usuario(self):
         self.assertIn('st.session_state.tela_atual = "recuperar_senha"', AUTH_VIEWS_SOURCE)
