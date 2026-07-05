@@ -61,7 +61,7 @@ Times de Analytics e Growth lidam todos os dias com dados fragmentados, inconsis
 
 - captura dados manuais e documentos em PDF;
 - usa IA para estruturar informações não padronizadas;
-- exige revisão humana antes da persistência;
+- exige revisão humana antes de salvar;
 - organiza métricas por período, categoria e origem;
 - protege dados por usuário com autenticação e RLS;
 - gera análises agregadas sem enviar detalhes sensíveis desnecessários para a IA.
@@ -76,7 +76,7 @@ Times de Analytics e Growth lidam todos os dias com dados fragmentados, inconsis
 | IA generativa | Extração estruturada de PDFs com Gemini e análise textual baseada em dados agregados. |
 | Segurança | Bloqueio de chaves privilegiadas, RLS por `auth.uid()`, validação de sessão e secret hygiene. |
 | Engenharia de software | Separação parcial de domínio, utilitários, testes unitários e contratos de migração. |
-| Produto | Fluxo de ingestão, homologação, dashboard, metas, feedback e roadmap explícito. |
+| Produto | Fluxo de ingestão, revisão, dashboard, metas, feedback e roadmap explícito. |
 | Analytics | Métricas por mês/categoria, auditoria de origem, acompanhamento de metas e visualização com Plotly. |
 
 ## Funcionalidades
@@ -88,13 +88,13 @@ Times de Analytics e Growth lidam todos os dias com dados fragmentados, inconsis
 - Lançamentos manuais de receitas e despesas.
 - Upload de PDFs com consentimento explícito para processamento externo.
 - Extração estruturada com Google Gemini usando schema JSON controlado.
-- Área de homologação para revisar dados extraídos antes da gravação.
+- Área de revisão para conferir dados extraídos antes da gravação.
 - Persistência transacional de lotes importados via RPC no Postgres.
 - Dashboard mensal com resumo financeiro, gráficos e análise por categoria.
 - Gestão de metas por categoria e mês.
 - Central de auditoria para rastrear linhas por categoria, origem e instituição.
 - Módulos avançados ocultos por feature flag: Oráculo IA, Planejamento 360 e Radar de Mercado demonstrativo.
-- Feedback de respostas da IA com anonimização parcial antes da persistência.
+- Feedback de respostas da IA com anonimização parcial antes de salvar.
 - Bot Fiscal opcional via SMTP para alertas de divergência.
 - Testes unitários, testes de contrato SQL e suíte opt-in de integração RLS.
 
@@ -148,9 +148,9 @@ O modelo relacional, o diagrama ERD e as regras de isolamento por `user_id` est�
 - **RLS como barreira real de isolamento:** a aplicação filtra por `user_id`, mas a proteção crítica fica no banco com policies baseadas em `auth.uid()`.
 - **Cliente Supabase por sessão:** reduz risco de compartilhar estado autenticado entre usuários no processo Streamlit.
 - **Bloqueio de chaves privilegiadas:** a aplicação rejeita `sb_secret_` e JWTs com papel diferente de `anon`.
-- **Homologação humana da IA:** a IA extrai e classifica, mas o usuário revisa antes da persistência.
+- **Revisão humana da IA:** a IA extrai e classifica, mas o usuário revisa antes de salvar.
 - **RPC transacional:** reimportações substituem somente o lote do usuário autenticado, evitando duplicação.
-- **Validação antes de mutação:** a RPC valida parâmetros, payload vazio, tipos e consistência antes de qualquer `DELETE` ou `INSERT`.
+- **Validação antes de alterar dados:** a RPC valida parâmetros, payload vazio, tipos e consistência antes de qualquer `DELETE` ou `INSERT`.
 - **Menor exposição para IA:** o assistente analítico usa agregados por mês/categoria em vez de descrições individuais.
 
 ## Stack
@@ -174,7 +174,7 @@ O desafio principal foi evitar que a identidade do usuário dependesse apenas de
 
 ### IA generativa com controle humano
 
-Documentos financeiros podem ter formatos variados e classificações incertas. Por isso, a aplicação usa Gemini para estruturar dados, mas mantém uma etapa de homologação antes de gravar no banco.
+Documentos financeiros podem ter formatos variados e classificações incertas. Por isso, a aplicação usa Gemini para estruturar dados, mas mantém uma etapa de revisão antes de gravar no banco.
 
 ### Reimportação sem duplicidade
 

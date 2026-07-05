@@ -41,6 +41,10 @@ class AppConfigTests(unittest.TestCase):
         self.assertTrue(feature_flag_ativa({"FLAG": "on"}, "FLAG"))
         self.assertFalse(feature_flag_ativa({"FLAG": "false"}, "FLAG"))
 
+    def test_feature_flag_respeita_padrao_e_none_desliga_explicitamente(self):
+        self.assertTrue(feature_flag_ativa({}, "FLAG", padrao=True))
+        self.assertFalse(feature_flag_ativa({"FLAG": None}, "FLAG", padrao=True))
+
 
 if __name__ == "__main__":
     unittest.main()

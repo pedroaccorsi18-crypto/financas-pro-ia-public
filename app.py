@@ -41,7 +41,7 @@ try:
     validar_chave_publica_supabase(st.secrets["SUPABASE_KEY"])
 except Exception:
     logger.critical("Chave Supabase insegura ou inválida configurada", exc_info=True)
-    st.error("A configuração de acesso ao Supabase é insegura ou inválida.")
+    st.error("A configuração de acesso do app é insegura ou inválida.")
     st.stop()
 
 

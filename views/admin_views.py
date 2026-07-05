@@ -18,12 +18,12 @@ from utils.platform_health import gerar_health_check_supabase, resumir_health_ch
 
 def render_admin(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_gemini):
     st.title("Admin")
-    st.subheader("Painel do Desenvolvedor")
-    if st.button("Corrigir Histórico Retroativo"):
+    st.subheader("Manutenção operacional")
+    if st.button("Revisar histórico antigo"):
         if not lista_total_banco:
-            st.warning("Nenhum dado encontrado para higienização.")
+            st.warning("Nenhum dado encontrado para revisar.")
         else:
-            with st.spinner("Higienizando e processando lote via inteligência analítica..."):
+            with st.spinner("Revisando histórico e atualizando categorias..."):
                 try:
                     for item in selecionar_transacoes_de_transporte(lista_total_banco):
                         atualizar_categoria_transacao(item["id"], CATEGORIA_TRANSPORTE)
@@ -43,23 +43,23 @@ def render_admin(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_ge
                         ):
                             atualizar_categoria_transacao(item_id, categoria)
 
-                    st.success("Histórico totalmente saneado!")
+                    st.success("Histórico antigo revisado com sucesso.")
                     st.rerun()
                 except Exception as erro:
                     st.error(mostrar_erro_seguro(erro, email_usuario))
 
     st.markdown("---")
-    st.subheader("Status da Infraestrutura")
+    st.subheader("Status operacional")
     status_infra = auditar_saude_plataforma()
     st.markdown(f"**Banco Supabase:** {status_infra['supabase']}")
     st.markdown(f"**Criptografia/SSL:** {status_infra['seguranca']}")
 
-    st.markdown("### Health Check de Banco e Migrações")
-    with st.spinner("Verificando estrutura operacional do Supabase..."):
+    st.markdown("### Verificação de banco e migrações")
+    with st.spinner("Verificando estrutura operacional..."):
         resultados_health = gerar_health_check_supabase(supabase, usuario_id)
     resumo_health = resumir_health_check(resultados_health)
     if resumo_health == "OK":
-        st.success("Banco e objetos essenciais prontos.")
+        st.success("Banco e estruturas essenciais prontos.")
     elif resumo_health == "Ação necessária":
         st.warning("Há migrações ou objetos obrigatórios pendentes.")
     else:

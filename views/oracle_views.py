@@ -20,13 +20,13 @@ def render_oraculo(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_
     )
     col_gatilho, _ = st.columns([3, 7])
     with col_gatilho:
-        ativar_oraculo = st.button("Ativar Inteligência Preditiva", use_container_width=True)
+        ativar_oraculo = st.button("Gerar análise financeira", use_container_width=True)
 
     if ativar_oraculo:
         if not lista_total_banco:
-            st.warning("Histórico de transações necessário para análise preditiva.")
+            st.warning("Adicione transações antes de gerar a análise.")
         else:
-            with st.spinner("O Oráculo está consolidando o relatório comportamental..."):
+            with st.spinner("Consolidando seu relatório financeiro..."):
                 try:
                     st.session_state.feedback_enviado = False
                     historico_formatado = resumir_historico_para_ia(lista_total_banco)
@@ -53,20 +53,20 @@ def render_oraculo(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_
 
     if st.session_state.resposta_oraculo_texto:
         st.markdown("---")
-        st.success("Relatório preditivo gerado com sucesso!")
+        st.success("Relatório financeiro gerado com sucesso!")
         st.markdown(st.session_state.resposta_oraculo_texto)
-        st.markdown("##### Avalie essa resposta da IA para calibragem do sistema:")
+        st.markdown("##### Avalie essa resposta para melhorar as próximas análises:")
         col_fb1, col_fb2, _ = st.columns([1.5, 2, 6.5])
 
         if not st.session_state.feedback_enviado:
             with col_fb1:
-                if st.button("Ficou Top", use_container_width=True):
+                if st.button("Foi útil", use_container_width=True):
                     _salvar_feedback_oraculo(usuario_id, email_usuario, "TOP")
             with col_fb2:
-                if st.button("Resposta Ruim/Falsa", use_container_width=True):
+                if st.button("Precisa melhorar", use_container_width=True):
                     _salvar_feedback_oraculo(usuario_id, email_usuario, "RUIM")
         else:
-            st.info("Obrigado pelo feedback! Dados salvos na tabela 'feedbacks_oraculo'.")
+            st.info("Obrigado pelo feedback! Ele será usado para melhorar as próximas análises.")
 
 
 def _salvar_feedback_oraculo(usuario_id, email_usuario, status_resposta):

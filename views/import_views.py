@@ -22,13 +22,13 @@ from utils.import_workflow import processar_importacao_homologada
 
 def render_importacao(lista_total_banco, usuario_id, email_usuario, is_admin, gerar_conteudo_gemini):
     st.title("Importação")
-    st.markdown("### Importação Inteligente por IA")
+    st.markdown("### Importar PDF com apoio da IA")
     arquivo_subido = st.file_uploader(
-        "Suba aqui o seu extrato bancário, fatura ou comprovante em formato PDF",
+        "Selecione um extrato bancário, fatura ou comprovante em PDF",
         type=["pdf"],
     )
     consentimento_pdf_ia = st.checkbox(
-        "Autorizo o envio temporário deste PDF ao Google Gemini para extração dos dados.",
+        "Autorizo o processamento temporário deste PDF pela IA para extrair os dados.",
         help="O documento pode conter informações financeiras sensíveis. Envie somente se concordar com o processamento externo.",
     )
 
@@ -55,11 +55,11 @@ def render_importacao(lista_total_banco, usuario_id, email_usuario, is_admin, ge
                 except ValueError as erro_teste:
                     st.warning(str(erro_teste))
 
-    if arquivo_subido is not None and st.button("Extrair Dados com Gemini IA"):
+    if arquivo_subido is not None and st.button("Extrair dados do PDF"):
         if not consentimento_pdf_ia:
             st.warning("Confirme a autorização de processamento externo antes de enviar o PDF.")
         else:
-            with st.spinner("O parser de visão computacional da IA está varrendo o PDF..."):
+            with st.spinner("Lendo o PDF e organizando os lançamentos..."):
                 try:
                     dados_pdf = arquivo_subido.read()
                     if len(dados_pdf) > 10 * 1024 * 1024:
@@ -78,19 +78,19 @@ def render_importacao(lista_total_banco, usuario_id, email_usuario, is_admin, ge
                         resultado_ia,
                         pd.DataFrame,
                     )
-                    st.toast("Extração contábil finalizada!", icon="🪄")
+                    st.toast("Dados extraídos. Revise antes de salvar.", icon="🪄")
                 except Exception as erro:
                     st.error(mostrar_erro_seguro(erro, email_usuario))
 
     if st.session_state.dados_pre_visualizacao is not None:
         _render_homologacao_importacao(usuario_id, email_usuario)
     elif lista_total_banco:
-        st.caption("Nenhuma importação pendente de homologação.")
+        st.caption("Nenhuma importação pendente de revisão.")
 
 
 def _render_homologacao_importacao(usuario_id, email_usuario):
     st.markdown("---")
-    st.subheader("Área de Homologação e Pré-visualização Contábil")
+    st.subheader("Revisão antes de salvar")
     pre_vis = st.session_state.dados_pre_visualizacao
     mes_corrigido = st.text_input(
         "Mês de referência da importação (MM/AAAA)",
@@ -107,7 +107,7 @@ def _render_homologacao_importacao(usuario_id, email_usuario):
     with c_meta3:
         st.metric("Mês de Referência", pre_vis["mes_referencia"])
     with c_meta4:
-        st.metric("Total Declarado Oficial", formatar_brl(pre_vis["total_documento"]))
+        st.metric("Total identificado no documento", formatar_brl(pre_vis["total_documento"]))
 
     df_editavel = st.data_editor(
         pre_vis["df_transacoes"],
@@ -132,8 +132,8 @@ def _render_homologacao_importacao(usuario_id, email_usuario):
 
     col_btn1, col_btn2, _ = st.columns([15, 15, 70])
     with col_btn1:
-        if st.button("Confirmar e Salvar no Supabase", type="primary", use_container_width=True):
-            with st.spinner("Consolidando dados no Supabase..."):
+        if st.button("Confirmar e salvar lançamentos", type="primary", use_container_width=True):
+            with st.spinner("Salvando lançamentos revisados..."):
                 try:
                     processar_importacao_homologada(
                         df_editavel=df_editavel,
@@ -146,13 +146,13 @@ def _render_homologacao_importacao(usuario_id, email_usuario):
                         substituir_lote=substituir_lote_importado,
                         disparar_alerta=disparar_bot_fiscal_email,
                     )
-                    st.toast("Registros integrados com sucesso!", icon="⚡")
+                    st.toast("Lançamentos salvos com sucesso!", icon="⚡")
                     st.session_state.dados_pre_visualizacao = None
                     st.rerun()
                 except Exception as e_save:
                     st.error(mostrar_erro_seguro(e_save, email_usuario))
 
     with col_btn2:
-        if st.button("Descartar Importação", use_container_width=True):
+        if st.button("Descartar revisão", use_container_width=True):
             st.session_state.dados_pre_visualizacao = None
             st.rerun()
