@@ -1,5 +1,9 @@
 import logging
 
+from utils.ssl_config import configurar_certificados_ssl_do_sistema
+
+configurar_certificados_ssl_do_sistema()
+
 import streamlit as st
 
 from app_config import montar_opcoes_navegacao
