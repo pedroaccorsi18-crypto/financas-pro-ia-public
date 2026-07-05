@@ -1,5 +1,4 @@
 import streamlit as st
-from google.genai import types
 
 from auth import auditar_saude_plataforma, supabase
 from repositories.finance_repository import atualizar_categoria_transacao
@@ -13,6 +12,7 @@ from utils.category_maintenance import (
     selecionar_transacoes_de_transporte,
 )
 from utils.error_handling import mostrar_erro_seguro
+from utils.llm_service import gerar_texto_ia
 from utils.platform_health import gerar_health_check_supabase, resumir_health_check
 
 
@@ -31,10 +31,11 @@ def render_admin(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_ia
                     linhas_para_atualizar = selecionar_linhas_para_reclassificar(lista_total_banco)
                     if descricoes := extrair_descricoes_para_reclassificar(linhas_para_atualizar):
                         prompt_lote = montar_prompt_reclassificacao_categorias(descricoes)
-                        response_batch = gerar_conteudo_ia(
+                        response_batch = gerar_texto_ia(
+                            gerar_conteudo_ia,
                             model="gemini-2.5-flash",
-                            contents=prompt_lote,
-                            config=types.GenerateContentConfig(response_mime_type="application/json"),
+                            prompt=prompt_lote,
+                            response_mime_type="application/json",
                         )
                         mapa_categorias = carregar_mapa_reclassificacao(response_batch.text)
                         for item_id, categoria in preparar_atualizacoes_reclassificacao(

@@ -78,8 +78,19 @@ function Find-Python {
             $versionOutput = & $candidate.Command @versionArgs 2>&1
             $versionText = ($versionOutput | Out-String).Trim()
             if (($LASTEXITCODE -eq 0) -and ($versionText -match "^Python \d+")) {
-                Write-Host $versionText
-                return $candidate
+                $dependencyArgs = @()
+                $dependencyArgs += $candidate.Args
+                $dependencyArgs += @(
+                    "-c",
+                    "import pandas, streamlit, supabase, google.genai"
+                )
+                & $candidate.Command @dependencyArgs *> $null
+                if ($LASTEXITCODE -eq 0) {
+                    Write-Host $versionText
+                    return $candidate
+                }
+                Write-Warn "Python candidato sem dependencias do projeto: $($candidate.Label)"
+                continue
             }
             Write-Warn "Python candidato falhou: $($candidate.Label)"
         } catch {
@@ -87,7 +98,7 @@ function Find-Python {
         }
     }
 
-    throw "Python nao encontrado. Crie um ambiente virtual com 'python -m venv .venv' ou configure a variavel PYTHON."
+    throw "Python valido nao encontrado. Crie um ambiente virtual com 'python -m venv .venv' e instale 'python -m pip install -r requirements.txt', ou configure a variavel PYTHON para um runtime com as dependencias do projeto."
 }
 
 function Invoke-Python {

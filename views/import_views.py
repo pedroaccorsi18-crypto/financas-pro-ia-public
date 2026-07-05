@@ -2,7 +2,6 @@ import datetime
 
 import pandas as pd
 import streamlit as st
-from google.genai import types
 
 from finance_categories import CATEGORIAS_VALIDAS
 from finance_constants import TIPOS_TRANSACAO
@@ -10,7 +9,6 @@ from finance_core import criar_lote_demonstrativo, lotes_sao_iguais
 from repositories.finance_repository import buscar_lote_importado, substituir_lote_importado
 from utils.ai_extraction import (
     carregar_resultado_extracao,
-    montar_config_extracao_pdf,
     montar_prompt_extracao_pdf,
     normalizar_resultado_extracao,
 )
@@ -18,6 +16,8 @@ from utils.bot_fiscal import disparar_bot_fiscal_email
 from utils.error_handling import mostrar_erro_seguro
 from utils.formatting import formatar_brl
 from utils.import_workflow import processar_importacao_homologada
+from utils.llm_providers import SCHEMA_EXTRACAO_PDF_FINANCEIRO
+from utils.llm_service import gerar_pdf_ia
 
 
 def render_importacao(lista_total_banco, usuario_id, email_usuario, is_admin, gerar_conteudo_ia):
@@ -65,13 +65,12 @@ def render_importacao(lista_total_banco, usuario_id, email_usuario, is_admin, ge
                     if len(dados_pdf) > 10 * 1024 * 1024:
                         raise ValueError("O PDF excede o limite de 10 MB.")
 
-                    response = gerar_conteudo_ia(
+                    response = gerar_pdf_ia(
+                        gerar_conteudo_ia,
                         model="gemini-2.5-flash",
-                        contents=[
-                            types.Part.from_bytes(data=dados_pdf, mime_type="application/pdf"),
-                            montar_prompt_extracao_pdf(),
-                        ],
-                        config=montar_config_extracao_pdf(types),
+                        pdf_bytes=dados_pdf,
+                        prompt=montar_prompt_extracao_pdf(),
+                        response_schema=SCHEMA_EXTRACAO_PDF_FINANCEIRO,
                     )
                     resultado_ia = carregar_resultado_extracao(response.text)
                     st.session_state.dados_pre_visualizacao = normalizar_resultado_extracao(

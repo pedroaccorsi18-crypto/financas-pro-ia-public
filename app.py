@@ -18,8 +18,10 @@ from session_state import (
 )
 from utils.authorization import eh_usuario_admin
 from utils.error_handling import mostrar_erro_seguro
-from utils.llm_providers import GeminiProvider
-from utils.llm_service import gerar_conteudo_ia as gerar_com_provider_ia
+from utils.llm_service import (
+    criar_provider_ia_padrao,
+    gerar_conteudo_ia as gerar_com_provider_ia,
+)
 from utils.subscriptions import rotulo_plano
 from views.admin_views import render_admin
 from views.auth_views import render_fluxo_autenticacao
@@ -46,10 +48,7 @@ except Exception:
 @st.cache_resource
 def obter_provider_ia():
     """Cria o provider Gemini somente quando um recurso de IA é acionado."""
-    chave = str(st.secrets.get("GEMINI_API_KEY", "")).strip()
-    if not chave:
-        raise RuntimeError("GEMINI_API_KEY não configurada")
-    return GeminiProvider(api_key=chave)
+    return criar_provider_ia_padrao(st.secrets)
 
 
 def gerar_conteudo_ia(*, tentativas=3, **kwargs):
