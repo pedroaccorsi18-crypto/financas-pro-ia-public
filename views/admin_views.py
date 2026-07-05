@@ -15,7 +15,7 @@ from utils.category_maintenance import (
 )
 from utils.error_handling import mostrar_erro_seguro
 from utils.llm_service import gerar_texto_ia
-from utils.platform_health import gerar_health_check_supabase, resumir_health_check
+from utils.platform_health import gerar_health_check_lancamento, resumir_health_check
 
 
 def _classe_status_health(status):
@@ -95,14 +95,19 @@ def render_admin(lista_total_banco, usuario_id, email_usuario, gerar_conteudo_ia
     st.markdown(f"**Banco Supabase:** {status_infra['supabase']}")
     st.markdown(f"**Criptografia/SSL:** {status_infra['seguranca']}")
 
-    st.markdown("### Verificação de banco e migrações")
-    with st.spinner("Verificando estrutura operacional..."):
-        resultados_health = gerar_health_check_supabase(supabase, usuario_id)
+    st.markdown("### Health Check de Lançamento")
+    with st.spinner("Verificando prontidão de lançamento..."):
+        resultados_health = gerar_health_check_lancamento(
+            st.secrets,
+            supabase,
+            usuario_id,
+            status_infra,
+        )
     resumo_health = resumir_health_check(resultados_health)
     if resumo_health == "OK":
-        st.success("Banco e estruturas essenciais prontos.")
+        st.success("Produto básico pronto para validação com usuários.")
     elif resumo_health == "Ação necessária":
-        st.warning("Há migrações ou objetos obrigatórios pendentes.")
+        st.warning("Há bloqueios antes de liberar o app para usuários.")
     else:
-        st.info("Há itens que exigem atenção operacional.")
+        st.info("Produto básico utilizável, mas ainda há pendências operacionais.")
     st.markdown(_montar_tabela_health_check_html(resultados_health), unsafe_allow_html=True)

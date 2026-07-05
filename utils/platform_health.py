@@ -32,9 +32,28 @@ TABELAS_OBRIGATORIAS = [
 ]
 
 
+FLAGS_MODULOS_AVANCADOS = (
+    "ENABLE_ORACULO_IA",
+    "ENABLE_PLANEJAMENTO_360",
+    "ENABLE_MARKET_RADAR",
+)
+
+
 def gerar_health_check_supabase(supabase, usuario_id):
     resultados = [_verificar_tabela(supabase, item) for item in TABELAS_OBRIGATORIAS]
     resultados.append(_verificar_rpc_reimportacao(supabase, usuario_id))
+    resultados.append(_verificar_rpc_assinatura(supabase))
+    return resultados
+
+
+def gerar_health_check_lancamento(secrets, supabase, usuario_id, status_infra):
+    resultados = []
+    resultados.append(_verificar_secrets_supabase(secrets))
+    resultados.append(_verificar_auth_operacional(status_infra))
+    resultados.extend(gerar_health_check_supabase(supabase, usuario_id))
+    resultados.append(_verificar_modulos_avancados_ocultos(secrets))
+    resultados.append(_verificar_gemini_configurado(secrets))
+    resultados.append(_verificar_stripe_configurado(secrets))
     return resultados
 
 
@@ -98,6 +117,115 @@ def _verificar_rpc_reimportacao(supabase, usuario_id):
             erro,
             acao_padrao="Aplique a migração 202606100001_endurecer_rpc_substituir_lote.sql.",
         )
+
+
+def _verificar_rpc_assinatura(supabase):
+    try:
+        supabase.rpc("obter_ou_criar_assinatura_usuario", {}).execute()
+        return _resultado(
+            "RPC de assinatura gratuita",
+            "OK",
+            "Função disponível para provisionar plano gratuito.",
+            "Nenhuma ação necessária.",
+        )
+    except Exception as erro:
+        return _resultado_de_erro(
+            "RPC de assinatura gratuita",
+            erro,
+            acao_padrao="Aplique a migração 202606300002_criar_assinaturas_stripe.sql.",
+        )
+
+
+def _verificar_secrets_supabase(secrets):
+    chaves_ausentes = [
+        chave for chave in ("SUPABASE_URL", "SUPABASE_KEY") if not secrets.get(chave)
+    ]
+    if chaves_ausentes:
+        return _resultado(
+            "Configuração Supabase",
+            "Ação necessária",
+            "Secrets obrigatórios ausentes.",
+            "Configure SUPABASE_URL e SUPABASE_KEY no secrets.toml ou no ambiente de deploy.",
+        )
+    return _resultado(
+        "Configuração Supabase",
+        "OK",
+        "URL e chave pública carregadas.",
+        "Nenhuma ação necessária.",
+    )
+
+
+def _verificar_auth_operacional(status_infra):
+    seguranca = str(status_infra.get("seguranca", ""))
+    if "RLS ativos" in seguranca:
+        return _resultado(
+            "Autenticação e RLS",
+            "OK",
+            "Sessão autenticada validada com leitura protegida.",
+            "Nenhuma ação necessária.",
+        )
+    return _resultado(
+        "Autenticação e RLS",
+        "Atenção",
+        "Não foi possível confirmar sessão autenticada e RLS.",
+        "Faça login com usuário real e revise o Status operacional.",
+    )
+
+
+def _verificar_modulos_avancados_ocultos(secrets):
+    flags_ativas = [
+        flag for flag in FLAGS_MODULOS_AVANCADOS if _flag_ativa(secrets.get(flag))
+    ]
+    if flags_ativas:
+        return _resultado(
+            "Escopo de lançamento",
+            "Atenção",
+            "Há módulos avançados visíveis no app.",
+            "Desative flags avançadas para lançar primeiro o app de finanças pessoais.",
+        )
+    return _resultado(
+        "Escopo de lançamento",
+        "OK",
+        "Módulos avançados ocultos por feature flag.",
+        "Nenhuma ação necessária.",
+    )
+
+
+def _verificar_gemini_configurado(secrets):
+    if secrets.get("GEMINI_API_KEY"):
+        return _resultado(
+            "Gemini",
+            "OK",
+            "Chave de IA configurada.",
+            "Nenhuma ação necessária.",
+        )
+    return _resultado(
+        "Gemini",
+        "Atenção",
+        "IA não configurada para recursos assistidos.",
+        "Configure GEMINI_API_KEY antes de liberar importação assistida em produção.",
+    )
+
+
+def _verificar_stripe_configurado(secrets):
+    chaves = ("STRIPE_SECRET_KEY", "STRIPE_PRICE_PRO", "STRIPE_PRICE_FAMILIA")
+    if all(secrets.get(chave) for chave in chaves):
+        return _resultado(
+            "Stripe",
+            "OK",
+            "Chaves principais de assinatura configuradas.",
+            "Valide webhook antes de cobrar usuários reais.",
+        )
+    return _resultado(
+        "Stripe",
+        "Atenção",
+        "Cobrança ainda não configurada.",
+        "Manter planos pagos ocultos ou configurar Stripe antes do lançamento comercial.",
+    )
+
+
+def _flag_ativa(valor):
+    return str(valor or "").strip().lower() in {"1", "true", "yes", "y", "sim", "s", "on"}
 
 
 def _resultado_de_erro(nome, erro, *, acao_padrao):
