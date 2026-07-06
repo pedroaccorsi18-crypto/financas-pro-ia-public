@@ -140,10 +140,12 @@ class AuthViewsTests(unittest.TestCase):
 
         auth_views.render_fluxo_autenticacao()
 
-        self.assertTrue(any("Finanças Pro IA" in texto for texto in fake.markdowns))
+        textos = "\n".join(fake.markdowns)
+        self.assertIn("Finanças Pro IA", textos)
+        self.assertIn("Organize seu dinheiro sem depender de planilhas", textos)
+        self.assertIn("Comece grátis e evolua quando fizer sentido", textos)
         self.assertIn("Começar agora", fake.buttons)
         self.assertIn("Já tenho conta", fake.buttons)
-        self.assertTrue(any("Escolha como quer começar" in texto for texto in fake.markdowns))
 
     def test_apresentacao_leva_para_cadastro(self):
         fake = self.usar_streamlit(StreamlitFake(botoes=["Começar agora"]))

@@ -22,10 +22,10 @@ PLANOS_PUBLICOS = (
         "nome": "Gratuito",
         "preco": "R$ 0",
         "periodo": "para começar",
-        "descricao": "Para organizar as primeiras movimentações e entender o fluxo mensal.",
+        "descricao": "Para testar o método e montar seu primeiro resumo financeiro.",
         "itens": (
             "Lançamentos manuais",
-            "Dashboard mensal",
+            "Resumo mensal",
             "Metas por categoria",
         ),
     },
@@ -33,10 +33,10 @@ PLANOS_PUBLICOS = (
         "nome": "Pro",
         "preco": "R$ 19,90/mês",
         "periodo": "melhor ponto de entrada",
-        "descricao": "Para quem quer acompanhamento recorrente e mais clareza nas decisões.",
+        "descricao": "Para quem quer economizar tempo, importar dados e acompanhar a evolução.",
         "itens": (
             "Importação assistida",
-            "Auditoria por categoria",
+            "Revisão por categoria",
             "Histórico e evolução mensal",
         ),
     },
@@ -44,11 +44,11 @@ PLANOS_PUBLICOS = (
         "nome": "Família",
         "preco": "R$ 29,90/mês",
         "periodo": "organização da casa",
-        "descricao": "Para organizar a vida financeira da casa em uma visão mais completa.",
+        "descricao": "Para acompanhar a organização financeira da casa com mais de uma pessoa.",
         "itens": (
             "Tudo do Pro",
-            "Múltiplos objetivos",
-            "Visão familiar mais completa",
+            "Até 4 contas conectadas",
+            "Objetivos familiares compartilhados",
         ),
     },
 )
@@ -480,19 +480,19 @@ def render_tela_apresentacao():
                 <div class="fp-brand-mark">F</div>
                 <span>Finanças Pro IA</span>
             </div>
-            <div class="fp-nav-note">Organização financeira simples para o dia a dia</div>
+            <div class="fp-nav-note">Clareza financeira em poucos minutos</div>
         </nav>
         <section class="fp-hero">
             <div>
-                <h1>Assuma o controle do seu dinheiro com clareza.</h1>
+                <h1>Organize seu dinheiro sem depender de planilhas.</h1>
                 <p>
-                    Entenda para onde seu dinheiro vai, acompanhe seus gastos por categoria
-                    e tome decisões melhores sem depender de planilhas complicadas.
+                    Veja para onde seu dinheiro vai, acompanhe gastos por categoria
+                    e transforme movimentações soltas em um plano mensal simples de seguir.
                 </p>
                 <div class="fp-trust">
-                    <span>Organização mensal</span>
-                    <span>Metas por categoria</span>
-                    <span>Mais clareza antes de gastar</span>
+                    <span>Primeiro resumo em minutos</span>
+                    <span>Metas simples por categoria</span>
+                    <span>Plano gratuito para começar</span>
                 </div>
             </div>
             <div class="fp-product-shot">
@@ -546,28 +546,28 @@ def render_tela_apresentacao():
         dedent(
             """
         <section class="fp-section">
-            <h2>Menos dúvida, mais direção</h2>
+            <h2>Do extrato ao plano de ação</h2>
             <p class="fp-section-intro">
-                O Finanças Pro IA foi feito para quem quer enxergar a vida financeira
-                com mais calma: entradas, saídas, categorias, metas e evolução em um
-                só lugar.
+                O Finanças Pro IA foi feito para transformar movimentações do mês em
+                uma visão prática: saldo, categorias, limites e próximos passos para
+                decidir melhor.
             </p>
             <div class="fp-benefits">
                 <div class="fp-benefit">
-                    <strong>Veja o mês com clareza</strong>
-                    <span>Acompanhe receitas, despesas e saldo em uma visão fácil de entender.</span>
+                    <strong>Entenda o mês rapidamente</strong>
+                    <span>Veja receitas, despesas e saldo em uma leitura direta.</span>
                 </div>
                 <div class="fp-benefit">
-                    <strong>Organize sem retrabalho</strong>
-                    <span>Revise movimentações importadas antes de confirmar seus dados.</span>
+                    <strong>Reduza trabalho manual</strong>
+                    <span>Importe dados quando fizer sentido e revise antes de salvar.</span>
                 </div>
                 <div class="fp-benefit">
-                    <strong>Defina limites melhores</strong>
-                    <span>Crie metas por categoria e acompanhe sua evolução ao longo do mês.</span>
+                    <strong>Crie limites realistas</strong>
+                    <span>Acompanhe metas por categoria sem complicar sua rotina.</span>
                 </div>
                 <div class="fp-benefit">
-                    <strong>Tome decisões com contexto</strong>
-                    <span>Entenda padrões de consumo antes de cortar gastos no escuro.</span>
+                    <strong>Decida com contexto</strong>
+                    <span>Identifique padrões antes de cortar gastos no escuro.</span>
                 </div>
             </div>
         </section>
@@ -580,10 +580,10 @@ def render_tela_apresentacao():
         dedent(
             """
         <section class="fp-section">
-            <h2>Escolha como quer começar</h2>
+            <h2>Comece grátis e evolua quando fizer sentido</h2>
             <p class="fp-section-intro">
-                Comece organizando o básico gratuitamente e avance quando quiser mais
-                acompanhamento, importação e histórico financeiro.
+                Valide o básico sem pagar. Quando a rotina estiver funcionando,
+                o plano Pro libera mais velocidade, histórico e acompanhamento.
             </p>
         </section>
         """
