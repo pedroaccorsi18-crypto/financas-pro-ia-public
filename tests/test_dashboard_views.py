@@ -59,7 +59,8 @@ class DashboardViewsTests(unittest.TestCase):
         dashboard_views._render_estado_inicial()
 
         texto_renderizado = "\n".join(texto for texto, _ in fake.markdowns)
-        self.assertIn("Seu painel financeiro ainda está vazio", texto_renderizado)
+        self.assertIn("Comece seu primeiro resumo financeiro", texto_renderizado)
+        self.assertIn("Tempo estimado", texto_renderizado)
         self.assertIn("Plano de ativação", texto_renderizado)
         self.assertIn("Importar PDF", "\n".join(label for label, _ in fake.buttons))
         self.assertIn("Lançar manualmente", "\n".join(label for label, _ in fake.buttons))

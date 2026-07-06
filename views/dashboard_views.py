@@ -207,18 +207,16 @@ def _render_estado_inicial():
             <div style="display:flex; justify-content:space-between; gap:18px; align-items:flex-start; flex-wrap:wrap;">
                 <div style="max-width:720px;">
                     <div style="color:#087443; font-size:0.82rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase;">Configuração inicial</div>
-                    <h2 style="margin:8px 0 10px 0; color:#0f172a;">Seu painel financeiro ainda está vazio</h2>
+                    <h2 style="margin:8px 0 10px 0; color:#0f172a;">Comece seu primeiro resumo financeiro</h2>
                     <p style="color:#475569; font-size:1rem; line-height:1.6; margin:0;">
-                        Adicione as primeiras movimentações para transformar esta tela em um resumo mensal com saldo,
-                        categorias, tendências e metas de gasto.
+                        Em poucos minutos, você consegue importar um extrato ou lançar movimentos essenciais
+                        para enxergar saldo, categorias, tendências e metas de gasto em uma visão simples.
                     </p>
                 </div>
                 <div style="min-width:190px; border:1px solid #dbe4ee; border-radius:8px; padding:16px; background:#ffffff;">
-                    <div style="color:#64748b; font-size:0.82rem; font-weight:700;">Progresso</div>
-                    <div style="color:#0f172a; font-size:1.9rem; font-weight:900; line-height:1.2;">0 de 3</div>
-                    <div style="height:8px; border-radius:999px; background:#e2e8f0; overflow:hidden; margin-top:10px;">
-                        <div style="width:0%; height:100%; background:#087443;"></div>
-                    </div>
+                    <div style="color:#64748b; font-size:0.82rem; font-weight:700;">Tempo estimado</div>
+                    <div style="color:#0f172a; font-size:1.9rem; font-weight:900; line-height:1.2;">3 min</div>
+                    <div style="color:#64748b; font-size:0.84rem; line-height:1.4; margin-top:8px;">para chegar ao primeiro diagnóstico</div>
                 </div>
             </div>
         </div>
@@ -243,8 +241,7 @@ def _render_estado_inicial():
         st.caption("Com dados salvos, o painel mostra balanço, categorias e metas para acompanhar sua evolução.")
 
     st.info(
-        "Dica: para validar o app com usuários reais, o primeiro objetivo é fazer a pessoa chegar "
-        "ao primeiro resumo mensal em poucos minutos."
+        "Dica: comece com poucas movimentações. O importante é gerar o primeiro resumo mensal e depois refinar os detalhes."
     )
 
 
