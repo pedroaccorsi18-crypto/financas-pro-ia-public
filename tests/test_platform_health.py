@@ -153,6 +153,34 @@ class PlatformHealthTests(unittest.TestCase):
         self.assertEqual(itens["Stripe"]["status"], "Atenção")
         self.assertEqual(resumir_health_check(resultados), "Atenção")
 
+    def test_health_check_stripe_ok_exige_webhook_secret(self):
+        supabase = SupabaseHealthFake(
+            rpc_error=RuntimeError("Payload de transacoes nao pode ser vazio")
+        )
+        secrets = {
+            "SUPABASE_URL": "https://exemplo.supabase.co",
+            "SUPABASE_KEY": "sb_publishable_teste",
+            "GEMINI_API_KEY": "configurada",
+            "STRIPE_SECRET_KEY": "sk_test",
+            "STRIPE_PRICE_PRO": "price_pro",
+            "STRIPE_PRICE_FAMILIA": "price_familia",
+            "STRIPE_WEBHOOK_SECRET": "whsec_test",
+            "ENABLE_ORACULO_IA": "false",
+            "ENABLE_PLANEJAMENTO_360": "false",
+            "ENABLE_MARKET_RADAR": "false",
+        }
+
+        resultados = gerar_health_check_lancamento(
+            secrets,
+            supabase,
+            "user-1",
+            {"seguranca": "Sessao Auth e RLS ativos"},
+        )
+
+        itens = {item["item"]: item for item in resultados}
+        self.assertEqual(itens["Stripe"]["status"], "OK")
+        self.assertIn("webhook", itens["Stripe"]["detalhe"].lower())
+
     def test_health_check_lancamento_bloqueia_sem_secrets_supabase(self):
         resultados = gerar_health_check_lancamento(
             {},

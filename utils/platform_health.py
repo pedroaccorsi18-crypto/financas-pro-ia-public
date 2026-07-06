@@ -248,12 +248,19 @@ def _verificar_gemini_configurado(secrets):
 
 def _verificar_stripe_configurado(secrets):
     chaves = ("STRIPE_SECRET_KEY", "STRIPE_PRICE_PRO", "STRIPE_PRICE_FAMILIA")
-    if all(secrets.get(chave) for chave in chaves):
+    if all(secrets.get(chave) for chave in chaves) and secrets.get("STRIPE_WEBHOOK_SECRET"):
         return _resultado(
             "Stripe",
             "OK",
-            "Chaves principais de assinatura configuradas.",
-            "Valide webhook antes de cobrar usuários reais.",
+            "Checkout e webhook de assinaturas configurados.",
+            "Faça uma compra de teste antes de cobrar usuários reais.",
+        )
+    if all(secrets.get(chave) for chave in chaves):
+        return _resultado(
+            "Stripe",
+            "Atenção",
+            "Checkout configurado, mas webhook ainda pendente.",
+            "Configure STRIPE_WEBHOOK_SECRET e valide sincronização de assinaturas.",
         )
     return _resultado(
         "Stripe",
