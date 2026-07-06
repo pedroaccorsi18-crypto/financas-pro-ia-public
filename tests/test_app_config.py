@@ -4,12 +4,12 @@ from app_config import feature_flag_ativa, montar_opcoes_navegacao
 
 
 class AppConfigTests(unittest.TestCase):
-    def test_navegacao_publica_esconde_modulos_avancados_por_padrao(self):
-        opcoes = montar_opcoes_navegacao({}, is_admin=False)
+    def test_plano_gratuito_enxerga_apenas_recursos_basicos(self):
+        opcoes = montar_opcoes_navegacao({}, is_admin=False, assinatura={"plano": "gratuito", "status": "ativo"})
 
-        self.assertEqual(opcoes, ["Visão Geral", "Importação", "Transações", "Meu Plano"])
+        self.assertEqual(opcoes, ["Visão Geral", "Transações", "Meu Plano"])
 
-    def test_navegacao_permite_ligar_modulos_avancados_por_flag(self):
+    def test_plano_pro_libera_importacao_e_modulos_avancados_por_flag(self):
         opcoes = montar_opcoes_navegacao(
             {
                 "ENABLE_PLANEJAMENTO_360": "true",
@@ -17,25 +17,47 @@ class AppConfigTests(unittest.TestCase):
                 "ENABLE_ORACULO_IA": "1",
             },
             is_admin=False,
+            assinatura={"plano": "pro", "status": "ativo"},
         )
 
         self.assertEqual(
             opcoes,
             [
                 "Visão Geral",
-                "Importação",
                 "Transações",
                 "Meu Plano",
+                "Importação",
                 "Planejamento 360",
                 "Radar de Mercado",
                 "Oráculo IA",
             ],
         )
 
-    def test_admin_continua_disponivel_para_usuario_autorizado(self):
-        opcoes = montar_opcoes_navegacao({}, is_admin=True)
+    def test_plano_familia_herda_recursos_pro(self):
+        opcoes = montar_opcoes_navegacao(
+            {"ENABLE_ORACULO_IA": "true"},
+            is_admin=False,
+            assinatura={"plano": "familia", "status": "trial"},
+        )
 
-        self.assertEqual(opcoes, ["Visão Geral", "Importação", "Transações", "Meu Plano", "Admin"])
+        self.assertEqual(
+            opcoes,
+            ["Visão Geral", "Transações", "Meu Plano", "Importação", "Oráculo IA"],
+        )
+
+    def test_assinatura_inadimplente_volta_para_recursos_gratuitos(self):
+        opcoes = montar_opcoes_navegacao(
+            {"ENABLE_ORACULO_IA": "true"},
+            is_admin=False,
+            assinatura={"plano": "pro", "status": "past_due"},
+        )
+
+        self.assertEqual(opcoes, ["Visão Geral", "Transações", "Meu Plano"])
+
+    def test_admin_continua_disponivel_para_usuario_autorizado(self):
+        opcoes = montar_opcoes_navegacao({}, is_admin=True, assinatura={"plano": "gratuito", "status": "ativo"})
+
+        self.assertEqual(opcoes, ["Visão Geral", "Transações", "Meu Plano", "Admin"])
 
     def test_feature_flag_aceita_booleano_e_textos_comuns(self):
         self.assertTrue(feature_flag_ativa({"FLAG": True}, "FLAG"))

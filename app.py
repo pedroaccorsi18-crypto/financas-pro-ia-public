@@ -98,7 +98,7 @@ def render_app_autenticado():
     st.sidebar.write(f"Usuário ativo: **{email_usuario}**")
     if assinatura:
         st.sidebar.caption(f"Plano atual: {rotulo_plano(assinatura.get('plano'))}")
-    opcoes = montar_opcoes_navegacao(st.secrets, is_admin=is_admin)
+    opcoes = montar_opcoes_navegacao(st.secrets, is_admin=is_admin, assinatura=assinatura)
     secao = st.sidebar.radio("Área", opcoes, key="secao_principal")
 
     st.sidebar.markdown("---")
