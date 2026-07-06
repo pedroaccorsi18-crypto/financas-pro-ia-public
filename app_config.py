@@ -10,6 +10,7 @@ NAVEGACAO_PUBLICA = (
     "Visão Geral",
     "Importação",
     "Transações",
+    "Meu Plano",
 )
 
 FEATURE_FLAGS_NAVEGACAO = (

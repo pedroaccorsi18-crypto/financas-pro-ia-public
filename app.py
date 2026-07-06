@@ -34,6 +34,7 @@ from views.import_views import render_importacao
 from views.market_radar_views import render_radar_mercado
 from views.oracle_views import render_oraculo
 from views.planning_views import render_planejamento_360
+from views.subscription_views import render_meu_plano
 from views.transactions_views import render_transacoes
 
 logger = logging.getLogger(__name__)
@@ -111,6 +112,8 @@ def render_app_autenticado():
         render_importacao(lista_total_banco, usuario_id, email_usuario, is_admin, gerar_conteudo_ia)
     elif secao == "Transações":
         render_transacoes(lista_total_banco, usuario_id, email_usuario)
+    elif secao == "Meu Plano":
+        render_meu_plano(assinatura, st.secrets)
     elif secao == "Planejamento 360":
         render_planejamento_360(lista_total_banco, usuario_id, email_usuario)
     elif secao == "Radar de Mercado":
