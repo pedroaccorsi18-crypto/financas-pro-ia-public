@@ -113,7 +113,7 @@ def render_app_autenticado():
     elif secao == "Transações":
         render_transacoes(lista_total_banco, usuario_id, email_usuario)
     elif secao == "Meu Plano":
-        render_meu_plano(assinatura, st.secrets)
+        render_meu_plano(assinatura, st.secrets, usuario_id, email_usuario)
     elif secao == "Planejamento 360":
         render_planejamento_360(lista_total_banco, usuario_id, email_usuario)
     elif secao == "Radar de Mercado":
