@@ -19,7 +19,7 @@ class FamilyPlanTests(unittest.TestCase):
     def test_valida_limite_de_membros(self):
         validar_limite_membros(3)
 
-        with self.assertRaisesRegex(ValueError, "ate 4 pessoas"):
+        with self.assertRaisesRegex(ValueError, "até 4 pessoas"):
             validar_limite_membros(4)
 
     def test_normaliza_e_valida_email_de_convite(self):
@@ -29,13 +29,13 @@ class FamilyPlanTests(unittest.TestCase):
         )
         self.assertEqual(validar_email_convite(" Pessoa@Exemplo.com "), "pessoa@exemplo.com")
 
-        with self.assertRaisesRegex(ValueError, "e-mail valido"):
+        with self.assertRaisesRegex(ValueError, "e-mail válido"):
             validar_email_convite("sem-arroba")
 
     def test_valida_nome_da_familia(self):
         self.assertEqual(validar_nome_familia(" Casa Silva "), "Casa Silva")
 
-        with self.assertRaisesRegex(ValueError, "nome para a familia"):
+        with self.assertRaisesRegex(ValueError, "nome para a família"):
             validar_nome_familia(" ")
 
 

@@ -16,7 +16,7 @@ class ColunaFake:
 
 
 class StreamlitFake:
-    def __init__(self, botoes_clicados=None):
+    def __init__(self, botoes_clicados=None, entradas=None):
         self.titles = []
         self.captions = []
         self.markdowns = []
@@ -24,9 +24,12 @@ class StreamlitFake:
         self.link_buttons = []
         self.successes = []
         self.infos = []
+        self.warnings = []
         self.errors = []
+        self.text_inputs = []
         self.session_state = {}
         self.botoes_clicados = set(botoes_clicados or [])
+        self.entradas = dict(entradas or {})
 
     def title(self, texto):
         self.titles.append(texto)
@@ -50,11 +53,18 @@ class StreamlitFake:
     def link_button(self, label, url, **kwargs):
         self.link_buttons.append((label, url, kwargs))
 
+    def text_input(self, label, value="", **kwargs):
+        self.text_inputs.append((label, value, kwargs))
+        return self.entradas.get(label, value)
+
     def success(self, texto):
         self.successes.append(texto)
 
     def info(self, texto):
         self.infos.append(texto)
+
+    def warning(self, texto):
+        self.warnings.append(texto)
 
     def error(self, texto):
         self.errors.append(texto)
@@ -115,6 +125,64 @@ class SubscriptionViewsTests(unittest.TestCase):
         self.assertEqual(fake.session_state["checkout_url_pro"], "https://checkout.stripe.test/sessao")
         self.assertTrue(fake.link_buttons)
         self.assertEqual(fake.link_buttons[0][1], "https://checkout.stripe.test/sessao")
+
+    def test_plano_nao_familia_nao_libera_gestao_de_membros(self):
+        fake = self.usar_streamlit(StreamlitFake())
+
+        subscription_views.render_meu_plano(
+            {"plano": "pro", "status": "ativo", "limite_membros": 1},
+            {},
+        )
+
+        self.assertTrue(any("conta própria" in texto for texto in fake.captions))
+        self.assertTrue(any("Plano Família" in texto for texto in fake.infos))
+        self.assertFalse(any(label == "Enviar convite" for label, _ in fake.buttons))
+
+    def test_plano_familia_lista_membros_e_permite_convite(self):
+        fake = self.usar_streamlit(
+            StreamlitFake(
+                botoes_clicados={"Enviar convite"},
+                entradas={"E-mail do novo membro": " Pessoa@Exemplo.com "},
+            )
+        )
+
+        with patch.object(subscription_views, "listar_familias_financeiras", return_value=[{"id": "family-1", "nome": "Casa"}]):
+            with patch.object(
+                subscription_views,
+                "listar_membros_familia_financeira",
+                return_value=[
+                    {"email_convite": "dono@example.com", "papel": "dono", "status": "ativo"},
+                    {"email_convite": "filha@example.com", "papel": "membro", "status": "pendente"},
+                ],
+            ):
+                with patch.object(subscription_views, "convidar_membro_familia_financeira") as convidar:
+                    subscription_views.render_meu_plano(
+                        {"plano": "familia", "status": "ativo", "limite_membros": 4},
+                        {},
+                    )
+
+        convidar.assert_called_once_with("family-1", "pessoa@exemplo.com")
+        self.assertTrue(any("Família ativa: Casa" in texto for texto in fake.successes))
+        self.assertTrue(any("2 de 4 pessoas" in texto for texto in fake.captions))
+        self.assertTrue(any("dono@example.com" in texto for texto in fake.markdowns))
+
+    def test_plano_familia_orienta_criacao_quando_nao_existe_grupo(self):
+        fake = self.usar_streamlit(
+            StreamlitFake(
+                botoes_clicados={"Criar família"},
+                entradas={"Nome da família": " Casa Silva "},
+            )
+        )
+
+        with patch.object(subscription_views, "listar_familias_financeiras", return_value=[]):
+            with patch.object(subscription_views, "criar_familia_financeira") as criar:
+                subscription_views.render_meu_plano(
+                    {"plano": "familia", "status": "ativo", "limite_membros": 4},
+                    {},
+                )
+
+        criar.assert_called_once_with("Casa Silva")
+        self.assertTrue(any("Família criada" in texto for texto in fake.successes))
 
 
 if __name__ == "__main__":
