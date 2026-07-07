@@ -1,4 +1,5 @@
 import logging
+from html import escape
 
 from utils.ssl_config import configurar_certificados_ssl_do_sistema
 
@@ -28,6 +29,7 @@ from utils.llm_service import (
 )
 from utils.subscriptions import assinatura_gratuita_padrao, rotulo_plano
 from views.admin_views import render_admin
+from views.app_theme import aplicar_tema_interno
 from views.auth_views import render_fluxo_autenticacao
 from views.dashboard_views import render_visao_geral
 from views.import_views import render_importacao
@@ -88,21 +90,40 @@ def _garantir_assinatura_segura(usuario_id):
 
 
 def render_app_autenticado():
+    aplicar_tema_interno()
     email_usuario = st.session_state.usuario_email
     usuario_id = st.session_state.usuario_id
     assinatura = _garantir_assinatura_segura(usuario_id)
     lista_total_banco = _listar_transacoes_seguras(usuario_id, email_usuario)
     is_admin = eh_usuario_admin(email_usuario, st.secrets.get("ADMIN_EMAILS", []))
 
-    st.sidebar.title("Navegação")
-    st.sidebar.write(f"Usuário ativo: **{email_usuario}**")
-    if assinatura:
-        st.sidebar.caption(f"Plano atual: {rotulo_plano(assinatura.get('plano'))}")
+    plano_atual = rotulo_plano(assinatura.get("plano")) if assinatura else "Gratuito"
+    email_usuario_seguro = escape(str(email_usuario))
+    plano_atual_seguro = escape(str(plano_atual))
+    st.sidebar.markdown(
+        f"""
+        <div class="fp-sidebar-brand">
+            <div class="fp-brand-row">
+                <div class="fp-brand-mark">FP</div>
+                <div>
+                    <div class="fp-brand-name">Finanças Pro IA</div>
+                    <div class="fp-brand-subtitle">Painel financeiro inteligente</div>
+                </div>
+            </div>
+            <div class="fp-user-card">
+                <div class="fp-user-label">Usuário ativo</div>
+                <div class="fp-user-email">{email_usuario_seguro}</div>
+                <div class="fp-plan-pill">Plano {plano_atual_seguro}</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     opcoes = montar_opcoes_navegacao(st.secrets, is_admin=is_admin, assinatura=assinatura)
     secao = st.sidebar.radio("Área", opcoes, key="secao_principal")
 
     st.sidebar.markdown("---")
-    if st.sidebar.button("Sair / Logout"):
+    if st.sidebar.button("Sair"):
         encerrar_sessao_usuario()
         st.rerun()
 
