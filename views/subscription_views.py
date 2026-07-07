@@ -127,9 +127,32 @@ def _selecionar_checkout(plano_selecionado, url_checkout):
     st.session_state[f"checkout_url_{plano_selecionado}"] = url_checkout
 
 
+def _recarregar_tela():
+    recarregar = getattr(st, "rerun", None) or getattr(st, "experimental_rerun", None)
+    if callable(recarregar):
+        recarregar()
+
+
+def _plano_por_codigo(codigo_plano):
+    for plano in PLANOS_APP:
+        if plano["plano"] == codigo_plano:
+            return plano
+    return None
+
+
+def _render_checkout_selecionado():
+    plano_selecionado = st.session_state.get("checkout_plano_selecionado")
+    plano = _plano_por_codigo(plano_selecionado)
+    if not plano:
+        return
+
+    url_checkout = st.session_state.get(f"checkout_url_{plano_selecionado}")
+    if url_checkout:
+        _render_link_checkout(plano, url_checkout)
+
+
 def _render_card_plano(plano, plano_atual, secrets, usuario_id, email_usuario):
     eh_plano_atual = plano["plano"] == plano_atual
-    chave_checkout = f"checkout_url_{plano['plano']}"
     st.markdown(f"### {plano['titulo']}")
     st.markdown(f"**{plano['preco']}**")
     st.caption(plano["descricao"])
@@ -150,6 +173,7 @@ def _render_card_plano(plano, plano_atual, secrets, usuario_id, email_usuario):
                         email_usuario,
                     ),
                 )
+                _recarregar_tela()
             except ImportError:
                 st.error("Biblioteca Stripe não instalada neste ambiente.")
             except Exception as erro:
@@ -159,11 +183,7 @@ def _render_card_plano(plano, plano_atual, secrets, usuario_id, email_usuario):
                 )
                 st.error("Não foi possível iniciar o checkout agora. Tente novamente em alguns minutos.")
 
-        url_checkout = st.session_state.get(chave_checkout)
-        if url_checkout and st.session_state.get("checkout_plano_selecionado") == plano["plano"]:
-            _render_link_checkout(plano, url_checkout)
-        else:
-            st.caption("Pagamento seguro processado pelo Stripe.")
+        st.caption("Pagamento seguro processado pelo Stripe.")
     else:
         st.button(f"Upgrade para {plano['titulo']}", use_container_width=True, disabled=True)
         st.caption("Upgrade em breve. Estamos finalizando a liberação deste plano.")
@@ -290,6 +310,8 @@ def render_meu_plano(assinatura, secrets, usuario_id=None, email_usuario=None):
     for coluna, plano in zip(colunas, PLANOS_APP):
         with coluna:
             _render_card_plano(plano, plano_atual, secrets, usuario_id, email_usuario)
+
+    _render_checkout_selecionado()
 
     st.markdown("---")
     _render_gestao_familia(assinatura)

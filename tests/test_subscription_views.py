@@ -30,6 +30,7 @@ class StreamlitFake:
         self.session_state = {}
         self.botoes_clicados = set(botoes_clicados or [])
         self.entradas = dict(entradas or {})
+        self.reruns = 0
 
     def title(self, texto):
         self.titles.append(texto)
@@ -68,6 +69,9 @@ class StreamlitFake:
 
     def error(self, texto):
         self.errors.append(texto)
+
+    def rerun(self):
+        self.reruns += 1
 
 
 class SubscriptionViewsTests(unittest.TestCase):
@@ -129,6 +133,8 @@ class SubscriptionViewsTests(unittest.TestCase):
             )
 
         self.assertEqual(fake.session_state["checkout_url_pro"], "https://checkout.stripe.test/sessao")
+        self.assertEqual(fake.session_state["checkout_plano_selecionado"], "pro")
+        self.assertEqual(fake.reruns, 1)
         self.assertTrue(fake.link_buttons)
         self.assertEqual(fake.link_buttons[0][1], "https://checkout.stripe.test/sessao")
 
@@ -151,6 +157,7 @@ class SubscriptionViewsTests(unittest.TestCase):
         self.assertEqual(fake.session_state["checkout_url_pro"], "https://checkout.stripe.test/pro")
         self.assertNotIn("checkout_url_familia", fake.session_state)
         self.assertEqual(fake.session_state["checkout_plano_selecionado"], "pro")
+        self.assertEqual(fake.reruns, 1)
         self.assertEqual(len(fake.link_buttons), 1)
         self.assertEqual(fake.link_buttons[0][1], "https://checkout.stripe.test/pro")
 
