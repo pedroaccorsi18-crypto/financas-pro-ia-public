@@ -150,8 +150,30 @@ class SubscriptionViewsTests(unittest.TestCase):
 
         self.assertEqual(fake.session_state["checkout_url_pro"], "https://checkout.stripe.test/pro")
         self.assertNotIn("checkout_url_familia", fake.session_state)
+        self.assertEqual(fake.session_state["checkout_plano_selecionado"], "pro")
         self.assertEqual(len(fake.link_buttons), 1)
         self.assertEqual(fake.link_buttons[0][1], "https://checkout.stripe.test/pro")
+
+    def test_exibe_apenas_checkout_do_plano_selecionado(self):
+        fake = self.usar_streamlit(StreamlitFake())
+        fake.session_state["checkout_url_pro"] = "https://checkout.stripe.test/pro"
+        fake.session_state["checkout_url_familia"] = "https://checkout.stripe.test/familia"
+        fake.session_state["checkout_plano_selecionado"] = "familia"
+
+        subscription_views.render_meu_plano(
+            {"plano": "gratuito", "status": "ativo", "limite_membros": 1},
+            {
+                "STRIPE_SECRET_KEY": "sk_test",
+                "STRIPE_PRICE_PRO": "price_pro",
+                "STRIPE_PRICE_FAMILIA": "price_familia",
+            },
+            usuario_id="user-1",
+            email_usuario="pedro@example.com",
+        )
+
+        self.assertEqual(len(fake.link_buttons), 1)
+        self.assertEqual(fake.link_buttons[0][0], "Abrir checkout do plano Família")
+        self.assertEqual(fake.link_buttons[0][1], "https://checkout.stripe.test/familia")
 
     def test_plano_nao_familia_nao_libera_gestao_de_membros(self):
         fake = self.usar_streamlit(StreamlitFake())

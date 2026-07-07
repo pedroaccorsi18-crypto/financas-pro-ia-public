@@ -121,6 +121,12 @@ def _limpar_checkouts_de_outros_planos(plano_selecionado):
             st.session_state.pop(f"checkout_url_{plano['plano']}", None)
 
 
+def _selecionar_checkout(plano_selecionado, url_checkout):
+    _limpar_checkouts_de_outros_planos(plano_selecionado)
+    st.session_state["checkout_plano_selecionado"] = plano_selecionado
+    st.session_state[f"checkout_url_{plano_selecionado}"] = url_checkout
+
+
 def _render_card_plano(plano, plano_atual, secrets, usuario_id, email_usuario):
     eh_plano_atual = plano["plano"] == plano_atual
     chave_checkout = f"checkout_url_{plano['plano']}"
@@ -135,12 +141,14 @@ def _render_card_plano(plano, plano_atual, secrets, usuario_id, email_usuario):
     elif stripe_configurado_para_upgrade(secrets, plano["plano"]):
         if st.button(f"Fazer upgrade para {plano['titulo']}", use_container_width=True):
             try:
-                _limpar_checkouts_de_outros_planos(plano["plano"])
-                st.session_state[chave_checkout] = _criar_url_checkout(
+                _selecionar_checkout(
                     plano["plano"],
-                    secrets,
-                    usuario_id,
-                    email_usuario,
+                    _criar_url_checkout(
+                        plano["plano"],
+                        secrets,
+                        usuario_id,
+                        email_usuario,
+                    ),
                 )
             except ImportError:
                 st.error("Biblioteca Stripe não instalada neste ambiente.")
@@ -152,7 +160,7 @@ def _render_card_plano(plano, plano_atual, secrets, usuario_id, email_usuario):
                 st.error("Não foi possível iniciar o checkout agora. Tente novamente em alguns minutos.")
 
         url_checkout = st.session_state.get(chave_checkout)
-        if url_checkout:
+        if url_checkout and st.session_state.get("checkout_plano_selecionado") == plano["plano"]:
             _render_link_checkout(plano, url_checkout)
         else:
             st.caption("Pagamento seguro processado pelo Stripe.")
