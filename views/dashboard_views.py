@@ -203,10 +203,10 @@ def _navegar_para_secao(secao):
 def _render_estado_inicial():
     st.markdown(
         """
-        <div style="border:1px solid #dbe4ee; border-radius:10px; padding:30px; background:linear-gradient(135deg,#ffffff,#f4f8ff);">
+        <div style="border:1px solid #dbe4ee; border-radius:12px; padding:30px; background:linear-gradient(135deg,#ffffff,#f4f8ff); box-shadow:0 18px 45px rgba(15,23,42,0.06);">
             <div style="display:flex; justify-content:space-between; gap:18px; align-items:flex-start; flex-wrap:wrap;">
                 <div style="max-width:720px;">
-                    <div style="color:#087443; font-size:0.82rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase;">Configuração inicial</div>
+                    <div style="color:#087443; font-size:0.82rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase;">Primeira experiência</div>
                     <h2 style="margin:8px 0 10px 0; color:#0f172a;">Comece seu primeiro resumo financeiro</h2>
                     <p style="color:#475569; font-size:1rem; line-height:1.6; margin:0;">
                         Em poucos minutos, você consegue importar um extrato ou lançar movimentos essenciais
@@ -239,6 +239,29 @@ def _render_estado_inicial():
     with col_resultado:
         st.markdown("**3. Revisar o mês**")
         st.caption("Com dados salvos, o painel mostra balanço, categorias e metas para acompanhar sua evolução.")
+
+    st.markdown(
+        """
+        <div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin:18px 0 8px;">
+            <div style="border:1px solid #e2e8f0; border-radius:10px; padding:18px; background:#ffffff;">
+                <div style="color:#64748b; font-size:.82rem; font-weight:700;">Você verá</div>
+                <div style="color:#0f172a; font-size:1.02rem; font-weight:800; margin-top:6px;">Saldo, receitas e despesas</div>
+                <div style="color:#64748b; font-size:.9rem; line-height:1.45; margin-top:8px;">Um resumo direto para entender o mês sem abrir planilhas.</div>
+            </div>
+            <div style="border:1px solid #e2e8f0; border-radius:10px; padding:18px; background:#ffffff;">
+                <div style="color:#64748b; font-size:.82rem; font-weight:700;">Depois disso</div>
+                <div style="color:#0f172a; font-size:1.02rem; font-weight:800; margin-top:6px;">Categorias e limites</div>
+                <div style="color:#64748b; font-size:.9rem; line-height:1.45; margin-top:8px;">Veja onde o dinheiro está indo e defina metas realistas.</div>
+            </div>
+            <div style="border:1px solid #e2e8f0; border-radius:10px; padding:18px; background:#ffffff;">
+                <div style="color:#64748b; font-size:.82rem; font-weight:700;">Resultado esperado</div>
+                <div style="color:#0f172a; font-size:1.02rem; font-weight:800; margin-top:6px;">Primeiro diagnóstico</div>
+                <div style="color:#64748b; font-size:.9rem; line-height:1.45; margin-top:8px;">Uma leitura simples para decidir o próximo passo financeiro.</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     st.info(
         "Dica: comece com poucas movimentações. O importante é gerar o primeiro resumo mensal e depois refinar os detalhes."
