@@ -88,7 +88,12 @@ class SubscriptionViewsTests(unittest.TestCase):
         self.assertEqual(fake.titles, ["Meu Plano"])
         self.assertTrue(fake.infos)
         self.assertTrue(any("Upgrade em breve" in texto for texto in fake.captions))
+        self.assertTrue(any("plano gratuito" in texto for texto in fake.infos))
         self.assertTrue(all(kwargs.get("disabled") for _, kwargs in fake.buttons))
+        texto_cliente = "\n".join(fake.markdowns + fake.captions + fake.infos + fake.successes)
+        self.assertNotIn("monetização", texto_cliente.lower())
+        self.assertNotIn("webhook", texto_cliente.lower())
+        self.assertNotIn("modo teste", texto_cliente.lower())
 
     def test_indica_stripe_pronto_quando_chaves_estao_configuradas(self):
         fake = self.usar_streamlit(StreamlitFake())
@@ -104,6 +109,7 @@ class SubscriptionViewsTests(unittest.TestCase):
 
         self.assertTrue(fake.successes)
         self.assertTrue(any("Plano atual" in texto for texto in fake.successes))
+        self.assertTrue(any("Seu plano está ativo" in texto for texto in fake.successes))
         self.assertTrue(any("Fazer upgrade para Família" == label for label, _ in fake.buttons))
         self.assertTrue(any(not kwargs.get("disabled") for _, kwargs in fake.buttons))
 

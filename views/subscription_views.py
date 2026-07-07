@@ -107,7 +107,7 @@ def _criar_url_checkout(plano, secrets, usuario_id, email_usuario):
 
 
 def _render_link_checkout(plano, url_checkout):
-    st.success("Checkout criado. Abra o pagamento em uma nova aba para concluir o teste.")
+    st.success("Link de pagamento criado. Abra em uma nova aba para concluir com segurança.")
     st.link_button(
         f"Abrir checkout do plano {plano['titulo']}",
         url_checkout,
@@ -148,10 +148,10 @@ def _render_card_plano(plano, plano_atual, secrets, usuario_id, email_usuario):
         if url_checkout:
             _render_link_checkout(plano, url_checkout)
         else:
-            st.caption("Checkout seguro do Stripe em modo teste.")
+            st.caption("Pagamento seguro processado pelo Stripe.")
     else:
         st.button(f"Upgrade para {plano['titulo']}", use_container_width=True, disabled=True)
-        st.caption("Upgrade em breve. Stripe ainda não está configurado para este plano.")
+        st.caption("Upgrade em breve. Estamos finalizando a liberação deste plano.")
 
 
 def _render_membros_familia(membros):
@@ -261,14 +261,14 @@ def render_meu_plano(assinatura, secrets, usuario_id=None, email_usuario=None):
     col_status.metric("Status", _status_do_plano(assinatura))
     col_limite.metric("Pessoas", str((assinatura or {}).get("limite_membros") or 1))
 
-    st.markdown("### Próximos passos para monetização")
-    if stripe_configurado_para_upgrade(secrets, "pro") and stripe_configurado_para_upgrade(secrets, "familia"):
-        st.success("Stripe configurado para planos pagos. Próximo passo: validar checkout e webhook em modo teste.")
-    else:
+    st.markdown("### Escolha como quer evoluir")
+    if plano_atual == "gratuito":
         st.info(
-            "Stripe ainda não está pronto para cobrança. A experiência de planos já está preparada, "
-            "mas o upgrade permanece bloqueado para evitar cobrança quebrada."
+            "Você está no plano gratuito. Continue organizando seu mês sem custo ou escolha um plano pago "
+            "quando quiser ganhar velocidade com importação, histórico e organização familiar."
         )
+    else:
+        st.success("Seu plano está ativo. Você pode acompanhar abaixo os recursos disponíveis e as opções de evolução.")
 
     st.markdown("---")
     colunas = st.columns(len(PLANOS_APP))
