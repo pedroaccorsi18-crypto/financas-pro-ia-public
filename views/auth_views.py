@@ -22,7 +22,7 @@ PLANOS_PUBLICOS = (
         "nome": "Gratuito",
         "preco": "R$ 0",
         "periodo": "para começar",
-        "descricao": "Para testar o método e montar seu primeiro resumo financeiro.",
+        "descricao": "Para organizar as primeiras movimentações e entender seu fluxo mensal.",
         "itens": (
             "Lançamentos manuais",
             "Resumo mensal",
@@ -65,9 +65,8 @@ def _render_landing_styles():
 
             [data-testid="stAppViewContainer"] {
                 background:
-                    radial-gradient(circle at 12% 8%, rgba(37, 99, 235, 0.13), transparent 28rem),
-                    radial-gradient(circle at 88% 20%, rgba(20, 184, 166, 0.12), transparent 24rem),
-                    #f8fafc;
+                    linear-gradient(180deg, rgba(240, 253, 244, 0.52), rgba(255, 255, 255, 0.94) 34rem),
+                    #ffffff;
             }
 
             [data-testid="stHeader"] {
@@ -75,8 +74,8 @@ def _render_landing_styles():
             }
 
             .block-container {
-                max-width: 1200px;
-                padding-top: 1.4rem;
+                max-width: 1248px;
+                padding-top: 1.2rem;
                 padding-bottom: 4rem;
             }
 
@@ -84,7 +83,7 @@ def _render_landing_styles():
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                margin-bottom: 18px;
+                margin-bottom: 42px;
                 color: #0f172a;
             }
 
@@ -103,8 +102,8 @@ def _render_landing_styles():
                 display: grid;
                 place-items: center;
                 color: #ffffff;
-                background: linear-gradient(135deg, #2563eb, #14b8a6);
-                box-shadow: 0 12px 28px rgba(37, 99, 235, 0.25);
+                background: #059669;
+                box-shadow: 0 12px 28px rgba(5, 150, 105, 0.22);
             }
 
             .fp-nav-note {
@@ -114,35 +113,28 @@ def _render_landing_styles():
 
             .fp-hero {
                 display: grid;
-                grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
-                gap: 34px;
+                grid-template-columns: minmax(0, 0.92fr) minmax(460px, 1.08fr);
+                gap: 56px;
                 align-items: center;
-                border: 1px solid rgba(148, 163, 184, 0.22);
-                border-radius: 8px;
-                padding: 44px;
-                background:
-                    linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(20, 184, 166, 0.10)),
-                    #0b1120;
-                color: #f8fafc;
-                box-shadow: 0 18px 50px rgba(2, 6, 23, 0.24);
-                overflow: hidden;
+                padding: 34px 0 24px;
+                color: #0f172a;
             }
 
             .fp-hero h1 {
                 margin: 0;
                 max-width: 720px;
-                font-size: 3.45rem;
-                line-height: 1.02;
+                font-size: 3.65rem;
+                line-height: 1.08;
                 letter-spacing: 0;
-                color: #f8fafc;
+                color: #0f172a;
             }
 
             .fp-hero p {
-                max-width: 690px;
-                margin: 20px 0 0;
+                max-width: 560px;
+                margin: 18px 0 0;
                 font-size: 1.08rem;
-                line-height: 1.7;
-                color: #cbd5e1;
+                line-height: 1.62;
+                color: #475569;
             }
 
             .fp-hero-actions {
@@ -156,24 +148,41 @@ def _render_landing_styles():
                 display: flex;
                 flex-wrap: wrap;
                 gap: 10px;
-                margin-top: 22px;
-                color: #cbd5e1;
-                font-size: 0.92rem;
+                margin-top: 24px;
+                color: #0f172a;
+                font-size: 0.96rem;
             }
 
             .fp-trust span {
-                border: 1px solid rgba(226, 232, 240, 0.14);
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                width: 100%;
+                border: 0;
+                border-radius: 0;
+                padding: 0;
+                background: transparent;
+                font-weight: 700;
+            }
+
+            .fp-trust span::before {
+                content: "✓";
+                display: grid;
+                width: 20px;
+                height: 20px;
+                place-items: center;
                 border-radius: 999px;
-                padding: 7px 11px;
-                background: rgba(15, 23, 42, 0.65);
+                color: #ffffff;
+                background: #059669;
+                font-size: 0.76rem;
             }
 
             .fp-product-shot {
-                border: 1px solid rgba(226, 232, 240, 0.14);
-                border-radius: 8px;
-                padding: 18px;
-                background: rgba(15, 23, 42, 0.72);
-                box-shadow: 0 24px 70px rgba(2, 6, 23, 0.36);
+                border: 1px solid #cbd5e1;
+                border-radius: 16px;
+                padding: 22px;
+                background: rgba(255, 255, 255, 0.94);
+                box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
             }
 
             .fp-shot-top {
@@ -182,30 +191,31 @@ def _render_landing_styles():
                 justify-content: space-between;
                 gap: 12px;
                 margin-bottom: 16px;
-                color: #cbd5e1;
+                color: #0f172a;
                 font-size: 0.88rem;
             }
 
             .fp-shot-status {
-                color: #86efac;
+                color: #047857;
+                font-weight: 800;
             }
 
             .fp-shot-metric {
-                border: 1px solid rgba(226, 232, 240, 0.12);
+                border: 1px solid #dbe4ef;
                 border-radius: 8px;
                 padding: 14px;
                 margin-bottom: 12px;
-                background: rgba(2, 6, 23, 0.34);
+                background: #ffffff;
             }
 
             .fp-shot-metric small {
                 display: block;
-                color: #94a3b8;
+                color: #475569;
                 margin-bottom: 7px;
             }
 
             .fp-shot-metric strong {
-                color: #ffffff;
+                color: #0f172a;
                 font-size: 1.45rem;
             }
 
@@ -220,7 +230,7 @@ def _render_landing_styles():
                 grid-template-columns: 90px 1fr 52px;
                 align-items: center;
                 gap: 10px;
-                color: #cbd5e1;
+                color: #334155;
                 font-size: 0.84rem;
             }
 
@@ -228,13 +238,13 @@ def _render_landing_styles():
                 height: 8px;
                 overflow: hidden;
                 border-radius: 999px;
-                background: rgba(148, 163, 184, 0.22);
+                background: #e2e8f0;
             }
 
             .fp-bar-fill {
                 height: 100%;
                 border-radius: 999px;
-                background: linear-gradient(90deg, #60a5fa, #2dd4bf);
+                background: linear-gradient(90deg, #2563eb, #059669);
             }
 
             .fp-proof-row {
@@ -480,49 +490,50 @@ def render_tela_apresentacao():
                 <div class="fp-brand-mark">F</div>
                 <span>Finanças Pro IA</span>
             </div>
-            <div class="fp-nav-note">Clareza financeira em poucos minutos</div>
+            <div class="fp-nav-note">Controle financeiro pessoal com IA</div>
         </nav>
         <section class="fp-hero">
             <div>
-                <h1>Organize seu dinheiro sem depender de planilhas.</h1>
+                <h1>Controle financeiro pessoal com IA</h1>
                 <p>
-                    Veja para onde seu dinheiro vai, acompanhe gastos por categoria
-                    e transforme movimentações soltas em um plano mensal simples de seguir.
+                    Organize sua rotina financeira, entenda seus gastos e acompanhe metas
+                    com uma experiência simples, segura e preparada para evoluir com você.
                 </p>
                 <div class="fp-trust">
-                    <span>Primeiro resumo em minutos</span>
-                    <span>Metas simples por categoria</span>
-                    <span>Plano gratuito para começar</span>
+                    <span>Importe extratos e cartões em segundos</span>
+                    <span>Visualize seus gastos com clareza</span>
+                    <span>Receba insights e recomendações da IA</span>
+                    <span>Planeje metas e acompanhe sua evolução</span>
                 </div>
             </div>
             <div class="fp-product-shot">
                 <div class="fp-shot-top">
-                    <strong>Seu mês financeiro</strong>
-                    <span class="fp-shot-status">Em equilíbrio</span>
+                    <strong>Painel inteligente</strong>
+                    <span class="fp-shot-status">Junho 2026</span>
                 </div>
                 <div class="fp-shot-metric">
-                    <small>Saldo projetado</small>
-                    <strong>R$ 2.840</strong>
+                    <small>Receitas</small>
+                    <strong>R$ 12.450,00</strong>
                 </div>
                 <div class="fp-shot-metric">
-                    <small>Economia do mês</small>
-                    <strong>18%</strong>
+                    <small>Saldo atual</small>
+                    <strong>R$ 8.560,45</strong>
                 </div>
                 <div class="fp-bars">
                     <div class="fp-bar">
                         <span>Moradia</span>
                         <div class="fp-bar-track"><div class="fp-bar-fill" style="width: 72%;"></div></div>
-                        <span>72%</span>
+                        <span>29%</span>
                     </div>
                     <div class="fp-bar">
-                        <span>Mercado</span>
+                        <span>Alimentação</span>
                         <div class="fp-bar-track"><div class="fp-bar-fill" style="width: 54%;"></div></div>
-                        <span>54%</span>
+                        <span>18%</span>
                     </div>
                     <div class="fp-bar">
-                        <span>Lazer</span>
+                        <span>Transporte</span>
                         <div class="fp-bar-track"><div class="fp-bar-fill" style="width: 38%;"></div></div>
-                        <span>38%</span>
+                        <span>15%</span>
                     </div>
                 </div>
             </div>
@@ -534,7 +545,7 @@ def render_tela_apresentacao():
 
     col_primaria, col_secundaria = st.columns(2)
     with col_primaria:
-        if st.button("Começar agora", type="primary", use_container_width=True):
+        if st.button("Começar grátis", type="primary", use_container_width=True):
             st.session_state.tela_atual = "cadastro"
             st.rerun()
     with col_secundaria:
@@ -548,9 +559,8 @@ def render_tela_apresentacao():
         <section class="fp-section">
             <h2>Do extrato ao plano de ação</h2>
             <p class="fp-section-intro">
-                O Finanças Pro IA foi feito para transformar movimentações do mês em
-                uma visão prática: saldo, categorias, limites e próximos passos para
-                decidir melhor.
+                O Finanças Pro IA transforma movimentações do mês em uma leitura prática:
+                saldo, categorias, limites e próximos passos para decidir melhor.
             </p>
             <div class="fp-benefits">
                 <div class="fp-benefit">
@@ -580,10 +590,10 @@ def render_tela_apresentacao():
         dedent(
             """
         <section class="fp-section">
-            <h2>Comece grátis e evolua quando fizer sentido</h2>
+            <h2>Escolha o plano ideal para sua rotina</h2>
             <p class="fp-section-intro">
-                Valide o básico sem pagar. Quando a rotina estiver funcionando,
-                o plano Pro libera mais velocidade, histórico e acompanhamento.
+                Comece gratuitamente e evolua quando fizer sentido. Os planos pagos
+                foram pensados para reduzir trabalho manual e acompanhar mais objetivos.
             </p>
         </section>
         """

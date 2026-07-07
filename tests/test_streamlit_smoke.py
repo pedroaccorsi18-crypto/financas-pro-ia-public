@@ -168,7 +168,7 @@ class StreamlitSmokeTests(unittest.TestCase):
             any("Finanças Pro IA" in texto for texto in streamlit_fake.markdowns),
             streamlit_fake.markdowns,
         )
-        self.assertIn("Começar agora", streamlit_fake.buttons)
+        self.assertIn("Começar grátis", streamlit_fake.buttons)
         self.assertIn("Já tenho conta", streamlit_fake.buttons)
         self.assertFalse(streamlit_fake.errors)
 
