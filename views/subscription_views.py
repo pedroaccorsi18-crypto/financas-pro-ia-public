@@ -107,12 +107,18 @@ def _criar_url_checkout(plano, secrets, usuario_id, email_usuario):
 
 
 def _render_link_checkout(plano, url_checkout):
-    st.success("Link de pagamento criado. Abra em uma nova aba para concluir com segurança.")
+    st.success(f"Plano {plano['titulo']} selecionado. Abra o pagamento para concluir com segurança.")
     st.link_button(
         f"Abrir checkout do plano {plano['titulo']}",
         url_checkout,
         use_container_width=True,
     )
+
+
+def _limpar_checkouts_de_outros_planos(plano_selecionado):
+    for plano in PLANOS_APP:
+        if plano["plano"] != plano_selecionado:
+            st.session_state.pop(f"checkout_url_{plano['plano']}", None)
 
 
 def _render_card_plano(plano, plano_atual, secrets, usuario_id, email_usuario):
@@ -129,6 +135,7 @@ def _render_card_plano(plano, plano_atual, secrets, usuario_id, email_usuario):
     elif stripe_configurado_para_upgrade(secrets, plano["plano"]):
         if st.button(f"Fazer upgrade para {plano['titulo']}", use_container_width=True):
             try:
+                _limpar_checkouts_de_outros_planos(plano["plano"])
                 st.session_state[chave_checkout] = _criar_url_checkout(
                     plano["plano"],
                     secrets,

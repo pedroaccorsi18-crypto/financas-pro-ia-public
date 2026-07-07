@@ -132,6 +132,27 @@ class SubscriptionViewsTests(unittest.TestCase):
         self.assertTrue(fake.link_buttons)
         self.assertEqual(fake.link_buttons[0][1], "https://checkout.stripe.test/sessao")
 
+    def test_selecionar_upgrade_limpa_checkout_anterior(self):
+        fake = self.usar_streamlit(StreamlitFake(botoes_clicados={"Fazer upgrade para Pro"}))
+        fake.session_state["checkout_url_familia"] = "https://checkout.stripe.test/familia"
+
+        with patch.object(subscription_views, "_criar_url_checkout", return_value="https://checkout.stripe.test/pro"):
+            subscription_views.render_meu_plano(
+                {"plano": "gratuito", "status": "ativo", "limite_membros": 1},
+                {
+                    "STRIPE_SECRET_KEY": "sk_test",
+                    "STRIPE_PRICE_PRO": "price_pro",
+                    "STRIPE_PRICE_FAMILIA": "price_familia",
+                },
+                usuario_id="user-1",
+                email_usuario="pedro@example.com",
+            )
+
+        self.assertEqual(fake.session_state["checkout_url_pro"], "https://checkout.stripe.test/pro")
+        self.assertNotIn("checkout_url_familia", fake.session_state)
+        self.assertEqual(len(fake.link_buttons), 1)
+        self.assertEqual(fake.link_buttons[0][1], "https://checkout.stripe.test/pro")
+
     def test_plano_nao_familia_nao_libera_gestao_de_membros(self):
         fake = self.usar_streamlit(StreamlitFake())
 
