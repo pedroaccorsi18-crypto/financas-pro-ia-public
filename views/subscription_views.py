@@ -115,42 +115,6 @@ def _render_link_checkout(plano, url_checkout):
     )
 
 
-def _limpar_checkouts_de_outros_planos(plano_selecionado):
-    for plano in PLANOS_APP:
-        if plano["plano"] != plano_selecionado:
-            st.session_state.pop(f"checkout_url_{plano['plano']}", None)
-
-
-def _selecionar_checkout(plano_selecionado, url_checkout):
-    _limpar_checkouts_de_outros_planos(plano_selecionado)
-    st.session_state["checkout_plano_selecionado"] = plano_selecionado
-    st.session_state[f"checkout_url_{plano_selecionado}"] = url_checkout
-
-
-def _recarregar_tela():
-    recarregar = getattr(st, "rerun", None) or getattr(st, "experimental_rerun", None)
-    if callable(recarregar):
-        recarregar()
-
-
-def _plano_por_codigo(codigo_plano):
-    for plano in PLANOS_APP:
-        if plano["plano"] == codigo_plano:
-            return plano
-    return None
-
-
-def _render_checkout_selecionado():
-    plano_selecionado = st.session_state.get("checkout_plano_selecionado")
-    plano = _plano_por_codigo(plano_selecionado)
-    if not plano:
-        return
-
-    url_checkout = st.session_state.get(f"checkout_url_{plano_selecionado}")
-    if url_checkout:
-        _render_link_checkout(plano, url_checkout)
-
-
 def _render_card_plano(plano, plano_atual, secrets, usuario_id, email_usuario):
     eh_plano_atual = plano["plano"] == plano_atual
     st.markdown(f"### {plano['titulo']}")
@@ -161,19 +125,17 @@ def _render_card_plano(plano, plano_atual, secrets, usuario_id, email_usuario):
 
     if eh_plano_atual:
         st.success("Plano atual")
+        return None
     elif stripe_configurado_para_upgrade(secrets, plano["plano"]):
         if st.button(f"Fazer upgrade para {plano['titulo']}", use_container_width=True):
             try:
-                _selecionar_checkout(
+                url_checkout = _criar_url_checkout(
                     plano["plano"],
-                    _criar_url_checkout(
-                        plano["plano"],
-                        secrets,
-                        usuario_id,
-                        email_usuario,
-                    ),
+                    secrets,
+                    usuario_id,
+                    email_usuario,
                 )
-                _recarregar_tela()
+                return plano, url_checkout
             except ImportError:
                 st.error("Biblioteca Stripe não instalada neste ambiente.")
             except Exception as erro:
@@ -184,6 +146,7 @@ def _render_card_plano(plano, plano_atual, secrets, usuario_id, email_usuario):
                 st.error("Não foi possível iniciar o checkout agora. Tente novamente em alguns minutos.")
 
         st.caption("Pagamento seguro processado pelo Stripe.")
+        return None
     else:
         st.button(f"Upgrade para {plano['titulo']}", use_container_width=True, disabled=True)
         st.caption("Upgrade em breve. Estamos finalizando a liberação deste plano.")
@@ -307,11 +270,16 @@ def render_meu_plano(assinatura, secrets, usuario_id=None, email_usuario=None):
 
     st.markdown("---")
     colunas = st.columns(len(PLANOS_APP))
+    checkout_selecionado = None
     for coluna, plano in zip(colunas, PLANOS_APP):
         with coluna:
-            _render_card_plano(plano, plano_atual, secrets, usuario_id, email_usuario)
+            checkout_do_plano = _render_card_plano(plano, plano_atual, secrets, usuario_id, email_usuario)
+            if checkout_do_plano:
+                checkout_selecionado = checkout_do_plano
 
-    _render_checkout_selecionado()
+    if checkout_selecionado:
+        plano_checkout, url_checkout = checkout_selecionado
+        _render_link_checkout(plano_checkout, url_checkout)
 
     st.markdown("---")
     _render_gestao_familia(assinatura)

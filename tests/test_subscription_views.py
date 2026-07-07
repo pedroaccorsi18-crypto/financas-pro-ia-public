@@ -132,9 +132,9 @@ class SubscriptionViewsTests(unittest.TestCase):
                 email_usuario="pedro@example.com",
             )
 
-        self.assertEqual(fake.session_state["checkout_url_pro"], "https://checkout.stripe.test/sessao")
-        self.assertEqual(fake.session_state["checkout_plano_selecionado"], "pro")
-        self.assertEqual(fake.reruns, 1)
+        self.assertNotIn("checkout_url_pro", fake.session_state)
+        self.assertNotIn("checkout_plano_selecionado", fake.session_state)
+        self.assertEqual(fake.reruns, 0)
         self.assertTrue(fake.link_buttons)
         self.assertEqual(fake.link_buttons[0][1], "https://checkout.stripe.test/sessao")
 
@@ -154,14 +154,14 @@ class SubscriptionViewsTests(unittest.TestCase):
                 email_usuario="pedro@example.com",
             )
 
-        self.assertEqual(fake.session_state["checkout_url_pro"], "https://checkout.stripe.test/pro")
-        self.assertNotIn("checkout_url_familia", fake.session_state)
-        self.assertEqual(fake.session_state["checkout_plano_selecionado"], "pro")
-        self.assertEqual(fake.reruns, 1)
+        self.assertNotIn("checkout_url_pro", fake.session_state)
+        self.assertEqual(fake.session_state["checkout_url_familia"], "https://checkout.stripe.test/familia")
+        self.assertNotIn("checkout_plano_selecionado", fake.session_state)
+        self.assertEqual(fake.reruns, 0)
         self.assertEqual(len(fake.link_buttons), 1)
         self.assertEqual(fake.link_buttons[0][1], "https://checkout.stripe.test/pro")
 
-    def test_exibe_apenas_checkout_do_plano_selecionado(self):
+    def test_nao_exibe_checkout_antigo_salvo_na_sessao(self):
         fake = self.usar_streamlit(StreamlitFake())
         fake.session_state["checkout_url_pro"] = "https://checkout.stripe.test/pro"
         fake.session_state["checkout_url_familia"] = "https://checkout.stripe.test/familia"
@@ -178,9 +178,7 @@ class SubscriptionViewsTests(unittest.TestCase):
             email_usuario="pedro@example.com",
         )
 
-        self.assertEqual(len(fake.link_buttons), 1)
-        self.assertEqual(fake.link_buttons[0][0], "Abrir checkout do plano Família")
-        self.assertEqual(fake.link_buttons[0][1], "https://checkout.stripe.test/familia")
+        self.assertEqual(fake.link_buttons, [])
 
     def test_plano_nao_familia_nao_libera_gestao_de_membros(self):
         fake = self.usar_streamlit(StreamlitFake())
