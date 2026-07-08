@@ -81,6 +81,8 @@ POST /stripe/webhook
 
 Em produção, publique esse endpoint em uma URL HTTPS e cadastre essa URL no Stripe Dashboard. Depois copie o segredo `whsec_...` do endpoint para `STRIPE_WEBHOOK_SECRET`.
 
+Passo a passo de publicação e cadastro no Stripe: `docs/stripe-webhook-deploy.md`.
+
 ## Por que este projeto importa
 
 Times de Analytics e Growth lidam todos os dias com dados fragmentados, inconsistentes e sensíveis: planilhas, eventos, uploads, integrações, métricas por período e regras de negócio que precisam ser auditáveis. O Finanças Pro IA aplica esse mesmo raciocínio a um domínio financeiro pessoal:
