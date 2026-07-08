@@ -55,6 +55,32 @@ Se estiver usando o ambiente virtual local:
 streamlit run app.py
 ```
 
+## Webhook Stripe
+
+O Streamlit roda a interface, mas a confirmação automática de pagamento precisa de um endpoint HTTP separado para receber eventos do Stripe. O projeto inclui um endpoint ASGI minimalista em `api/stripe_webhook.py`.
+
+Variáveis obrigatórias para o processo do webhook:
+
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `STRIPE_WEBHOOK_SECRET`
+- `STRIPE_PRICE_PRO`
+- `STRIPE_PRICE_FAMILIA`
+
+Para rodar localmente:
+
+```powershell
+uvicorn api.stripe_webhook:app --host 0.0.0.0 --port 8000
+```
+
+Endpoint para configurar no Stripe:
+
+```text
+POST /stripe/webhook
+```
+
+Em produção, publique esse endpoint em uma URL HTTPS e cadastre essa URL no Stripe Dashboard. Depois copie o segredo `whsec_...` do endpoint para `STRIPE_WEBHOOK_SECRET`.
+
 ## Por que este projeto importa
 
 Times de Analytics e Growth lidam todos os dias com dados fragmentados, inconsistentes e sensíveis: planilhas, eventos, uploads, integrações, métricas por período e regras de negócio que precisam ser auditáveis. O Finanças Pro IA aplica esse mesmo raciocínio a um domínio financeiro pessoal:
