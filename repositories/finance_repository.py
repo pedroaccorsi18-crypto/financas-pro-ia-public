@@ -111,6 +111,25 @@ def salvar_perfil_financeiro_360(perfil: dict) -> None:
     ).execute()
 
 
+def buscar_perfil_cliente(usuario_id: str) -> dict | None:
+    resposta = (
+        supabase.table("perfis_cliente")
+        .select("*")
+        .eq("user_id", usuario_id)
+        .limit(1)
+        .execute()
+    )
+    linhas = resposta.data or []
+    return linhas[0] if linhas else None
+
+
+def salvar_perfil_cliente(perfil: dict) -> None:
+    supabase.table("perfis_cliente").upsert(
+        perfil,
+        on_conflict="user_id",
+    ).execute()
+
+
 def criar_familia_financeira(nome: str) -> dict | None:
     resposta = supabase.rpc(
         "criar_familia_financeira",

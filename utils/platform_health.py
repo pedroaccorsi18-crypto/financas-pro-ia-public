@@ -24,6 +24,12 @@ TABELAS_OBRIGATORIAS = [
         "acao": "Aplique a migração 202606250001_criar_perfis_financeiros_360.sql.",
     },
     {
+        "nome": "Perfil do Cliente",
+        "tabela": "perfis_cliente",
+        "select": "user_id",
+        "acao": "Aplique a migração 202607070001_criar_perfis_cliente.sql.",
+    },
+    {
         "nome": "Assinaturas",
         "tabela": "assinaturas",
         "select": "owner_id",

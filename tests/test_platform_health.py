@@ -56,6 +56,7 @@ class PlatformHealthTests(unittest.TestCase):
         self.assertEqual(resumir_health_check(resultados), "OK")
         self.assertTrue(all(item["status"] == "OK" for item in resultados))
         self.assertIn("perfis_financeiros_360", supabase.tables)
+        self.assertIn("perfis_cliente", supabase.tables)
         self.assertEqual(supabase.rpc_calls[0][0], "substituir_lote_importado")
         self.assertEqual(supabase.rpc_calls[0][1]["p_transacoes"], [])
         self.assertEqual(supabase.rpc_calls[1][0], "obter_ou_criar_assinatura_usuario")
@@ -73,9 +74,26 @@ class PlatformHealthTests(unittest.TestCase):
         resultados = gerar_health_check_supabase(supabase, "user-1")
         perfil = next(item for item in resultados if item["item"] == "Perfil Financeiro 360")
 
-        self.assertEqual(resumir_health_check(resultados), "Ação necessária")
+        self.assertIn("necess", resumir_health_check(resultados).lower())
         self.assertEqual(perfil["status"], "Ação necessária")
         self.assertIn("202606250001_criar_perfis_financeiros_360.sql", perfil["acao"])
+
+    def test_health_check_aponta_perfil_cliente_ausente(self):
+        supabase = SupabaseHealthFake(
+            table_errors={
+                "perfis_cliente": RuntimeError(
+                    "Could not find public.perfis_cliente in schema cache"
+                )
+            },
+            rpc_error=RuntimeError("Payload de transacoes nao pode ser vazio"),
+        )
+
+        resultados = gerar_health_check_supabase(supabase, "user-1")
+        perfil = next(item for item in resultados if item["item"] == "Perfil do Cliente")
+
+        self.assertIn("necess", resumir_health_check(resultados).lower())
+        self.assertIn("necess", perfil["status"].lower())
+        self.assertIn("202607070001_criar_perfis_cliente.sql", perfil["acao"])
 
     def test_health_check_aponta_permissao_bloqueada(self):
         supabase = SupabaseHealthFake(

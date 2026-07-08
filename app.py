@@ -31,6 +31,7 @@ from utils.subscriptions import assinatura_gratuita_padrao, rotulo_plano
 from views.admin_views import render_admin
 from views.app_theme import aplicar_tema_interno
 from views.auth_views import render_fluxo_autenticacao
+from views.customer_profile_views import render_meu_perfil
 from views.dashboard_views import render_visao_geral
 from views.import_views import render_importacao
 from views.market_radar_views import render_radar_mercado
@@ -129,6 +130,8 @@ def render_app_autenticado():
 
     if secao == "Visão Geral":
         render_visao_geral(lista_total_banco, usuario_id, email_usuario)
+    elif secao == "Meu Perfil":
+        render_meu_perfil(usuario_id, email_usuario)
     elif secao == "Importação":
         render_importacao(lista_total_banco, usuario_id, email_usuario, is_admin, gerar_conteudo_ia)
     elif secao == "Transações":

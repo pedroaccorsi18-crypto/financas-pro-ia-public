@@ -7,7 +7,7 @@ class AppConfigTests(unittest.TestCase):
     def test_plano_gratuito_enxerga_apenas_recursos_basicos(self):
         opcoes = montar_opcoes_navegacao({}, is_admin=False, assinatura={"plano": "gratuito", "status": "ativo"})
 
-        self.assertEqual(opcoes, ["Visão Geral", "Transações", "Meu Plano"])
+        self.assertEqual(opcoes, ["Visão Geral", "Meu Perfil", "Transações", "Meu Plano"])
 
     def test_plano_pro_libera_importacao_e_modulos_avancados_por_flag(self):
         opcoes = montar_opcoes_navegacao(
@@ -24,6 +24,7 @@ class AppConfigTests(unittest.TestCase):
             opcoes,
             [
                 "Visão Geral",
+                "Meu Perfil",
                 "Transações",
                 "Meu Plano",
                 "Importação",
@@ -42,7 +43,7 @@ class AppConfigTests(unittest.TestCase):
 
         self.assertEqual(
             opcoes,
-            ["Visão Geral", "Transações", "Meu Plano", "Importação", "Oráculo IA"],
+            ["Visão Geral", "Meu Perfil", "Transações", "Meu Plano", "Importação", "Oráculo IA"],
         )
 
     def test_assinatura_inadimplente_volta_para_recursos_gratuitos(self):
@@ -52,12 +53,12 @@ class AppConfigTests(unittest.TestCase):
             assinatura={"plano": "pro", "status": "past_due"},
         )
 
-        self.assertEqual(opcoes, ["Visão Geral", "Transações", "Meu Plano"])
+        self.assertEqual(opcoes, ["Visão Geral", "Meu Perfil", "Transações", "Meu Plano"])
 
     def test_admin_continua_disponivel_para_usuario_autorizado(self):
         opcoes = montar_opcoes_navegacao({}, is_admin=True, assinatura={"plano": "gratuito", "status": "ativo"})
 
-        self.assertEqual(opcoes, ["Visão Geral", "Transações", "Meu Plano", "Admin"])
+        self.assertEqual(opcoes, ["Visão Geral", "Meu Perfil", "Transações", "Meu Plano", "Admin"])
 
     def test_feature_flag_aceita_booleano_e_textos_comuns(self):
         self.assertTrue(feature_flag_ativa({"FLAG": True}, "FLAG"))

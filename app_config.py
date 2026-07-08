@@ -11,6 +11,7 @@ SMTP_SECRET_KEYS = (
 
 NAVEGACAO_GRATUITA = (
     "Visão Geral",
+    "Meu Perfil",
     "Transações",
     "Meu Plano",
 )
